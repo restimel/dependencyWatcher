@@ -5,7 +5,7 @@ var events = require('events');
 var configuration = require('./modules/configuration.js');
 var web = require('./modules/web-router.js');
 var Parser = require('./modules/parser.js');
-var logger = require('./modules/logger.js')
+var logger = require('./modules/logger.js');
 
 var eventEmitter;
 var parser;
@@ -97,8 +97,6 @@ function startProcess() {
     web.server(eventEmitter, serverPort);
 
     eventEmitter.addListener('parseFiles', parseFiles);
-
-    parseFiles();
 }
 
 function parseFiles(callback) {
@@ -107,14 +105,6 @@ function parseFiles(callback) {
     }
 
     logger.trace('parseFiles');
-
-    eventEmitter.once('parsed:parser', function() {
-        console.log(' --- debug  ---');
-        console.log(arguments);
-        console.log('-----------------------')
-        console.log(JSON.stringify(parser.files));
-        console.log(' --- end of debug ---')
-    });
 
     parser.parse();
 }

@@ -1,0 +1,62 @@
+#filterArea {
+	position: absolute;
+	top: 0;
+	height: 100px;
+	right: 0;
+	width: 400px;
+	background-color: #184242;
+}
+
+#detailsArea {
+	position: absolute;
+	top: 100px;
+	bottom: 0;
+	right: 0;
+	width: 400px;
+	background-color: #184242;
+	color: #ddf7f7;
+	overflow: auto
+}
+
+#drawArea {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 400px;
+	background-color: #c7f5f5;
+}
+
+#filterArea > input{
+	display: block;
+	height: 25px;
+	border-radius: 10px;
+	padding-left: 5px;
+	margin: 10px;
+	width: 370px;
+}
+#filterArea > button{
+	display: block;
+	height: 40px;
+	width: 40px;
+	margin-left: 10px;
+}
+
+#detailsArea > header {
+	font-size: 1.5em;
+	text-align: center;
+	padding: 10px;
+}
+#detailsArea > details {
+	margin-left: 10px;
+}
+#detailsArea > details > summary {
+	cursor: pointer;
+}
+
+.linkToItem {
+	cursor: pointer;
+}
+.linkToItem:hover {
+	text-decoration: underline;
+}

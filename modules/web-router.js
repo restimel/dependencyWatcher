@@ -26,19 +26,13 @@ function server(eventEmitter, port) {
             	path = './pages/index.html';
             	break;
             case '/data/links.json':
-                if (query.parse === 'true') {
-                    eventEmitter.emit('parseFiles', function(err) {
-                        if (err) {
-                            servlet.sendHTML_(req, res, err.toString(), 500);
-                        } else {
-                            servlet.sendFile_(req, res, path);
-                        }
-                    });
-                    return;
-                }
-                break;
-            case '/TODO.js':
-                servlet.sendHTML_(req, res,config.buildPage(), 200);
+                eventEmitter.emit('parseFiles', function(parser) {
+                    if (parser) {
+                        servlet.sendHTML_(req, res, JSON.stringify(parser.files), 200);
+                    } else {
+                        servlet.sendHTML_(req, res, 'An error occurs while parsing', 500);
+                    }
+                });
                 return;
             default:
             	pathName = pathName.replace(/^([^\/])/, '/$1').replace(/\/\.*\//g, '/');

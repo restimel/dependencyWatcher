@@ -74,7 +74,7 @@ Parser.prototype.addDependency = function(dependencyFile, currentFile) {
 Parser.prototype.parseDone = function() {
 	logger.trace('parser.parseDone');
 
-	this.eventEmitter.emit('parsed:parser');
+	this.eventEmitter.emit('parsed:parser', this);
 }
 
 Parser.prototype.parseFile = function(path, content) {

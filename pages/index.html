@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dependency Relationship</title>
+	<link rel="stylesheet" type="text/css" href="css/dependency.css">
+</head>
+<body>
+<svg id="drawArea" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="filterArea">
+	<input id="search" placeholder="search" list="itemsDataList">
+	<button id="filterButton">F</button>
+	<datalist id="itemsDataList"></datalist>
+</div>
+<div id="detailsArea">
+	<header><span id="detailsTitle">Bloc title</span></header>
+	<details><summary>Dependencies (<span id="depNb"></span>)</summary><ul id="dependencies"></ul></details>
+	<details><summary>Required by (<span id="reqByNb"></span>)</summary><ul id="requiredBy"></ul></details>
+</div>
+
+<script src="scripts/main.js"></script>
+<script src="scripts/filter.js"></script>
+<script src="scripts/details.js"></script>
+<script src="scripts/svg.js"></script>
+</body>
+</html>
