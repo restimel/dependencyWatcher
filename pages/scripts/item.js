@@ -34,6 +34,7 @@
 		this.el = null;
 		this.columnManager.removeItem(this);
 		this.arrows.forEach(a => a.remove());
+		this.children.forEach(c => c.remove());
 	};
 
 	Item.prototype._setColumn = function(options) {
@@ -91,6 +92,7 @@
 	Item.prototype.drawArrows = function(done=[], deep=true, className='') {
 		if (done.includes(this)) return;
 		done.push(this);
+
 		this.data.dependencies.forEach((child) => {
 			var box = this.getBox(child);
 			this.arrows.push(new Arrow(this, box, {
@@ -146,7 +148,7 @@
 		if (deep) {
 			this.arrows.forEach(a => a.setInactive());
 			this.data.requiredBy.forEach(r =>
-				this.getBox(r).getArrow(this).setActive('')
+				this.getBox(r).getArrow(this).setInactive()
 			);
 		}
 	};
@@ -196,35 +198,43 @@
 	};
 
 	Item.prototype.addBox = function(data) {
-        var y = -Infinity;
+		var options, subItem;
 
-        //TODO change x/y computation
-        // if (this.children.length) {
-        //     y = this.getVBound(1)[1];
-        // } else if (this.parent) {
-        //     y = this.parent.getVBound(2, this)[1];
-        // }
-        // if (!isFinite(y)) {
-        //     y = this.y;
-        // }
-		var options = {
+		options = {
 			x: this.x + this.width + 30,
 			y: this.y,
 			columnManager: this.columnManager,
 			parent: this
 		};
-		var subItem = new Item(data, options);
+		subItem = new Item(data, options);
 		this.children.push(subItem);
 
 		return subItem;
 	};
 
+	/** retrieve a box from its name
+	 *  @return {Item} undefined if no box has been found
+	 **/
 	Item.prototype.getBox = function(boxName, done = []) {
+		var box;
+
 		if (done.includes(this)) return;
 		done.push(this);
+
 		if (this.data.name === boxName) return this;
-		return this.children.find(s=>s.getBox(boxName, done))
-			|| (this.parent && this.parent.getBox(boxName, done));
+
+		// search in children
+		this.children.some(c => {
+			var r = c.getBox(boxName, done);
+			if (r) {box = r}
+			return r;
+		});
+
+		// search in parent
+		if (!box) {
+			box = this.parent && this.parent.getBox(boxName, done);
+		}
+		return box;
 	};
 
 	Item.prototype.setColumn = function(index) {

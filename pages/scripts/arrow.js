@@ -28,6 +28,30 @@
 		var path = document.createElementNS(xmlns, 'path');
 		var [x1, y1, p1] = this.box1.getPort('out');
 		var [x2, y2, p2] = this.box2.getPort('in');
+		var c1 = this.box1.column + 1;
+		var c2 = this.box2.column;
+
+		if (this._element) {
+			this.remove();
+		}
+
+		if (c1 > c2) {
+			// moving backward
+			while (c1 > c2) {
+				c1--;
+				this._columns.push(c1);
+				this.columnManager.addItem(this, c1);
+				//TODO build path in this column
+			}
+		} else {
+			// moving forward
+			while (c1 < c2) {
+				this._columns.push(c1);
+				this.columnManager.addItem(this, c1);
+				//TODO build path in this column
+				c1++;
+			}
+		}
 
 		path.setAttribute('class', 'arrow-link ' + className);
 		path.setAttribute('d', p1 + 'L' + x2 + ',' + y2 + p2);
@@ -41,8 +65,12 @@
 		if (this.options.className) {
 			this._element.classList.remove(this.options.className);
 		}
+
 		this.options.className = className;
-		this._element.classList.add(className);
+
+		if (className) {
+			this._element.classList.add(className);
+		}
 	};
 
 	Arrow.prototype.setActive = function(className=null) {
@@ -53,7 +81,7 @@
 	};
 
 	Arrow.prototype.setInactive = function(deep=false) {
-		this._element.classList.remove('active');
+		this._element.classList.remove('active', 'parentLink');
 		this.SVG_ARROWS.appendChild(this._element);
 
 		if (deep) {
@@ -64,7 +92,7 @@
 
 	Arrow.prototype.setLinkActive = function() {
 		setActive(this);
-		this._element.classList.add('active');
+		this.setActive('active');
 		this.box1.setActive(false);
 		this.box2.setActive(false);
 	};
