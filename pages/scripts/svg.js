@@ -8,12 +8,13 @@
 	var sizeX = 100;
 	var sizeY = 100;
 	var mouse = {};
+	var activeElement = null;
 	var loadDataOrig = self.loadData;
 
 	Item.prototype.SVG = SVG;
 	Item.prototype.SVG_BOXES = SVG_BOXES;
-	Item.prototype.SVG_ARROWS = SVG.querySelector('.arrows');
-	Item.prototype.SVG_ARROWS_ACTIVE = SVG.querySelector('.arrows-highlight');
+	Arrow.prototype.SVG_ARROWS = SVG.querySelector('.arrows');
+	Arrow.prototype.SVG_ARROWS_ACTIVE = SVG.querySelector('.arrows-highlight');
 
 	function displayItem(item, subItemName) {
 		if (item.getBox(subItemName)) return;
@@ -65,6 +66,14 @@
 		updateBox();
 	}
 
+	function setActive(element) {
+		if (activeElement) {
+			activeElement.setInactive(true);
+		}
+		activeElement = element;
+	}
+	self.setActive = setActive;
+
 	SVG.onmousedown = function(evt) {
 		[mouse.px, mouse.py] = [evt.offsetX, evt.offsetY];
 		[mouse.x, mouse.y] = getCoord(evt.offsetX, evt.offsetY);
@@ -93,13 +102,6 @@
 		updateYWidth();
 		updateBox();
 		moveBox(evt);
-	};
-
-	SVG.removeActiveElements = function() {
-		for(let el of SVG.querySelectorAll('.active')) {
-			el.classList.remove('active');
-		}
-		SVG.querySelector('.arrows-highlight').innerHTML = '';
 	};
 
 	window.onresize = windowSize;

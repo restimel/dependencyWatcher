@@ -20,11 +20,21 @@
 		this.parent = options.parent;
 		this._setColumn(options);
 		this.children = [];
+		this.arrows = [];
 		this._createSVGEl();
 	}
 
 	Item.prototype.portMargin = 10;
 	Item.prototype.padding = 10;
+
+	Item.prototype.remove = function() {
+		if (this.el) {
+			this.el.parentNode.removeChild(this.el);
+		}
+		this.el = null;
+		this.columnManager.removeItem(this);
+		this.arrows.forEach(a => a.remove());
+	};
 
 	Item.prototype._setColumn = function(options) {
 		if (typeof options.column !== 'undefined') {
@@ -33,11 +43,9 @@
 			this.column = this.parent.column + 1;
 		}
 
-		this.columnManager = options.columnManager;
+		this.columnManager = options.columnManager || new ColumnManager();
 
-		if (!this.columnManager && typeof this.column !== 'undefined') {
-			this.columnManager = new ColumnManager();
-		}
+		this.columnManager.addItem(this, this.column);
 	};
 
 	Item.prototype._createSVGEl = function() {
@@ -57,10 +65,13 @@
 		this.SVG.appendChild(text);
 		bbox = text.getBBox();
 
-		this.x = this.options.x;
-		this.y = this.options.y;
+		this.x = this.columnManager.getX(this.column);// this.options.x;
+		this.y = this.columnManager.getBestPosition(this.column, bbox.height, this.options.y, {
+			item: this
+		});
 		this.height = bbox.height + 2 * this.padding;
 		this.width = bbox.width + 2 * this.padding;
+		this.columnManager.changeWidth(this.column, this.width);
 
 		text.setAttribute('x', this.x + this.padding);
 		text.setAttribute('y', this.y + bbox.height + this.padding);
@@ -73,30 +84,21 @@
 		rect.setAttribute('fill', '#eaeaea');
 		rect.setAttribute('stroke', '#666666');
 
-
 		this.el.appendChild(rect);
 		this.el.appendChild(text);
 	};
 
-	Item.prototype._createSVGArrow = function(box, parentEl=this.SVG_ARROWS, className='') {
-		var path = document.createElementNS(xmlns, 'path');
-		var [x1, y1, p1] = this.getPort('out');
-		var [x2, y2, p2] = box.getPort('in');
-
-		path.setAttribute('class', 'arrow-link ' + className);
-		path.setAttribute('d', p1 + 'L' + x2 + ',' + y2 + p2);
-		path.onclick = this.setLinkActive.bind(this, path, box);
-		parentEl.appendChild(path);
-	};
-
-	Item.prototype.drawArrows = function(done=[], deep=true, parentEl=this.SVG_ARROWS, className='') {
+	Item.prototype.drawArrows = function(done=[], deep=true, className='') {
 		if (done.includes(this)) return;
 		done.push(this);
 		this.data.dependencies.forEach((child) => {
 			var box = this.getBox(child);
-			this._createSVGArrow(box, parentEl, className);
+			this.arrows.push(new Arrow(this, box, {
+				className: className,
+				columnManager: this.columnManager
+			}));
 			if (deep) {
-				box.drawArrows(done, deep, parentEl, className);
+				box.drawArrows(done, deep, className);
 			}
 		});
 	};
@@ -128,25 +130,29 @@
 		return [x, y, path];;
 	};
 
-	Item.prototype.setActive = function(removeActive=false, deep=true) {
-		if (removeActive) {
-			this.SVG.removeActiveElements();
+	Item.prototype.setActive = function(deep=true) {
+		if (deep) {
+			setActive(this);
+			this.arrows.forEach(a => a.setActive());
+			this.data.requiredBy.forEach(r =>
+				this.getBox(r).getArrow(this).setActive('parentLink')
+			);
 		}
 		this.el.classList.add('active');
+	};
+
+	Item.prototype.setInactive = function(deep=true) {
+		this.el.classList.remove('active');
 		if (deep) {
-			this.drawArrows([], false, this.SVG_ARROWS_ACTIVE);
+			this.arrows.forEach(a => a.setInactive());
 			this.data.requiredBy.forEach(r =>
-				this.getBox(r)._createSVGArrow(this, this.SVG_ARROWS_ACTIVE, 'parentLink')
+				this.getBox(r).getArrow(this).setActive('')
 			);
 		}
 	};
 
-	Item.prototype.setLinkActive = function(path, box) {
-		var copyPath = path.cloneNode();
-		copyPath.classList.add('active');
-		this.setActive(true, false);
-		box.setActive(false, false);
-		this.SVG_ARROWS_ACTIVE.appendChild(copyPath);
+	Item.prototype.getArrow = function(box) {
+		return this.arrows.find(a => a.box2 === box);
 	};
 
 	Item.prototype.getVBound = function(deep=0, caller=undefined) {
@@ -192,17 +198,19 @@
 	Item.prototype.addBox = function(data) {
         var y = -Infinity;
 
-        if (this.children.length) {
-            y = this.getVBound(1)[1];
-        } else if (this.parent) {
-            y = this.parent.getVBound(2, this)[1];
-        }
-        if (!isFinite(y)) {
-            y = this.y;
-        }
+        //TODO change x/y computation
+        // if (this.children.length) {
+        //     y = this.getVBound(1)[1];
+        // } else if (this.parent) {
+        //     y = this.parent.getVBound(2, this)[1];
+        // }
+        // if (!isFinite(y)) {
+        //     y = this.y;
+        // }
 		var options = {
 			x: this.x + this.width + 30,
-			y: y + 5,
+			y: this.y,
+			columnManager: this.columnManager,
 			parent: this
 		};
 		var subItem = new Item(data, options);
@@ -227,6 +235,11 @@
 
 		// this.options.y = this.columnManager.getBestPosition(index, this.options.y);
 		// this.options.x = ???
+	};
+
+	Item.prototype.changeX = function() {
+		this.x = this.columnManager.getX(this.column);
+		this.el.querySelector('rect').setAttribute('x', this.x);
 	};
 
 	self.Item = Item;

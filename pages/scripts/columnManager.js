@@ -3,27 +3,99 @@
 
     function ColumnManager() {
         this.columns = {};
+        this.columnsOrder = []; //TODO
     }
 
-    ColumnManager.prototype.margin = 20;
+    ColumnManager.prototype.margin = 5;
+    ColumnManager.prototype.wiresSpace = 20;
+    ColumnManager.prototype.gridX = 30;
+    ColumnManager.prototype.width = 100;
 
-    /* column management */
+    /* column size */
 
-    ColumnManager.prototype._createColumn = function(index=0) {
-        if (!this.columns[index]) {
-            this.columns[index] = [];
+    ColumnManager.prototype.changeWidth = function(index, width) {
+        var idx;
+
+        this.getX(index); // ensure this was previously set (to keep position of this one)
+        if (this.columns[index].width >= width) {
+            return;
+        }
+        this.columns[index].width = width;
+        // reset all x position of next columns
+        for (var i = this.columnsOrder.indexOf(index) + 1; i < this.columnsOrder.length; i++) {
+            idx = this.columnsOrder[i];
+            // force computation of this column
+            this.columns[idx].x = undefined;
+            // notify all items in this column that x has changed
+            this.columns[idx].forEach(item => item.changeX());
         }
     };
 
-    ColumnManager.prototype.removeItem = function(item) {
-        var colIndex = item.column;
-        var index = this.column[colIndex].indexOf(item);
+    ColumnManager.prototype.getX = function(index, done=[]) {
+        var idx, columnIndex, x;
 
-        this.column[colIndex].splice(index, 1);
+        if (!this.columns[index]) {
+            console.warn('getX failed to find index "%s" (there are currently %d indexes)', index, this.columnsOrder.length);
+            return;
+        }
+
+        if (typeof this.columns[index].x === 'undefined') {
+            if (done.includes(index)) {
+                return;
+            }
+            done.push(index);
+            idx = this.columnsOrder.indexOf(index);
+            if (idx > 0) {
+                columnIndex = this.columnsOrder[idx - 1];
+                x = this.getX(columnIndex, done);
+            }
+            if (typeof x !== 'undefined') {
+                x += this.columns[columnIndex].width + this.gridX;
+            } else {
+                if (idx < this.columnsOrder.length - 1) {
+                    columnIndex = this.columnsOrder[idx + 1];
+                    x = this.getX(columnIndex, done);
+                }
+                if (typeof x === 'undefined') {
+                    x = 0;
+                } else {
+                    x -= this.columns[index].width + this.gridX;
+                }
+            }
+            this.columns[index].x = x;
+        }
+
+        return this.columns[index].x;
+    };
+
+    /* column management */
+
+    ColumnManager.prototype._createColumn = function(index=0, beforeColumn=null) {
+        if (!this.columns[index]) {
+            this.columns[index] = [];
+            this.columns[index].width = this.width;
+
+            let colIndex = this.columnsOrder.indexOf(beforeColumn);
+
+            if (colIndex === -1) {
+                this.columnsOrder.push(index);
+            } else {
+                this.columnsOrder.splice(index, 0, [index]);
+            }
+        }
+    };
+
+    ColumnManager.prototype.removeItem = function(item, colIndex=item.column) {
+        var column = this.columns[colIndex];
+        if (!column) return;
+        var index = column.indexOf(item);
+
+        if (index === -1) return;
+        column.splice(index, 1);
         item.column = undefined;
     };
 
-    ColumnManager.prototype.addItem = function(item, index) {
+    ColumnManager.prototype.addItem = function(item, index=0) {
         item.setColumn(index);
         this._createColumn(index);
         this.columns[index].push(item);
@@ -36,9 +108,10 @@
     };
 
     ColumnManager.prototype.getConflict = function(index, y1, y2, options={}) {
-        var column = this.column[index];
-        var {margin, item:avoidItem} = options;
+        var column = this.columns[index];
+        var {margin=0, item:avoidItem} = options;
 
+        margin += this.margin;
         return column.find(item=>{
             return item !== avoidItem
                 && item.y <= y2 + margin
@@ -47,9 +120,10 @@
     };
 
     ColumnManager.prototype.getConflicts = function(index, y1, y2, options={}) {
-        var column = this.column[index];
-        var {margin, item:avoidItem} = options;
+        var column = this.columns[index];
+        var {margin=0, item:avoidItem} = options;
 
+        margin += this.margin;
         return column.filter(item=>{
             return item !== avoidItem
                 && item.y <= y2 + margin
@@ -60,8 +134,11 @@
     ColumnManager.prototype.getBestPosition = function(index, height, y=0, options={}) {
         var item;
 
+        options.margin = (options.margin || 0) + this.wiresSpace;
+
         while (item = this.getConflict(index, y, y + height, options)) {
-            y = item.y + item.height + margin;
+            // +1 is needed to avoid conflict on edge
+            y = item.y + item.height + options.margin + this.margin + 1;
         }
 
         return y;
