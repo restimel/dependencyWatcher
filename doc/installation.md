@@ -1,11 +1,9 @@
 # Installation and contribution
 
-* [How to install the application]
-* [How to contribute to the project]
+* [Installation]
+* [Contribution]
 
-[Back to main page](../README.md)
-
-[How to install the application]:#Installation
+[Installation]:#Installation(How to install the application)
 <a name="Installation"></a>
 ## Installation
 
@@ -41,7 +39,7 @@ then you can connect to:
 	http://localhost:8000/index.html
 
 
-[How to contribute to the project]:#Contribution
+[Contribution]:#Contribution(How to contribute to the project)
 <a name="Contribution"></a>
 ## Contribution
 

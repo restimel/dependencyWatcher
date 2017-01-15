@@ -99,3 +99,4 @@ It is located in the root folder of Dependency Watcher.
   * name _(string)_: the name of the category
   * matcher _([RegExp])_: If the input match this regexp, this category will be assign to it.
   * color _(string)_: describes how an item of this category would be displayed.
+
