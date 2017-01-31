@@ -59,7 +59,7 @@ It is located in the root folder of Dependency Watcher.
 * **requireMatcher** _([RegExp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
   example:
   ```json
-  "requireMatcher": [{"pattern": "require\\(['\"](.*?)['\"]\\)"}, {"pattern": "define\\(\\[['\"](.*)['\"]\\]\\)"}]
+  "requireMatcher": [{"pattern": "require\\(['\"](.*?)['\"]\\)", "flags": "g"}, {"pattern": "define\\(\\[['\"](.*?)['\"]\\]\\)"}]
   ```
 
 * **requireNameAdapter** _([Replace] [])_: Format the path got in requireMatcher to match unique file name.
@@ -71,6 +71,12 @@ It is located in the root folder of Dependency Watcher.
   }]
   ```
 
+* **log** _(String)_ (optional): Path to logs all data.
+  example:
+  ```json
+  "log": "trace.log"
+  ```
+
 [Types]:#Types
 <a name="Types"></a>
 ### Types
@@ -79,7 +85,8 @@ It is located in the root folder of Dependency Watcher.
 <a name="RegExp"></a>
 * **RegExp**: describe a regexp
   * pattern _(string)_: the pattern to match.
-  * flags _(string)_: flags to apply for this regexp ("gimy").
+  * flags _(string)_ (optional): flags to apply for this regexp ("gimy").
+  * split _(RegExp)_ (optional): another regexp to apply on result to split it.
 
 [Replace]:#Replace
 <a name="Replace"></a>

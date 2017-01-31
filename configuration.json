@@ -1,0 +1,22 @@
+{
+	"rootFolders": ["modules/*"],
+	"fileFilter": {
+		"whitelist": [{
+			"pattern": "\\.js$"
+		}]
+	},
+	"fileNameAdapter": [],
+	"types": [{
+		"name": "modules",
+		"matcher": {
+			"pattern": "/modules/"
+		},
+		"color": "blue"
+	}],
+	"requireMatcher": [{
+		"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
+		"flags": "g"
+	}],
+	"requireNameAdapter": [],
+	"log": "test.log"
+}
