@@ -60,3 +60,9 @@
 .linkToItem:hover {
 	text-decoration: underline;
 }
+
+.fileItem {
+	cursor: pointer;
+	rx: 3;
+	ry: 3;
+}

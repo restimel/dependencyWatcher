@@ -14,10 +14,13 @@
 					rslt = xhr.responseText;
 					try {
 						rslt = JSON.parse(rslt);
+					} catch(e) {
+						rslt = null;
+						console.error('JSON is not correctly built');
+					}
+					if (rslt) {
 						global.data = rslt;
 						self.loadData(global.data);
-					} catch(e) {
-						console.error('JSON is not correctly built');
 					}
 				} else {
 					console.error(xhr.status, url);

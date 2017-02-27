@@ -7,6 +7,23 @@
 	var sizeX = 100;
 	var sizeY = 100;
 	var mouse = {};
+	var loadDataOrig = self.loadData;
+
+	function displayItem(item, subItemName) {
+		var subData = searchItem(subItemName);
+		var subItem = item.addBox(subData);
+		SVG.appendChild(subItem.el);
+		console.log(subData.dependencies.length);
+
+		subData.dependencies.forEach(displayItem.bind(this, subItem));
+	}
+
+	function loadData(data) {
+		var item = new Item(data[0]);
+		SVG.appendChild(item.el);
+
+		data[0].dependencies.forEach(displayItem.bind(this, item));
+	}
 
 	function updateYWidth() {
 		WY = WX * sizeY / sizeX;
@@ -71,5 +88,15 @@
 	};
 
 	window.onresize = windowSize;
+
+	if (typeof loadDataOrig === 'function') {
+		self.loadData = function() {
+			loadDataOrig.apply(this, arguments);
+			loadData.apply(this, arguments);
+		};
+	} else {
+		self.loadData = loadData;
+	}
+
 	windowSize();
 })();
