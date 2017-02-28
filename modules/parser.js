@@ -116,6 +116,8 @@ Parser.prototype.parse = function() {
 	var exclude, authorized, paths, reader;
 
 	logger.trace('parser.parse');
+	/* reset states to avoid duplicated data */
+	this.init();
 
 	exclude = config.fileFilter.blacklist.map(getRegexp);
 	authorized = config.fileFilter.whitelist.map(getRegexp);
