@@ -9,11 +9,13 @@
 	var mouse = {};
 	var loadDataOrig = self.loadData;
 
+	Item.prototype.SVG = SVG;
+
 	function displayItem(item, subItemName) {
+		if (item.getBox(subItemName)) return;
 		var subData = searchItem(subItemName);
 		var subItem = item.addBox(subData);
 		SVG.appendChild(subItem.el);
-		console.log(subData.dependencies.length);
 
 		subData.dependencies.forEach(displayItem.bind(this, subItem));
 	}

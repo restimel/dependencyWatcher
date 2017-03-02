@@ -1,11 +1,17 @@
 {
-	"rootFolders": ["modules/*"],
+	"rootFolders": ["main.js", "modules/*"],
 	"fileFilter": {
 		"whitelist": [{
 			"pattern": "\\.js$"
 		}]
 	},
-	"fileNameAdapter": [],
+	"fileNameAdapter": [{
+		"matcher": {"pattern": ".*/modules/(.*)$"},
+		"output": "./modules/$1"
+	}, {
+		"matcher": {"pattern": "^\\./(?:\\./)+"},
+		"output": "./"
+	}],
 	"types": [{
 		"name": "modules",
 		"matcher": {
@@ -17,6 +23,9 @@
 		"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
 		"flags": "g"
 	}],
-	"requireNameAdapter": [],
+	"requireNameAdapter": [{
+		"matcher": {"pattern": "\\./(?!modules/)"},
+		"output": "./modules/"
+	}],
 	"log": "test.log"
 }
