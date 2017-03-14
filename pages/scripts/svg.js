@@ -1,5 +1,6 @@
 (function() {
 	var SVG = document.getElementById('drawArea');
+	var SVG_BOXES = SVG.querySelector('.boxes');
 	var X = 0;
 	var Y = 0;
 	var WX = 1000;
@@ -10,21 +11,24 @@
 	var loadDataOrig = self.loadData;
 
 	Item.prototype.SVG = SVG;
+	Item.prototype.SVG_BOXES = SVG_BOXES;
+	Item.prototype.SVG_ARROWS = SVG.querySelector('.arrows');
 
 	function displayItem(item, subItemName) {
 		if (item.getBox(subItemName)) return;
 		var subData = searchItem(subItemName);
 		var subItem = item.addBox(subData);
-		SVG.appendChild(subItem.el);
+		SVG_BOXES.appendChild(subItem.el);
 
 		subData.dependencies.forEach(displayItem.bind(this, subItem));
 	}
 
 	function loadData(data) {
 		var item = new Item(data[0]);
-		SVG.appendChild(item.el);
+		SVG_BOXES.appendChild(item.el);
 
 		data[0].dependencies.forEach(displayItem.bind(this, item));
+		item.drawArrows();
 	}
 
 	function updateYWidth() {

@@ -66,3 +66,25 @@
 	rx: 3;
 	ry: 3;
 }
+.fileItem>* {
+	cursor: pointer;
+}
+
+.fileItem.active,
+.fileItem:hover {
+	fill: #fbffc5;
+}
+
+.arrow-link {
+	stroke: #051122;
+	fill: none;
+    stroke-width: 2.78;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.arrow-link.active,
+.arrow-link:hover {
+	stroke: #f56a18;
+    stroke-width: 3.5;
+}
