@@ -18,12 +18,27 @@
 			y: 0
 		});
 		this.parent = options.parent;
+		this._setColumn(options);
 		this.children = [];
 		this._createSVGEl();
 	}
 
 	Item.prototype.portMargin = 10;
 	Item.prototype.padding = 10;
+
+	Item.prototype._setColumn = function(options) {
+		if (typeof options.column !== 'undefined') {
+			this.column = options.column;
+		} else if (this.parent) {
+			this.column = this.parent.column + 1;
+		}
+
+		this.columnManager = options.columnManager;
+
+		if (!this.columnManager && typeof this.column !== 'undefined') {
+			this.columnManager = new ColumnManager();
+		}
+	};
 
 	Item.prototype._createSVGEl = function() {
 		var rect, text, bbox;
@@ -179,5 +194,15 @@
 			|| (this.parent && this.parent.getBox(boxName, done));
 	};
 
-self.Item = Item;
+	Item.prototype.setColumn = function(index) {
+		if (typeof this.column !== 'undefined') {
+			this.columnManager.removeItem(this);
+		}
+		this.column = index;
+
+		// this.options.y = this.columnManager.getBestPosition(index, this.options.y);
+		// this.options.x = ???
+	};
+
+	self.Item = Item;
 })();
