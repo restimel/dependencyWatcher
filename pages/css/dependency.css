@@ -70,9 +70,12 @@
 	cursor: pointer;
 }
 
-.fileItem.active,
+.active .fileItem {
+	fill: rgba(250, 200, 50, 0.7);
+}
+
 .fileItem:hover {
-	fill: #fbffc5;
+	fill: rgba(250, 200, 50, 0.9);
 }
 
 .arrow-link {
@@ -81,10 +84,21 @@
     stroke-width: 2.78;
     stroke-linecap: round;
     stroke-linejoin: round;
+    cursor: pointer;
 }
 
-.arrow-link.active,
+.arrows-highlight .arrow-link {
+	stroke: rgba(250, 180, 0, 0.8);
+	stroke-width: 3;
+}
+.arrow-link.parentLink {
+	stroke: rgba(100, 220, 50, 0.8);
+}
+.arrow-link.active {
+	stroke: rgba(255, 100, 0, 0.8);
+    stroke-width: 3.2;
+}
 .arrow-link:hover {
-	stroke: #f56a18;
+	stroke: rgba(255, 150, 50, 0.9);
     stroke-width: 3.5;
 }

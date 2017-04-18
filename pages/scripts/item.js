@@ -50,7 +50,7 @@
 	// <rect x="0" y="0" fill="#eaeaea" stroke="#666" width="200" height="100" rx="3" ry="3"></rect>
 
 		this.el.setAttribute('id', this.data.name);
-		this.el.onclick = displayDetails.bind(this, this.data);
+		this.el.onclick = displayDetails.bind(this, this.data, this);
 
 		text.textContent = this.data.name;
 		// add text to SVG to compute its size
@@ -73,27 +73,31 @@
 		rect.setAttribute('fill', '#eaeaea');
 		rect.setAttribute('stroke', '#666666');
 
+
 		this.el.appendChild(rect);
 		this.el.appendChild(text);
 	};
 
-	Item.prototype._createSVGArrow = function(box) {
+	Item.prototype._createSVGArrow = function(box, parentEl=this.SVG_ARROWS, className='') {
 		var path = document.createElementNS(xmlns, 'path');
 		var [x1, y1, p1] = this.getPort('out');
 		var [x2, y2, p2] = box.getPort('in');
 
-		path.setAttribute('class', 'arrow-link');
+		path.setAttribute('class', 'arrow-link ' + className);
 		path.setAttribute('d', p1 + 'L' + x2 + ',' + y2 + p2);
-		this.SVG_ARROWS.appendChild(path);
+		path.onclick = this.setLinkActive.bind(this, path, box);
+		parentEl.appendChild(path);
 	};
 
-	Item.prototype.drawArrows = function(done=[]) {
+	Item.prototype.drawArrows = function(done=[], deep=true, parentEl=this.SVG_ARROWS, className='') {
 		if (done.includes(this)) return;
 		done.push(this);
 		this.data.dependencies.forEach((child) => {
 			var box = this.getBox(child);
-			this._createSVGArrow(box);
-			box.drawArrows(done);
+			this._createSVGArrow(box, parentEl, className);
+			if (deep) {
+				box.drawArrows(done, deep, parentEl, className);
+			}
 		});
 	};
 
@@ -122,6 +126,27 @@
 		}
 
 		return [x, y, path];;
+	};
+
+	Item.prototype.setActive = function(removeActive=false, deep=true) {
+		if (removeActive) {
+			this.SVG.removeActiveElements();
+		}
+		this.el.classList.add('active');
+		if (deep) {
+			this.drawArrows([], false, this.SVG_ARROWS_ACTIVE);
+			this.data.requiredBy.forEach(r =>
+				this.getBox(r)._createSVGArrow(this, this.SVG_ARROWS_ACTIVE, 'parentLink')
+			);
+		}
+	};
+
+	Item.prototype.setLinkActive = function(path, box) {
+		var copyPath = path.cloneNode();
+		copyPath.classList.add('active');
+		this.setActive(true, false);
+		box.setActive(false, false);
+		this.SVG_ARROWS_ACTIVE.appendChild(copyPath);
 	};
 
 	Item.prototype.getVBound = function(deep=0, caller=undefined) {

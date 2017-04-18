@@ -26,26 +26,31 @@ function createNoItem() {
 	return el;
 }
 
-function displayDetails(item) {
+function displayDetails(itemData, item) {
 	elDetails.scrollTop = 0;
-	elTitle.textContent = item.name;
+	elTitle.textContent = itemData.name;
 	elDependencies.innerHTML = '';
 	elRequired.innerHTML = '';
-	elDepNb.textContent = item.dependencies.length;
-	if (item.dependencies.length === 0) {
+	elDepNb.textContent = itemData.dependencies.length;
+	if (itemData.dependencies.length === 0) {
 		elDependencies.appendChild(createNoItem());
 	} else {
-		item.dependencies.forEach(function(dep) {
+		itemData.dependencies.forEach(function(dep) {
 			elDependencies.appendChild(createItem(dep));
 		});
 	}
-	elReqByNb.textContent = item.requiredBy.length;
-	if (item.requiredBy.length === 0) {
+	elReqByNb.textContent = itemData.requiredBy.length;
+	if (itemData.requiredBy.length === 0) {
 		elRequired.appendChild(createNoItem());
 	} else {
-		item.requiredBy.forEach(function(dep) {
+		itemData.requiredBy.forEach(function(dep) {
 			elRequired.appendChild(createItem(dep));
 		});
+	}
+	if (item) {
+		item.setActive(true);
+	} else if (self.rootItem) {
+		self.rootItem.getBox(itemData.name).setActive(true);
 	}
 }
 

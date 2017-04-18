@@ -13,6 +13,7 @@
 	Item.prototype.SVG = SVG;
 	Item.prototype.SVG_BOXES = SVG_BOXES;
 	Item.prototype.SVG_ARROWS = SVG.querySelector('.arrows');
+	Item.prototype.SVG_ARROWS_ACTIVE = SVG.querySelector('.arrows-highlight');
 
 	function displayItem(item, subItemName) {
 		if (item.getBox(subItemName)) return;
@@ -25,6 +26,7 @@
 
 	function loadData(data) {
 		var item = new Item(data[0]);
+		self.rootItem = item;
 		SVG_BOXES.appendChild(item.el);
 
 		data[0].dependencies.forEach(displayItem.bind(this, item));
@@ -91,6 +93,13 @@
 		updateYWidth();
 		updateBox();
 		moveBox(evt);
+	};
+
+	SVG.removeActiveElements = function() {
+		for(let el of SVG.querySelectorAll('.active')) {
+			el.classList.remove('active');
+		}
+		SVG.querySelector('.arrows-highlight').innerHTML = '';
 	};
 
 	window.onresize = windowSize;
