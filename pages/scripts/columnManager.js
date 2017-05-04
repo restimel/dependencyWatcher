@@ -6,10 +6,10 @@
         this.columnsOrder = []; //TODO
     }
 
-    ColumnManager.prototype.margin = 5;
-    ColumnManager.prototype.wiresSpace = 20;
-    ColumnManager.prototype.gridX = 30;
-    ColumnManager.prototype.width = 100;
+    ColumnManager.prototype.margin = 5; // space between all items (items and wire)
+    ColumnManager.prototype.wiresSpace = 40; // default space between items (to draw wires between them)
+    ColumnManager.prototype.gridX = 60; // space between columns
+    ColumnManager.prototype.width = 110; // default width of a column
 
     /* column size */
 
@@ -29,6 +29,10 @@
             // notify all items in this column that x has changed
             this.columns[idx].forEach(item => item.changeX());
         }
+    };
+
+    ColumnManager.prototype.getWidth = function(index) {
+        return this.columns[index].width;
     };
 
     ColumnManager.prototype.getX = function(index, done=[]) {
@@ -112,10 +116,11 @@
         var {margin=0, item:avoidItem} = options;
 
         margin += this.margin;
-        return column.find(item=>{
+        return column.find(item => {
+            var y = item.getY(index);
             return item !== avoidItem
-                && item.y <= y2 + margin
-                && item.y + item.height + margin >= y1;
+                && y <= y2 + margin
+                && y + item.height + margin >= y1;
         });
     };
 
@@ -124,21 +129,24 @@
         var {margin=0, item:avoidItem} = options;
 
         margin += this.margin;
-        return column.filter(item=>{
+        return column.filter(item => {
+            var y = item.getY(index);
             return item !== avoidItem
-                && item.y <= y2 + margin
-                && item.y + item.height + margin >= y1;
+                && y <= y2 + margin
+                && y + item.height + margin >= y1;
         });
     };
 
     ColumnManager.prototype.getBestPosition = function(index, height, y=0, options={}) {
         var item;
 
-        options.margin = (options.margin || 0) + this.wiresSpace;
+        if (typeof options.margin === 'undefined') {
+            options.margin = this.wiresSpace;
+        }
 
         while (item = this.getConflict(index, y, y + height, options)) {
-            // +1 is needed to avoid conflict on edge
-            y = item.y + item.height + options.margin + this.margin + 1;
+            // XXX: +1 is needed to avoid conflict on edge
+            y = item.getY(index) + item.height + options.margin + this.margin + 1;
         }
 
         return y;
