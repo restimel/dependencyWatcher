@@ -17,7 +17,13 @@
     Arrow.prototype.SVG_ARROWS_ACTIVE = SVG.querySelector('.arrows-highlight');
 
     function displayItem(item, subItemName) {
-        if (item.getBox(subItemName)) return;
+        var sItem = item.getBox(subItemName);
+        if (sItem) {
+            if (sItem.column <= item.column) {
+                sItem.changeColumn(item.column + 1, [item]);
+            }
+            return;
+        }
         var subData = searchItem(subItemName);
         var subItem = item.addBox(subData);
         SVG_BOXES.appendChild(subItem.el);

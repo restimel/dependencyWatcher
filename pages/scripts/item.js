@@ -18,6 +18,8 @@
             y: 0
         });
         this.parent = options.parent;
+        this.columnManager = options.columnManager || new ColumnManager();
+
         this._setColumn(options);
         this.children = [];
         this.arrows = [];
@@ -43,9 +45,6 @@
         } else if (this.parent) {
             this.column = this.parent.column + 1;
         }
-
-        this.columnManager = options.columnManager || new ColumnManager();
-
         this.columnManager.addItem(this, this.column);
     };
 
@@ -246,19 +245,48 @@
         return box;
     };
 
+    /* called by columnManager and should only set attributes value (no change
+     * on previous value) */
     Item.prototype.setColumn = function(index) {
         if (typeof this.column !== 'undefined') {
             this.columnManager.removeItem(this);
         }
         this.column = index;
+    };
 
-        // this.options.y = this.columnManager.getBestPosition(index, this.options.y);
-        // this.options.x = ???
+    /* Called to change the column and move elements */
+    Item.prototype.changeColumn = function(index, done=[]) {
+        var hadEl = !!this.el;
+
+        if (done.includes(this)) {
+            return;
+        }
+        done = done.concat([this]); // do a copy of the array
+
+        if (hadEl) {
+            this.el.parentNode.removeChild(this.el);
+        }
+        this.el = null;
+        this.columnManager.removeItem(this);
+        this._setColumn({column: index});
+
+        this.children.forEach(c => {
+            if (c.column <= this.column) {
+                c.changeColumn(this.column  + 1, done);
+            }
+        });
+        this.arrows.forEach(a => a.el());
+
+        if (hadEl) {
+            this._createSVGEl();
+            this.SVG_BOXES.appendChild(this.el);
+        }
     };
 
     Item.prototype.changeX = function() {
         this.x = this.columnManager.getX(this.column);
         this.el.querySelector('rect').setAttribute('x', this.x);
+        this.el.querySelector('text').setAttribute('x', this.x + this.padding);
     };
 
     Item.prototype.getY = function(index) {
