@@ -6,11 +6,12 @@ var configuration = require('./modules/configuration.js');
 var web = require('./modules/web-router.js');
 var Parser = require('./modules/parser.js');
 var logger = require('./modules/logger.js');
+var ArgumentParser = require('argparse').ArgumentParser;
 
 var eventEmitter;
 var parser;
 
-var version = '1.0.0';
+var version = '0.5.0';
 
 /* port number */
 var serverPort = 8000;
@@ -18,67 +19,50 @@ var configurationPath = '';
 
 /**
  * the main entry point of the program
- * @param {String[]} argv list of arguments given my STDIN
- *
- * node main.js [path to configuration.js]
  */
-function main(argv) {
-    params(argv);
+function main() {
+    params();
 
     configuration.readConfig(configurationPath);
     eventEmitter = new events.EventEmitter();
     startProcess();
 }
 
-function params(argv) {
-    var args = argv.slice(2);
-    var arg, value;
+/* parse args and manage help */
+function params() {
+    var parser = new ArgumentParser({
+        version: version,
+        addHelp:true,
+        description: 'Dependency watcher parses files defined in configuration file and build relationship. A web server is started where you can connect to watch dependencies. More information available at https://github.com/restimel/dependencyWatcher/blob/master/README.md'
+    });
 
-    while (args.length) {
-        arg = args.shift();
+    parser.addArgument(['-p', '--port'], {
+        help: 'Set the port of webserver (by default, it uses port 8000)',
+        defaultValue: 8000,
+        dest: 'port',
+        type: 'int',
+        metavar: '<port>'
+    });
 
-        if (['-h', '--help'].indexOf(arg) !== -1) {
-            console.log(command_help());
-            process.exit(0);
-        }
+    parser.addArgument('--verbose', {
+        help: 'Display also all logs in standard output',
+        defaultValue: false,
+        action: 'storeTrue',
+        dest: 'verbose',
+    });
 
-        if (['-v', '--version'].indexOf(arg) !== -1) {
-            console.log('i18n-js-parser v' + version);
-            process.exit(0);
-        }
+    parser.addArgument('configuration', {
+        help: 'Define the path of the configuration file (by default, it reads configuration.json)',
+        nargs: '?',
+        defaultValue: './configuration.json',
+        metavar: '<configuration_file>'
+    });
 
-        if (arg.indexOf('--port=') === 0) {
-            changePort(arg.slice(7));
-            continue;
-        }
+    var args = parser.parseArgs();
 
-        if (['-p', '--port'].indexOf(arg) !== -1) {
-            changePort(args.shift());
-        }
-
-        if (arg == '--verbose') {
-            configuration.verbose = true;
-        }
-
-        // In other cases it should be the path of configuration file
-        if (arg.indexOf('-') !== 0) {
-            configurationPath = arg;
-        }
-    }
-}
-
-function command_help() {
-    var text = [
-        'syntax:',
-        '\t node main.js [-h|--help][-v|--version][(-p|--port) <port>][--verbose][ <configurationFile>]',
-        '',
-        '-v (or --version): to know the current version of i18n-js-parser',
-        '-h (or --help): to have a quick summary of available options',
-        '-p (or --port): set the port of webserver (by default it uses port 8000)',
-        '--verbose: display also all logs in terminal',
-    ];
-
-    return text.join('\n');
+    changePort(args.port);
+    configuration.verbose = args.verbose;
+    configurationPath = args.configuration;
 }
 
 function changePort(port) {
@@ -110,4 +94,4 @@ function parseFiles(callback) {
 }
 
 /* run script */
-main(process.argv);
+main();

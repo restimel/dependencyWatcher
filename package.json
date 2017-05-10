@@ -1,0 +1,32 @@
+{
+  "name": "dependencyWatcher",
+  "version": "0.5.0",
+  "description": "Display dependencies inside a project",
+  "main": "main.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/restimel/dependencyWatcher.git"
+  },
+  "keywords": [
+    "dependency",
+    "dependencies",
+    "chart",
+    "graph",
+    "code"
+  ],
+  "author": "Restimel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/restimel/dependencyWatcher/issues"
+  },
+  "homepage": "https://github.com/restimel/dependencyWatcher",
+  "dependencies": {
+    "argparse": "^1.0.9"
+  }
+}
