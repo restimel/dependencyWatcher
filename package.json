@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/restimel/dependencyWatcher",
   "dependencies": {
-    "argparse": "^1.0.9"
+    "argparse": "^1.0.9",
+    "font-awesome": "^4.7.0"
   }
 }

@@ -2,7 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Dependency Relationship</title>
+    <title>Dependency Relationship</title>
+    <link rel="stylesheet" type="text/css" href="libs/font-awesome/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="css/dependency.css">
 </head>
 <body>
@@ -13,13 +14,17 @@
 </svg>
 <div id="filterArea">
 	<input id="search" placeholder="search" list="itemsDataList" autocomplete="off">
-	<button id="filterButton">F</button>
+	<button id="filterButton"><span class="fa fa-filter"></span></button>
 	<datalist id="itemsDataList"></datalist>
 </div>
 <div id="detailsArea">
 	<header><span id="detailsTitle">Bloc title</span></header>
-	<details><summary>Dependencies (<span id="depNb"></span>)</summary><ul id="dependencies"></ul></details>
-	<details><summary>Required by (<span id="reqByNb"></span>)</summary><ul id="requiredBy"></ul></details>
+    <details><summary>Dependencies (<span id="depNb"></span>)</summary><ul id="dependencies"></ul></details>
+    <details><summary>Required by (<span id="reqByNb"></span>)</summary><ul id="requiredBy"></ul></details>
+    <br>
+    <footer>
+        <button id="watchCode"><span class="fa fa-file-code-o"></span></button>
+    </footer>
 </div>
 
 <script src="scripts/columnManager.js"></script>

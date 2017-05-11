@@ -5,6 +5,7 @@ var elDependencies = document.getElementById('dependencies');
 var elRequired = document.getElementById('requiredBy');
 var elDepNb = document.getElementById('depNb');
 var elReqByNb = document.getElementById('reqByNb');
+var elCodeBtn = document.getElementById('watchCode');
 var loadDataOrig = self.loadData;
 
 function loadData() {
@@ -26,7 +27,7 @@ function createNoItem() {
 	return el;
 }
 
-function displayDetails(itemData, item) {
+function displayDetails(itemData, item=null, center=false) {
 	elDetails.scrollTop = 0;
 	elTitle.textContent = itemData.name;
 	elDependencies.innerHTML = '';
@@ -48,9 +49,9 @@ function displayDetails(itemData, item) {
 		});
 	}
 	if (item) {
-		item.setActive(true);
+		item.setActive(true, center);
 	} else if (self.rootItem) {
-		self.rootItem.getBox(itemData.name).setActive(true);
+		self.rootItem.getBox(itemData.name).setActive(true, center);
 	}
 }
 
@@ -62,6 +63,10 @@ if (typeof loadDataOrig === 'function') {
 } else {
 	self.loadData = loadData;
 }
+
+elCodeBtn.onclick = function() {
+	console.info('TODO watch data in file')
+};
 
 self.displayDetails = displayDetails;
 })();

@@ -140,9 +140,9 @@
         return [x, y, path];;
     };
 
-    Item.prototype.setActive = function(deep=true) {
+    Item.prototype.setActive = function(deep=true, center=false) {
         if (deep) {
-            setActive(this);
+            setActive(this, center);
             this.arrows.forEach(a => a.setActive());
             this.data.requiredBy.forEach(r =>
                 this.getBox(r).getArrow(this).setActive('parentLink')

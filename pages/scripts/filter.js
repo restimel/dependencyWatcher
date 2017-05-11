@@ -1,5 +1,6 @@
 (function() {
     var elFilter = document.getElementById('filterArea');
+    var elFilterBtn = document.getElementById('filterButton');
     var elSearch = document.getElementById('search');
     var elDataList = document.getElementById('itemsDataList');
     var loadDataOrig = self.loadData;
@@ -28,12 +29,16 @@
     function getItem(name) {
         var item = searchItem(name);
         if (item) {
-            displayDetails(item);
+            displayDetails(item, null, true);
         }
     }
 
     elSearch.oninput = function(evt) {
         getItem(evt.currentTarget.value);
+    };
+
+    elFilterBtn.onclick = function() {
+        console.log('TODO dialog filter')
     };
 
     if (typeof loadDataOrig === 'function') {

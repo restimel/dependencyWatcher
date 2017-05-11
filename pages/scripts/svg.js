@@ -58,6 +58,12 @@
         SVG.setAttribute('viewBox', boxView);
     }
 
+    function centerBox(x, y) {
+        X = x - WX / 2;
+        Y = y - WY / 2;
+        updateBox();
+    }
+
     function getCoord(x, y, origin = [X, Y]) {
         var ratioX = WX / sizeX;
         var ratioY = WY / sizeY;
@@ -72,11 +78,14 @@
         updateBox();
     }
 
-    function setActive(element) {
+    function setActive(element, center=false) {
         if (activeElement) {
             activeElement.setInactive(true);
         }
         activeElement = element;
+        if (center === true) {
+            centerBox(element.x + element.width / 2, element.y + element.height / 2)
+        }
     }
     self.setActive = setActive;
 
