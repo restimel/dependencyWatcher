@@ -1,10 +1,11 @@
 'use strict';
 
 var fs = require('fs');
-var config = require('./configuration.js');
+var configuration = require('./configuration.js');
 var FileReader = require('./fileReader.js').FileReader;
 var tools = require('./tools.js');
 var logger = require('./logger.js');
+var config;
 
 /* constant */
 var extractString = /(['"])((?:\\.|.)+?)\1\s*\+?\s*/g;
@@ -25,7 +26,6 @@ Parser.prototype.init = function() {
 	this.files = [];
 	this.countFile = 0;
 	this.countItem = 0;
-
 };
 
 Parser.prototype.findFile = function(fileName) {
@@ -115,7 +115,9 @@ Parser.prototype.parseFile = function(path, content) {
 Parser.prototype.parse = function() {
 	var exclude, authorized, paths, reader;
 
-	logger.trace('parser.parse');
+	config = configuration.configuration[configuration.currentConf];
+
+	logger.trace('parser.parse ' + config.name);
 	/* reset states to avoid duplicated data */
 	this.init();
 

@@ -10,12 +10,23 @@
 #detailsArea {
     position: absolute;
     top: 100px;
-    bottom: 0;
+    bottom: 25px;
     right: 0;
     width: 400px;
     background-color: #184242;
     color: #ddf7f7;
     overflow: auto
+}
+
+#confSelectArea {
+    position: absolute;
+    height: 25px;
+    bottom: 0;
+    right: 0;
+    width: 400px;
+    background-color: #184242;
+    color: #ddf7f7;
+    overflow: hidden
 }
 
 #drawArea {
@@ -52,6 +63,11 @@
 }
 #detailsArea > details > summary {
     cursor: pointer;
+}
+
+#confSelectArea > select {
+    width: 100%;
+    height: 25px;
 }
 
 .linkToItem {

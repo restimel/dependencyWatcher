@@ -32,12 +32,22 @@
     }
 
     function loadData(data) {
+        if (!data) return;
         var item = new Item(data[0]);
         self.rootItem = item;
         SVG_BOXES.appendChild(item.el);
 
         data[0].dependencies.forEach(displayItem.bind(this, item));
         item.drawArrows();
+    }
+
+    function reset() {
+        activeElement = null;
+        X = 0;
+        Y = 0;
+        WX = 1000;
+        updateYWidth();
+        updateBox();
     }
 
     function updateYWidth() {
@@ -128,6 +138,17 @@
         };
     } else {
         self.loadData = loadData;
+    }
+
+    if (typeof self.reset === 'function') {
+        let oldReset = self.reset;
+
+        self.reset = function() {
+            oldReset.apply(self, arguments);
+            reset();
+        };
+    } else {
+        self.loadData = reset;
     }
 
     windowSize();

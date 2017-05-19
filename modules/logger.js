@@ -4,7 +4,6 @@ var fs = require('fs');
 var configuration = require('./configuration.js');
 
 var loggerPath;
-var logLevel = 0;
 
 function checkPath() {
 	if (typeof loggerPath === 'undefined') {
@@ -16,13 +15,12 @@ function checkPath() {
 
 function log(message, level) {
 	var timestamp, text, hasLog;
-	
+
 	hasLog = checkPath();
-	if (!hasLog && !configuration.verbose) {
+	level = level || 0;
+	if ((!hasLog && !configuration.verbose) || level < configuration._logLevel) {
 		return;
 	}
-	
-	level = level || 0;
 
 	timestamp = Date.now();
 	text = '[' + timestamp + '] - ' + message + '\n';
@@ -30,9 +28,11 @@ function log(message, level) {
 	if (configuration.verbose) {
 		console.log(text);
 	}
-	if (!hasLog || level < logLevel) {
+
+	if (!hasLog) {
 		return;
 	}
+
 	fs.appendFile(loggerPath, text, {
 		flags: 'a',
 		defaultEncoding: 'utf8',

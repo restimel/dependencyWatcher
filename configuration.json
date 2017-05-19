@@ -1,31 +1,70 @@
 {
-	"rootFolders": ["main.js", "modules/*"],
-	"fileFilter": {
-		"whitelist": [{
-			"pattern": "\\.js$"
-		}]
-	},
-	"fileNameAdapter": [{
-		"matcher": {"pattern": ".*/modules/(.*)$"},
-		"output": "./modules/$1"
-	}, {
-		"matcher": {"pattern": "^\\./(?:\\./)+"},
-		"output": "./"
-	}],
-	"types": [{
-		"name": "modules",
-		"matcher": {
-			"pattern": "/modules/"
+	"configuration": [{
+
+		"name": "Backend",
+
+		"rootFolders": ["main.js", "modules/*"],
+		"fileFilter": {
+			"whitelist": [{
+				"pattern": "\\.js$"
+			}]
 		},
-		"color": "blue"
-	}],
-	"requireMatcher": [{
-		"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
-		"flags": "g"
-	}],
-	"requireNameAdapter": [{
-		"matcher": {"pattern": "\\./(?!modules/)"},
-		"output": "./modules/"
+		"fileNameAdapter": [{
+			"matcher": {"pattern": ".*/modules/(.*)$"},
+			"output": "./modules/$1"
+		}, {
+			"matcher": {"pattern": "^\\./(?:\\./)+"},
+			"output": "./"
+		}],
+		"types": [{
+			"name": "modules",
+			"matcher": {
+				"pattern": "/modules/"
+			},
+			"color": "blue"
+		}],
+		"requireMatcher": [{
+			"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
+			"flags": "g"
+		}],
+		"requireNameAdapter": [{
+			"matcher": {"pattern": "\\./(?!modules/)"},
+			"output": "./modules/"
+		}]
+	}, {
+
+		"name": "Frontend",
+
+		"rootFolders": ["pages/*"],
+		"fileFilter": {
+			"whitelist": [{
+				"pattern": "\\.js$"
+			}, {
+				"pattern": "\\.html$"
+			}]
+		},
+		"fileNameAdapter": [{
+			"matcher": {"pattern": ".*/modules/(.*)$"},
+			"output": "./modules/$1"
+		}, {
+			"matcher": {"pattern": "^\\./(?:\\./)+"},
+			"output": "./"
+		}],
+		"types": [{
+			"name": "scripts",
+			"matcher": {
+				"pattern": "/scripts/"
+			},
+			"color": "blue"
+		}],
+		"requireMatcher": [{
+			"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
+			"flags": "g"
+		}],
+		"requireNameAdapter": [{
+			"matcher": {"pattern": "\\./(?!pages/)"},
+			"output": "./pages/"
+		}]
 	}],
 	"log": "test.log"
 }

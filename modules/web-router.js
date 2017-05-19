@@ -1,7 +1,7 @@
 'use strict';
 
 var webServer = require('./web-server.js');
-var config = require('./configuration.js');
+var configuration = require('./configuration.js');
 
 function server(eventEmitter, port) {
 	if (typeof port !== 'number') {
@@ -15,7 +15,7 @@ function server(eventEmitter, port) {
         var query = req.url.query;
         var method = req.method;
         var httpBody = req.httpBody;
-        var path;
+        var path, index;
 
         switch (pathName) {
             case '/logout':
@@ -25,8 +25,12 @@ function server(eventEmitter, port) {
             case '/':
             	path = './pages/index.html';
             	break;
+            case '/data/configuration.json':
+                servlet.sendHTML_(req, res, getWebConfig(), 200);
+                return;
             case '/data/links.json':
-                eventEmitter.emit('parseFiles', function(parser) {
+                index = query && query.configuration;
+                eventEmitter.emit('parseFiles', index, function(parser) {
                     if (parser) {
                         servlet.sendHTML_(req, res, JSON.stringify(parser.files), 200);
                     } else {
@@ -44,6 +48,16 @@ function server(eventEmitter, port) {
         } else {
         	servlet.sendFile_(req, res, path);
         }
+    }
+
+    function getWebConfig() {
+        var config = {};
+
+        config.dependencies = configuration.configuration.map(function(conf) {
+            return conf.name;
+        });
+
+        return JSON.stringify(config);
     }
 }
 

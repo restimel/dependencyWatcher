@@ -51,6 +51,14 @@ function params() {
         dest: 'verbose',
     });
 
+    parser.addArgument('--logLevel', {
+        help: 'Set the level of log (should be a number between 0 and 5)',
+        defaultValue: undefined,
+        dest: 'logLevel',
+        type: 'int',
+        metavar: '<L>'
+    });
+
     parser.addArgument('configuration', {
         help: 'Define the path of the configuration file (by default, it reads configuration.json)',
         nargs: '?',
@@ -63,6 +71,9 @@ function params() {
     changePort(args.port);
     configuration.verbose = args.verbose;
     configurationPath = args.configuration;
+    if (args.logLevel) {
+        configuration._logLevel = args.logLevel;
+    }
 }
 
 function changePort(port) {
@@ -83,12 +94,17 @@ function startProcess() {
     eventEmitter.addListener('parseFiles', parseFiles);
 }
 
-function parseFiles(callback) {
+function parseFiles(confIndex, callback) {
+    logger.trace('parseFiles');
+
     if (typeof callback === 'function') {
         eventEmitter.once('parsed:parser', callback);
     }
 
-    logger.trace('parseFiles');
+    if (configuration.configuration[confIndex]) {
+        logger.debug('change currentConf');
+        configuration.currentConf = confIndex;
+    }
 
     parser.parse();
 }

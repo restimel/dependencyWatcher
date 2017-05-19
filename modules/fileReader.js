@@ -203,6 +203,8 @@ FileReader.prototype.read = function(path) {
 		return;
 	}
 
+	logger.trace('read file "' + path + '"');
+
 	this.running++;
 	setTimeout(this.readPath.bind(this), 1, paths, currentPath);
 };

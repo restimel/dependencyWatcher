@@ -34,6 +34,41 @@ exports.extend = function extend(obj1, obj2) {
 	return obj1;
 };
 
+/**
+ * Create a copy of an object and copy of its inner properties
+ */
+exports.clone = function clone(obj) {
+	var objClone = {};
+	var key, value;
+
+	for (key in obj) {
+		if (!obj.hasOwnProperty(key)) {
+			continue;
+		}
+		value = obj[key];
+
+		if (typeof value === 'object') {
+			if (value instanceof Array) {
+				objClone[key] = value.map(function(v) {
+					if (typeof v === 'object') {
+						return clone(v);
+					} else {
+						return v;
+					}
+				});
+			} else if (value instanceof RegExp) {
+				objClone[key] = new RegExp(value.source, value.flags);
+			} else {
+				objClone[key] = clone(value);
+			}
+		} else {
+			objClone[key] = value;
+		}
+	}
+
+	return objClone;
+};
+
 /* Allow to loop on object keys
  */
 exports.each = function(obj, callback, ctx) {

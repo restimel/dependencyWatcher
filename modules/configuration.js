@@ -3,7 +3,9 @@
 var fs = require('fs');
 var tools = require('./tools.js');
 
-var configuration = {
+var defaultConfiguration = {
+	/* name of configuration */
+	name: 'default',
 	/* path of root directories to parse */
 	rootFolders: [],
 	/* Parse only files which match these rules */
@@ -23,6 +25,76 @@ var configuration = {
 	}],
 	/* Format require name to match file "id" */
 	requireNameAdapter: []
+};
+
+var configuration = {
+	configuration: [tools.extend({}, defaultConfiguration)],
+	/* The id of the configuration to be displayed */
+	currentConf: 0,
+	/* level of Logs*/
+	logLevel: 3,
+
+	/*private attributes should not be changed */
+	_logLevel: -1
+};
+
+/* Assert that configuration is valid */
+configuration.checkConfig = function() {
+	function isInt(value) {
+		return typeof value === 'number' && value >= 0 && value%1 === 0;
+	}
+	function isArray(value) {
+		return value instanceof Array;
+	}
+
+	var msg;
+	var errors = [];
+
+	if (!isInt(configuration.logLevel)) {
+		errors.push('logLevel');
+	}
+	if (!isInt(configuration.currentConf)) {
+		errors.push('currentConf');
+	}
+
+	if (!isArray(configuration.configuration) || configuration.configuration.length === 0) {
+		errors.push('configuration');
+	} else {
+		configuration.configuration.forEach(function(conf, idx) {
+			if (!isArray(conf.rootFolders)) {
+				errors.push('configuration['+idx+'].rootFolders');
+			}
+			if (!isArray(conf.fileFilter.whitelist)) {
+				errors.push('configuration['+idx+'].fileFilter.whitelist');
+			}
+			if (!isArray(conf.fileFilter.blacklist)) {
+				errors.push('configuration['+idx+'].fileFilter.blacklist');
+			}
+			if (!isArray(conf.fileNameAdapter)) {
+				errors.push('configuration['+idx+'].fileNameAdapter');
+			}
+			if (!isArray(conf.types)) {
+				errors.push('configuration['+idx+'].types');
+			}
+			if (!isArray(conf.requireMatcher)) {
+				errors.push('configuration['+idx+'].requireMatcher');
+			}
+			if (!isArray(conf.requireNameAdapter)) {
+				errors.push('configuration['+idx+'].requireNameAdapter');
+			}
+		});
+	}
+
+
+	if (errors.length) {
+		msg = 'Configuration file is not valid.\nThese attributes are not correctly configured:\n' + errors.join('\n');
+
+		logger.error(msg);
+		logger.debug(JSON.stringify(configuration));
+		process.exit(1);
+	}
+
+	return errors.length === 0;
 };
 
 configuration.readConfig = function(configPath) {
@@ -68,8 +140,14 @@ configuration.readConfig = function(configPath) {
 			process.exit(1);
 		}
 
+		fileObj.configuration = fileObj.configuration.map(function(conf) {
+			var defaultConf = tools.clone(defaultConfiguration);
+			return tools.extend(defaultConf, conf);
+		});
+
 		tools.extend(configuration, fileObj);
 		updatePaths();
+		this.checkConfig();
 		convertObjects();
 	}
 };
@@ -111,7 +189,9 @@ function replaceRegexp(obj) {
 }
 
 function updatePaths() {
-	configuration.rootFolders = replacePath(configuration.rootFolders);
+	configuration.configuration.forEach(function(conf) {
+		conf.rootFolders = replacePath(conf.rootFolders);
+	});
 
 	configuration.log = configuration.log && replacePath(configuration.log);
 }
@@ -119,18 +199,24 @@ function updatePaths() {
 /** Replace object string by their object (like regexp)
  */
 function convertObjects() {
-	configuration.fileNameAdapter.forEach(function(rpl) {
-		rpl.matcher = replaceRegexp(rpl.matcher);
+	configuration.configuration.forEach(function(conf) {
+		conf.fileNameAdapter.forEach(function(rpl) {
+			rpl.matcher = replaceRegexp(rpl.matcher);
+		});
+		conf.requireNameAdapter.forEach(function(rpl) {
+			rpl.matcher = replaceRegexp(rpl.matcher);
+		});
+		conf.types.forEach(function(type) {
+			type.matcher = replaceRegexp(type.matcher);
+		});
+		conf.requireMatcher = replaceRegexp(conf.requireMatcher);
+		conf.fileFilter.whitelist = replaceRegexp(conf.fileFilter.whitelist);
+		conf.fileFilter.blacklist = replaceRegexp(conf.fileFilter.blacklist);
 	});
-	configuration.requireNameAdapter.forEach(function(rpl) {
-		rpl.matcher = replaceRegexp(rpl.matcher);
-	});
-	configuration.types.forEach(function(type) {
-		type.matcher = replaceRegexp(type.matcher);
-	});
-	configuration.requireMatcher = replaceRegexp(configuration.requireMatcher);
-	configuration.fileFilter.whitelist = replaceRegexp(configuration.fileFilter.whitelist);
-	configuration.fileFilter.blacklist = replaceRegexp(configuration.fileFilter.blacklist);
+
+	if (configuration._logLevel < 0) {
+		configuration._logLevel = configuration.logLevel;
+	}
 }
 
 module.exports = configuration;

@@ -2,6 +2,7 @@
 
 * [Configuration of config.json]
   * [Attributes]
+  * [Configuration]
   * [Types]
 
 [Back to main page](../README.md)
@@ -14,9 +15,55 @@ config.json is the main file to configure. It is a JSON which contains all infor
 
 It is located in the root folder of Dependency Watcher.
 
-[Attributes]:#Attributes
-<a name="Attributes"></a>
+
+[Attributes]:#MainAttributes
+<a name="MainAttributes"></a>
 ### Attributes
+
+
+* **configuration** _([Configuration][])_: List of all configuration to parse part of the project. Each configuration can parse only a small chunk or the whole project. It is possible to parse the same code on different configuration (for example to display them differently).
+The first one is used by default.
+  example:
+  ```json
+  "configuration": [{
+    "name": "backend",
+    ...
+  }, {
+    "name": "frontend",
+    ...
+  }]
+  ```
+
+* **log** _(String)_ (optional): Path to logs all data.
+  example:
+  ```json
+  "log": "trace.log"
+  ```
+
+* **logLevel** _(Number)_ (optional): Level to prompt logs
+  * 0: *debug level* - display debug logs and following logs
+  * 1: *trace level* - display trace logs and following logs
+  * 2: *info level* - display info logs and following logs
+  * 3: *warn level* - display warning logs and error logs
+  * 4: *error level* - display only error logs
+  * 5: *No Log* - no logs are displayed
+
+  example:
+  ```json
+  "logLevel": 3
+  ```
+
+[Configuration]:#ConfAttributes
+<a name="ConfAttributes"></a>
+### Configuration Attributes
+
+Configuration defines what files or folder to parse, how to parse them and how then should be displayed.
+
+* **name** _(string)_: The name of what is parsed inside this configuration. This name will be displayed in the GUI to choose among all configuration available.
+  example:
+  ```json
+  "name": "Front-end - charts"
+  ```
 
 * **rootFolders** _(string[])_: The path of root directories which contains all files you want to parse. Path must be absolute or relative to where Dependency Watcher is running.
   example:
@@ -69,12 +116,6 @@ It is located in the root folder of Dependency Watcher.
     "matcher": {"pattern": "^html!(.*)"},
     "output": "$1"
   }]
-  ```
-
-* **log** _(String)_ (optional): Path to logs all data.
-  example:
-  ```json
-  "log": "trace.log"
   ```
 
 [Types]:#Types

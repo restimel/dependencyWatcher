@@ -14,7 +14,9 @@
 
     function loadData() {
         elDataList.html = '';
-        global.data.forEach(item=>elDataList.appendChild(createOption(item.name)));
+        if (global.data) {
+            global.data.forEach(item=>elDataList.appendChild(createOption(item.name)));
+        }
     }
 
     function applyFilter(name) {

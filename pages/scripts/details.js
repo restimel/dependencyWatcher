@@ -9,7 +9,12 @@ var elCodeBtn = document.getElementById('watchCode');
 var loadDataOrig = self.loadData;
 
 function loadData() {
-	displayDetails(global.data[0]);
+	if (global.data) {
+		displayDetails(global.data[0]);
+	}
+}
+
+function reset() {
 }
 
 function createItem(itemName) {
@@ -62,6 +67,17 @@ if (typeof loadDataOrig === 'function') {
 	};
 } else {
 	self.loadData = loadData;
+}
+
+if (typeof self.reset === 'function') {
+    let oldReset = self.reset;
+
+    self.reset = function() {
+        oldReset.apply(self, arguments);
+        reset();
+    };
+} else {
+    self.loadData = reset;
 }
 
 elCodeBtn.onclick = function() {
