@@ -36,9 +36,9 @@
 			}, error => console.error('Failed to parse configuration file' + error.message));
 
 		el.onchange = function() {
-			if (self.rootItem) {
-				self.rootItem.remove();
-				self.rootItem = null;
+			if (self.rootItem.length) {
+				self.rootItem.forEach(item => item.remove());
+				self.rootItem = [];
 				self.reset();
 			}
 			getData(el.value);

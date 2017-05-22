@@ -101,7 +101,7 @@ Parser.prototype.parseFile = function(path, content) {
 	config.requireMatcher.forEach(function(matcher) {
 		var rslt, depFile;
 
-		logger.debug('to ' + matcher.r.toString())
+		logger.debug('to ' + matcher.r.toString());
 		do {
 			rslt = matcher.r.exec(content);
 			if (rslt) {

@@ -31,14 +31,27 @@
         subData.dependencies.forEach(displayItem.bind(this, subItem));
     }
 
-    function loadData(data) {
-        if (!data) return;
-        var item = new Item(data[0]);
-        self.rootItem = item;
-        SVG_BOXES.appendChild(item.el);
+    function loadData(dataList) {
+        if (!dataList) return;
+        var columnManager, mainItem;
 
-        data[0].dependencies.forEach(displayItem.bind(this, item));
-        item.drawArrows();
+        dataList.forEach(function(data) {
+            if (!mainItem || !mainItem.getBox(data.name)) {
+                let item = new Item(data, {
+                    columnManager: columnManager
+                });
+                self.rootItem = [item];
+                SVG_BOXES.appendChild(item.el);
+
+                data.dependencies.forEach(displayItem.bind(this, item));
+                item.drawArrows();
+
+                if (!mainItem) {
+                    mainItem = item;
+                    columnManager = item.columnManager
+                }
+            }
+        });
     }
 
     function reset() {

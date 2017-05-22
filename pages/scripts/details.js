@@ -55,8 +55,8 @@ function displayDetails(itemData, item=null, center=false) {
 	}
 	if (item) {
 		item.setActive(true, center);
-	} else if (self.rootItem) {
-		self.rootItem.getBox(itemData.name).setActive(true, center);
+	} else if (self.rootItem && self.rootItem[0]) {
+		self.rootItem[0].getBox(itemData.name).setActive(true, center);
 	}
 }
 
