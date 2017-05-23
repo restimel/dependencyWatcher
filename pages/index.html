@@ -17,7 +17,7 @@
 	<button id="filterButton"><span class="fa fa-filter"></span></button>
 	<datalist id="itemsDataList"></datalist>
 </div>
-<div id="detailsArea">
+<div data-tab="details" class="tabContent">
 	<header><span id="detailsTitle">Bloc title</span></header>
     <details><summary>Dependencies (<span id="depNb"></span>)</summary><ul id="dependencies"></ul></details>
     <details><summary>Required by (<span id="reqByNb"></span>)</summary><ul id="requiredBy"></ul></details>
@@ -26,6 +26,16 @@
         <button id="watchCode"><span class="fa fa-file-code-o"></span></button>
     </footer>
 </div>
+<div class="tabContent" data-tab="groups">
+    <header>Groups</header>
+    <div id="groupDetails"></div>
+</div>
+<footer id="tabsSelection">
+    <ul>
+        <li data-tab="details">Details</li>
+        <li data-tab="groups">Groups</li>
+    </ul>
+</footer>
 <div id="confSelectArea">
     <select id="confSelect" title="Change configuration"></select>
 </div>

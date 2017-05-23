@@ -7,15 +7,20 @@
     background-color: #184242;
 }
 
-#detailsArea {
+.tabContent {
     position: absolute;
     top: 100px;
-    bottom: 25px;
+    bottom: 55px;
     right: 0;
     width: 400px;
     background-color: #184242;
     color: #ddf7f7;
-    overflow: auto
+    overflow: auto;
+    display: none;
+}
+
+.tabContent.active {
+    display: block;
 }
 
 #confSelectArea {
@@ -26,7 +31,40 @@
     width: 400px;
     background-color: #184242;
     color: #ddf7f7;
-    overflow: hidden
+    overflow: hidden;
+}
+
+#tabsSelection {
+    position: absolute;
+    height: 30px;
+    bottom: 25px;
+    right: 0;
+    width: 400px;
+    background-color: #184242;
+    color: #ddf7f7;
+    overflow: auto;
+    border-top: 2px solid white;
+}
+
+#tabsSelection ul {
+    margin: 0;
+}
+
+#tabsSelection ul li {
+    display: inline-block;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border: 2px solid white;
+    border-top: none;
+    margin-top: -2px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#tabsSelection li.active {
+    background-color: #ddf7f7;
+    color: #184242;
+    cursor: default;
 }
 
 #drawArea {
@@ -53,16 +91,29 @@
     margin-left: 10px;
 }
 
-#detailsArea > header {
+.tabContent > header {
     font-size: 1.5em;
     text-align: center;
     padding: 10px;
 }
-#detailsArea > details {
+.tabContent > details {
     margin-left: 10px;
 }
-#detailsArea > details > summary {
+.tabContent > details > summary {
     cursor: pointer;
+}
+
+.groupDetail {
+    padding: 10px;
+}
+
+.colorBox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    margin-right: 5px;
+    margin-bottom: -5px;
 }
 
 #confSelectArea > select {

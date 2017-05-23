@@ -55,7 +55,7 @@
 			"matcher": {
 				"pattern": "/scripts/"
 			},
-			"color": "blue"
+			"color": "cyan"
 		}],
 		"requireMatcher": [{
 			"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
