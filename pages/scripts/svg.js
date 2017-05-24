@@ -1,4 +1,4 @@
-(function() {
+function module_svg() {
     var SVG = document.getElementById('drawArea');
     var SVG_BOXES = SVG.querySelector('.boxes');
     var X = 0;
@@ -35,12 +35,17 @@
         if (!dataList) return;
         var columnManager, mainItem;
 
+        if (self.rootItem && self.rootItem.length) {
+            self.rootItem.forEach(item=>item.remove());
+        }
+        self.rootItem = [];
+
         dataList.forEach(function(data) {
             if (!mainItem || !mainItem.getBox(data.name)) {
                 let item = new Item(data, {
                     columnManager: columnManager
                 });
-                self.rootItem = [item];
+                self.rootItem.push(item);
                 SVG_BOXES.appendChild(item.el);
 
                 data.dependencies.forEach(displayItem.bind(this, item));
@@ -52,6 +57,8 @@
                 }
             }
         });
+
+        selectTab();
     }
 
     function reset() {
@@ -165,4 +172,4 @@
     }
 
     windowSize();
-})();
+}

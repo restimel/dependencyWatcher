@@ -46,7 +46,6 @@ Parser.prototype.addFile = function(fileName) {
 		requiredBy: [],
 		type: {
 			name: 'undefined',
-			color: 'grey'
 		}
 	};
 	this.files.push(fileObj);

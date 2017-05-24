@@ -146,5 +146,6 @@ Configuration defines what files or folder to parse, how to parse them and how t
 * **Type**: describe a type category
   * name _(string)_: the name of the category
   * matcher _([RegExp])_: If the input match this regexp, this category will be assign to it.
-  * color _(string)_: describes how an item of this category would be displayed.
+  * color _(string)_ (optional): describes how an item of this category would be displayed (text).
+  * bgColor _(string)_ (optional): describes how the background of an item of this category would be displayed.
 

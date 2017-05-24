@@ -8,6 +8,7 @@
                 obj[x] = defaultObj[x];
             }
         }
+        return obj;
     }
 
     function Item(data, options={}) {
@@ -21,8 +22,12 @@
         this.columnManager = options.columnManager || new ColumnManager();
 
         this._setColumn(options);
+
         this.children = [];
         this.arrows = [];
+
+        this._checkTypes();
+
         this._createSVGEl();
     }
 
@@ -37,6 +42,14 @@
         this.columnManager.removeItem(this);
         this.arrows.forEach(a => a.remove());
         this.children.forEach(c => c.remove());
+    };
+
+    Item.prototype._checkTypes = function(options) {
+        var type = this.data.type;
+
+        if (!global.types[type.name]) {
+            global.types[type.name] = defaults({}, type);
+        }
     };
 
     Item.prototype._setColumn = function(options) {
@@ -58,7 +71,7 @@
     // <rect x="0" y="0" fill="#eaeaea" stroke="#666" width="200" height="100" rx="3" ry="3"></rect>
 
         this.el.setAttribute('id', this.data.name);
-        this.el.onclick = displayDetails.bind(this, this.data, this);
+        this.el.onclick = displayDetails.bind(this, this.data, this, false, true);
 
         text.textContent = this.data.name;
         // add text to SVG to compute its size
@@ -75,14 +88,15 @@
 
         text.setAttribute('x', this.x + this.padding);
         text.setAttribute('y', this.y + bbox.height + this.padding);
+        text.setAttribute('fill', getColorType(this.data.type));
 
         rect.setAttribute('x', this.x);
         rect.setAttribute('y', this.y);
         rect.setAttribute('width', this.width);
         rect.setAttribute('height', this.height);
         rect.setAttribute('class', 'fileItem');
-        rect.setAttribute('fill', '#eaeaea');
-        rect.setAttribute('stroke', '#666666');
+        rect.setAttribute('fill', getBgColorType(this.data.type));
+        rect.setAttribute('stroke', getColorType(this.data.type));
 
         this.el.appendChild(rect);
         this.el.appendChild(text);
@@ -152,6 +166,9 @@
     };
 
     Item.prototype.setInactive = function(deep=true) {
+        if (!this.el) {
+            return;
+        }
         this.el.classList.remove('active');
         if (deep) {
             this.arrows.forEach(a => a.setInactive());

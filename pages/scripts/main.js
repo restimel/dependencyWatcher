@@ -1,6 +1,7 @@
-(function() {
+function module_main() {
 	self.global = {
-		data: []
+		data: [],
+		types: {}
 	};
 
 	function getData(confIdx=0) {
@@ -49,4 +50,9 @@
 
 	getData();
 	changeConfiguration();
-})();
+}
+
+module_main();
+module_filter();
+module_details();
+module_svg();

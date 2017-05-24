@@ -1,4 +1,4 @@
-(function() {
+function module_filter() {
     var elFilter = document.getElementById('filterArea');
     var elFilterBtn = document.getElementById('filterButton');
     var elSearch = document.getElementById('search');
@@ -15,7 +15,7 @@
     function loadData() {
         elDataList.html = '';
         if (global.data) {
-            global.data.forEach(item=>elDataList.appendChild(createOption(item.name)));
+            global.data.forEach(item => elDataList.appendChild(createOption(item.name)));
         }
     }
 
@@ -25,13 +25,13 @@
     }
 
     function searchItem(name) {
-        return global.data.find(o=>o.name===name);
+        return global.data.find(o => o.name === name);
     }
 
     function getItem(name) {
         var item = searchItem(name);
         if (item) {
-            displayDetails(item, null, true);
+            displayDetails(item, null, true, true);
         }
     }
 
@@ -54,4 +54,4 @@
 
     self.searchItem = searchItem;
     self.applyFilter = applyFilter;
-})();
+}

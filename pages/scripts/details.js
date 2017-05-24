@@ -1,4 +1,4 @@
-(function() {
+function module_details() {
 var elDetails = document.querySelector('li[data-tab=details]');
 var elTitle = document.getElementById('detailsTitle');
 var elDependencies = document.getElementById('dependencies');
@@ -7,8 +7,16 @@ var elDepNb = document.getElementById('depNb');
 var elReqByNb = document.getElementById('reqByNb');
 var elCodeBtn = document.getElementById('watchCode');
 var elGroupContent = document.getElementById('groupDetails');
+var elDialogTypeColor = document.getElementById('dialogTypeColor');
+var elInputTypeColor = document.getElementById('inputTypeColor');
+var elInputTypeBgColor = document.getElementById('inputTypeBgColor');
+var elTitleType = document.getElementById('TypeTitle');
+var elCloseTypeColor = document.getElementById('closeTypeColor');
+var elCancelTypeColor = document.getElementById('cancelTypeColor');
 var loadDataOrig = self.loadData;
 var isGroupDefined = false;
+var lastAction  ='details';
+var currentMainItem;
 
 function loadData() {
 	if (global.data) {
@@ -17,11 +25,20 @@ function loadData() {
 }
 
 function reset() {
+	currentMainItem = null;
 	isGroupDefined = false;
+	global.types = {};
 }
 
-function selectTab(action='details') {
+function selectTab(action=lastAction) {
 	var el, elActive, elTab;
+
+	lastAction = action;
+
+	switch(action) {
+		case 'details': displayDetails(); break;
+		case 'groups': displayGroups(); break;
+	}
 
 	elActive = document.querySelector('li.active');
 	el = document.querySelector('li[data-tab=' + action + ']');
@@ -56,7 +73,8 @@ function createNoItem() {
 	return el;
 }
 
-function displayDetails(itemData, item=null, center=false) {
+function displayDetails(itemData=currentMainItem, item=null, center=false, active=false) {
+	currentMainItem = itemData;
 	elDetails.scrollTop = 0;
 	elTitle.textContent = itemData.name;
 	elDependencies.innerHTML = '';
@@ -77,18 +95,20 @@ function displayDetails(itemData, item=null, center=false) {
 			elRequired.appendChild(createItem(dep));
 		});
 	}
-	if (item) {
-		item.setActive(true, center);
-	} else if (self.rootItem && self.rootItem[0]) {
-		self.rootItem[0].getBox(itemData.name).setActive(true, center);
-	}
-
-	if (!isGroupDefined) {
-		displayGroups();
+	if (active) {
+		if (item) {
+			item.setActive(true, center);
+		} else if (self.rootItem && self.rootItem[0]) {
+			self.rootItem[0].getBox(itemData.name).setActive(true, center);
+		}
 	}
 }
 
-function displayGroups() {
+function displayGroups(forceRefresh=false) {
+	if (!forceRefresh && isGroupDefined) {
+		return;
+	}
+
 	var groupList = new Map();
 	var groupListItems = {};
 
@@ -114,7 +134,9 @@ function displayGroups() {
 
 		let elColor = document.createElement('div');
 		elColor.className = 'colorBox';
-		elColor.style.backgroundColor = group.color;
+		elColor.style.backgroundColor = getBgColorType(group);
+		elColor.style.borderColor = getColorType(group);
+		elColor.onclick = dialogColors.bind(group);
 		elSummary.appendChild(elColor);
 
 		let label = document.createElement('label');
@@ -135,6 +157,43 @@ function displayGroups() {
 		elGroupContent.appendChild(elDetails);
 	}
 	isGroupDefined = true;
+}
+
+function dialogColors() {
+	var type = this;
+	var color = getColorType(type);
+	var bgColor = getBgColorType(type);
+
+	elInputTypeColor.value = color;
+	elInputTypeBgColor.value = bgColor;
+	elTitleType.textContent = type.name;
+
+	elDialogTypeColor.showModal();
+	elCloseTypeColor.onclick = function() {
+		var types = global.types;
+
+		types[type.name].color = elInputTypeColor.value;
+		types[type.name].bgColor = elInputTypeBgColor.value;
+		self.reset();
+		global.types = types;
+		self.loadData(global.data);
+		displayGroups(true);
+		elDialogTypeColor.close();
+	};
+}
+
+elCancelTypeColor.onclick = function() {
+	elDialogTypeColor.close();
+};
+
+function getColorType(type={}) {
+	type = global.types[type.name] || {};
+	return type.color || '#333';
+}
+
+function getBgColorType(type={}) {
+	type = global.types[type.name] || {};
+	return type.bgColor || '#eaeaea';
 }
 
 /* extend loadData */
@@ -173,7 +232,8 @@ document.querySelector('#tabsSelection ul').onclick = function(evt) {
 	}
 };
 
-selectTab('details');
-
+self.selectTab = selectTab;
 self.displayDetails = displayDetails;
-})();
+self.getColorType = getColorType;
+self.getBgColorType = getBgColorType;
+}
