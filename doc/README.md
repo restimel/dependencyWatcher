@@ -10,6 +10,7 @@ Please follow any of these links to have more information about what you look fo
     * [Local installation and contribution](installation.md)
     * [Configuration](configuration.md)
     * Technical overview
+    * [Security management](securityWork.md)
     * Translations
 
 

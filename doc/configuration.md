@@ -53,6 +53,12 @@ The first one is used by default.
   "logLevel": 3
   ```
 
+* **passwordFile** _(string)_: The path of a file containing the password. If password is missing or if the file cannot be read, action requiring a password will be forbidden.
+  example:
+  ```json
+  "passwordFile": "password.txt"
+  ```
+
 [Configuration]:#ConfAttributes
 <a name="ConfAttributes"></a>
 ### Configuration Attributes
@@ -95,11 +101,20 @@ Configuration defines what files or folder to parse, how to parse them and how t
   types: [{
     "name": "JS files",
     "matcher": {"pattern": "\\.js$"},
-    "color": "green"
+    "color": "#00FF00",
+    "right": {
+      "readFile": true,
+      "writeFile": "password"
+    }
   }, {
     "name": "HTML files",
     "macther": {"pattern": "\\.html$"},
-    "color": "blue"
+    "color": "#0000FF",
+    "bgColor": "#CCFFFF",
+    "rights": {
+      "readFile": true,
+      "writeFile": false
+    }
   }]
   ```
 
@@ -148,4 +163,17 @@ Configuration defines what files or folder to parse, how to parse them and how t
   * matcher _([RegExp])_: If the input match this regexp, this category will be assign to it.
   * color _(string)_ (optional): describes how an item of this category would be displayed (text).
   * bgColor _(string)_ (optional): describes how the background of an item of this category would be displayed.
+  * rights _([Rights])_ (optional): describes how files of this type can be manipulated.
 
+[Rights]:#Rights
+<a name="Rights"></a>
+* **Right**: describe authorisation for reading files
+  * readFile _([RightValue])_: Allow (or not) to watch code of files (default value is `false`)
+  * writeFile _([RightValue])_: Allow (or not) to modify code of files (default value is `false`)
+
+[RightValue]:#RightValue
+<a name="RightValue"></a>
+* **RightValue** _(string|boolean)_: It describes how to manage a right. The type of this attribute is not an object but either a boolean either a string.
+  * _(boolean)_: If `true`, the action is always authorized. If `false`, the action is always forbiden
+  * _(string)_: describes what todo.
+    * "password": user must enter the password to perform the action.

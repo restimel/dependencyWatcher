@@ -67,5 +67,6 @@
 			"output": "./pages/"
 		}]
 	}],
+	"passwordFile": "password.txt",
 	"log": "test.log"
 }

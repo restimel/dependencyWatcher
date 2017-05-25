@@ -25,4 +25,5 @@ Please follow any of these links to have more information about what you look fo
 	* [Local installation and contribution](doc/installation.md)
 	* [Configuration](doc/configuration.md)
 	* Technical overview
+	* [Security management](doc/securityWork.md)
 	* Translations
