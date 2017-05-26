@@ -13,6 +13,8 @@
 * watch file
     * Ace
     * Security (limit access)
+        * Ask and build challenge
+        * Create cipher communication (https://github.com/ricmoo/aes-js)
     * Edit file on server
 
 ## This has been done

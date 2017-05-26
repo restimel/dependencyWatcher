@@ -142,7 +142,7 @@ Configuration defines what files or folder to parse, how to parse them and how t
 * **RegExp**: describe a regexp
   * pattern _(string)_: the pattern to match.
   * flags _(string)_ (optional): flags to apply for this regexp ("gimy").
-  * split _(RegExp)_ (optional): another regexp to apply on result to split it.
+  * split _([RegExp])_ (optional): another regexp to apply on result to split it.
 
 [Replace]:#Replace
 <a name="Replace"></a>
