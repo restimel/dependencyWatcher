@@ -46,10 +46,12 @@ There are 2 thing to protect:
 In the current project there are no sessions. So anyone who is able to connect to the web application is able to see the project architecture. This is a choice from start. This can be changed in a future version, but not now.
 So in order to limit access to some features, the password must be asked task by task.
 
-The front-end must ask for a challenge. A token is returned by server. Only 10 token can be created at the same time (this limitation is done to avoid flooding server with too many requests).
-Front-end compute this token with the password and create a challenge token.
+The front-end must ask for a challenge. A salt is returned by server. Only 10 salt can be created at the same time (this limitation is done to avoid flooding server with too many requests). It is possible to change this limit in configuration.json.
+Front-end compute this salt with the password and create a challenge token.
 The restricted request is then sent with the challenge token.
-Back-end compare the challenge token with its own computation, if it matches, the token is removed from the store (so no other request can be done with this challenge) and the operation is proccessed.
+Back-end compare the challenge token with its own computation, if it matches, the salt is removed from the store (so no other request can be done with this challenge) and the operation is proccessed.
+
+Salt are removed after a timeout delay if they are not used.
 
 
 ### Assert you are the one to read the given data

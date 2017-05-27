@@ -1,3 +1,5 @@
+var crypto = require('crypto');
+
 if (typeof Array.prototype.find === 'undefined') {
 	Array.prototype.find = function(f, ctx) {
 		var value;
@@ -90,4 +92,16 @@ exports.toRegExp = function(str) {
 	return str.replace(/\\(?![nrs])/g, '\\\\')
 			  .replace(/([-.()[\]{}$^|+])/g, '\\$1')
 			  .replace(/\*/g, '.*');
+};
+
+/* Generate a salt for challenge and cipher message
+ */
+exports.generateSalt = function(size, encoding) {
+	if (!size) {
+		size = 256;
+	}
+	if (!encoding) {
+		encoding = 'base64';
+	}
+	return crypto.randomBytes(size).toString(encoding);
 };

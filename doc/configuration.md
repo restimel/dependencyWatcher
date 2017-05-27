@@ -53,10 +53,13 @@ The first one is used by default.
   "logLevel": 3
   ```
 
-* **passwordFile** _(string)_: The path of a file containing the password. If password is missing or if the file cannot be read, action requiring a password will be forbidden.
+* **security** _([Security])_: Define security settings
   example:
   ```json
-  "passwordFile": "password.txt"
+  "security": {
+    "passwordFile": "password.txt",
+    "maxStoreSalt": 10
+  }
   ```
 
 [Configuration]:#ConfAttributes
@@ -164,6 +167,20 @@ Configuration defines what files or folder to parse, how to parse them and how t
   * color _(string)_ (optional): describes how an item of this category would be displayed (text).
   * bgColor _(string)_ (optional): describes how the background of an item of this category would be displayed.
   * rights _([Rights])_ (optional): describes how files of this type can be manipulated.
+
+[Security]:#Security
+<a name="Security"></a>
+* **Security**: describe security settings
+  * passwordFile _(string)_: The path of a file containing the password. If password is missing or if the file cannot be read, action requiring a password will be forbidden.
+    example:
+    ```json
+    "passwordFile": "password.txt"
+    ```
+  * maxStoreSalt _(number)_: Define the maximum number of salt stored at the same time. Any salt asked when this number is reached will fail. See [security section]((securityWork.md)#Communication) for more details. (default value is 10)
+    example:
+    ```json
+    "maxStoreSalt": 10
+    ```
 
 [Rights]:#Rights
 <a name="Rights"></a>

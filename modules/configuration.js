@@ -33,6 +33,11 @@ var configuration = {
 	currentConf: 0,
 	/* level of Logs*/
 	logLevel: 3,
+	/* Settings about security */
+	security: {
+		passwordFile: '',
+		maxStoreSalt: 10
+	},
 
 	/*private attributes should not be changed */
 	_logLevel: -1
@@ -83,6 +88,18 @@ configuration.checkConfig = function() {
 				errors.push('configuration['+idx+'].requireNameAdapter');
 			}
 		});
+	}
+
+	if (typeof configuration.security !== 'object') {
+		errors.push('security');
+	} else {
+		if (typeof configuration.security.passwordFile !== 'string' && configuration.security.passwordFile !== false) {
+			errors.push('security.passwordFile');
+		}
+
+		if (!isInt(configuration.security.maxStoreSalt) || configuration.security.maxStoreSalt === 0) {
+			errors.push('security.maxStoreSalt');
+		}
 	}
 
 
@@ -194,6 +211,7 @@ function updatePaths() {
 	});
 
 	configuration.log = configuration.log && replacePath(configuration.log);
+	configuration.security.passwordFile = configuration.security.passwordFile && replacePath(configuration.security.passwordFile);
 }
 
 /** Replace object string by their object (like regexp)
