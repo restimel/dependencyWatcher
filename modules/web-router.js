@@ -35,7 +35,18 @@ function server(eventEmitter, port) {
                 index = query && query.configuration;
                 eventEmitter.emit('parseFiles', index, function(parser) {
                     if (parser) {
-                        servlet.sendHTML_(req, res, JSON.stringify(parser.files), 200);
+                        data = parser.files.map(function(file) {
+                            return {
+                                name: file.name,
+                                label: file.label,
+                                dependencies: file.dependencies,
+                                requiredBy: file.requiredBy,
+                                type: file.type,
+                                canReadFile: file.canReadFile,
+                                canWriteFile: file.canWriteFile
+                            };
+                        });
+                        servlet.sendHTML_(req, res, JSON.stringify(data), 200);
                     } else {
                         servlet.sendHTML_(req, res, 'An error occurs while parsing', 500);
                     }

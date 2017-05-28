@@ -89,7 +89,7 @@ Configuration defines what files or folder to parse, how to parse them and how t
   }
   ```
 
-* **fileNameAdapter** _([Replace] [])_: Format the name of files to be more understandable. It must stay unique in the whole project otherwise it will be considered as the same file.
+* **fileNameAdapter** _([Replace] [])_: Format the name of files to have a comm pattern. It must stay unique in the whole project otherwise it will be considered as the same file. This must be used to avoid showing the real path of files and to consider as the same file path with different symbolic link. The source is the file path.
   example:
   ```json
   "fileNameAdapter": [{
@@ -98,7 +98,31 @@ Configuration defines what files or folder to parse, how to parse them and how t
   }]
   ```
 
-* **types** _([Type] [])_: set a type for given file. It helps to groups files in categories.
+* **fileLabelAdapter** _([Replace] [])_: Format the name of files to be more understandable by the user. The source is the file id (the result of fileNameAdapter).
+  example:
+  ```json
+  "fileNameAdapter": [{
+    "matcher": {"pattern": ".*/([^/]+)$"},
+    "output": "$1"
+  }]
+  ```
+
+* **requireMatcher** _([RegExp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
+  example:
+  ```json
+  "requireMatcher": [{"pattern": "require\\(['\"](.*?)['\"]\\)", "flags": "g"}, {"pattern": "define\\(\\[['\"](.*?)['\"]\\]\\)"}]
+  ```
+
+* **requireNameAdapter** _([Replace] [])_: Format the path got in requireMatcher to match unique file name. The source is the source code of the file.
+  example:
+  ```json
+  "requireNameAdapter": [{
+    "matcher": {"pattern": "^html!(.*)"},
+    "output": "$1"
+  }]
+  ```
+
+* **types** _([Type] [])_: set a type for given file. It helps to groups files in categories. The matcher will use the id of the file as source.
   example:
   ```json
   types: [{
@@ -118,21 +142,6 @@ Configuration defines what files or folder to parse, how to parse them and how t
       "readFile": true,
       "writeFile": false
     }
-  }]
-  ```
-
-* **requireMatcher** _([RegExp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
-  example:
-  ```json
-  "requireMatcher": [{"pattern": "require\\(['\"](.*?)['\"]\\)", "flags": "g"}, {"pattern": "define\\(\\[['\"](.*?)['\"]\\]\\)"}]
-  ```
-
-* **requireNameAdapter** _([Replace] [])_: Format the path got in requireMatcher to match unique file name.
-  example:
-  ```json
-  "requireNameAdapter": [{
-    "matcher": {"pattern": "^html!(.*)"},
-    "output": "$1"
   }]
   ```
 
@@ -159,15 +168,6 @@ Configuration defines what files or folder to parse, how to parse them and how t
   * whitelist _([RegExp] [])_: Accepts only input which match these rules.
   * blacklist _([RegExp] [])_: Deny all inputs which match these rules.
 
-[Type]:#Type
-<a name="Type"></a>
-* **Type**: describe a type category
-  * name _(string)_: the name of the category
-  * matcher _([RegExp])_: If the input match this regexp, this category will be assign to it.
-  * color _(string)_ (optional): describes how an item of this category would be displayed (text).
-  * bgColor _(string)_ (optional): describes how the background of an item of this category would be displayed.
-  * rights _([Rights])_ (optional): describes how files of this type can be manipulated.
-
 [Security]:#Security
 <a name="Security"></a>
 * **Security**: describe security settings
@@ -181,6 +181,15 @@ Configuration defines what files or folder to parse, how to parse them and how t
     ```json
     "maxStoreSalt": 10
     ```
+
+[Type]:#Type
+<a name="Type"></a>
+* **Type**: describe a type category
+  * name _(string)_: the name of the category
+  * matcher _([RegExp])_: If the input match this regexp, this category will be assign to it.
+  * color _(string)_ (optional): describes how an item of this category would be displayed (text).
+  * bgColor _(string)_ (optional): describes how the background of an item of this category would be displayed.
+  * rights _([Rights])_ (optional): describes how files of this type can be manipulated.
 
 [Rights]:#Rights
 <a name="Rights"></a>

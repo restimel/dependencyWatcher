@@ -1,6 +1,7 @@
 function module_details() {
 var elDetails = document.querySelector('li[data-tab=details]');
 var elTitle = document.getElementById('detailsTitle');
+var elSubtitle = document.getElementById('detailsSubtitle');
 var elDependencies = document.getElementById('dependencies');
 var elRequired = document.getElementById('requiredBy');
 var elDepNb = document.getElementById('depNb');
@@ -76,7 +77,12 @@ function createNoItem() {
 function displayDetails(itemData=currentMainItem, item=null, center=false, active=false) {
 	currentMainItem = itemData;
 	elDetails.scrollTop = 0;
-	elTitle.textContent = itemData.name;
+	elTitle.textContent = itemData.label;
+	if (itemData.label === itemData.name) {
+		elSubtitle.textContent = '';
+	} else {
+		elSubtitle.textContent = itemData.name;
+	}
 	elDependencies.innerHTML = '';
 	elRequired.innerHTML = '';
 	elDepNb.textContent = itemData.dependencies.length;
@@ -101,6 +107,12 @@ function displayDetails(itemData=currentMainItem, item=null, center=false, activ
 		} else if (self.rootItem && self.rootItem[0]) {
 			self.rootItem[0].getBox(itemData.name).setActive(true, center);
 		}
+	}
+
+	if (itemData.canReadFile) {
+		elCodeBtn.style.display = 'inline-block';
+	} else {
+		elCodeBtn.style.display = 'none';
 	}
 }
 

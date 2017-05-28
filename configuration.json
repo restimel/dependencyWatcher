@@ -1,72 +1,84 @@
 {
-	"configuration": [{
+    "configuration": [{
 
-		"name": "Backend",
+        "name": "Backend",
 
-		"rootFolders": ["main.js", "modules/*"],
-		"fileFilter": {
-			"whitelist": [{
-				"pattern": "\\.js$"
-			}]
-		},
-		"fileNameAdapter": [{
-			"matcher": {"pattern": ".*/modules/(.*)$"},
-			"output": "./modules/$1"
-		}, {
-			"matcher": {"pattern": "^\\./(?:\\./)+"},
-			"output": "./"
-		}],
-		"types": [{
-			"name": "modules",
-			"matcher": {
-				"pattern": "/modules/"
-			},
-			"color": "#000066"
-		}],
-		"requireMatcher": [{
-			"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
-			"flags": "g"
-		}],
-		"requireNameAdapter": [{
-			"matcher": {"pattern": "\\./(?!modules/)"},
-			"output": "./modules/"
-		}]
-	}, {
+        "rootFolders": ["main.js", "modules/*"],
+        "fileFilter": {
+            "whitelist": [{
+                "pattern": "\\.js$"
+            }]
+        },
+        "fileNameAdapter": [{
+            "matcher": {"pattern": ".*/modules/(.*)$"},
+            "output": "./modules/$1"
+        }, {
+            "matcher": {"pattern": "^\\./(?:\\./)+"},
+            "output": "./"
+        }],
+        "fileLabelAdapter": [{
+            "matcher": {"pattern": ".*/([^/]+)$"},
+            "output": "$1"
+        }],
+        "types": [{
+            "name": "modules",
+            "matcher": {
+                "pattern": "/modules/"
+            },
+            "color": "#000066",
+            "rights": {
+                "readFile": true,
+                "writeFile": "password"
+            }
+        }],
+        "requireMatcher": [{
+            "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
+            "flags": "g"
+        }],
+        "requireNameAdapter": [{
+            "matcher": {"pattern": "\\./(?!modules/)"},
+            "output": "./modules/"
+        }]
+    }, {
 
-		"name": "Frontend",
+        "name": "Frontend",
 
-		"rootFolders": ["pages/*"],
-		"fileFilter": {
-			"whitelist": [{
-				"pattern": "\\.js$"
-			}, {
-				"pattern": "\\.html$"
-			}]
-		},
-		"fileNameAdapter": [{
-			"matcher": {"pattern": ".*/modules/(.*)$"},
-			"output": "./modules/$1"
-		}, {
-			"matcher": {"pattern": "^\\./(?:\\./)+"},
-			"output": "./"
-		}],
-		"types": [{
-			"name": "scripts",
-			"matcher": {
-				"pattern": "/scripts/"
-			},
-			"color": "#001f1f",
-			"bgColor": "#9fa2ce"
-		}],
-		"requireMatcher": [{
-			"pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
-			"flags": "g"
-		}],
-		"requireNameAdapter": [{
-			"matcher": {"pattern": "\\./(?!pages/)"},
-			"output": "./pages/"
-		}]
-	}],
-	"passwordFile": "password.txt",
-	"log": "test.log"
+        "rootFolders": ["pages/*"],
+        "fileFilter": {
+            "whitelist": [{
+                "pattern": "\\.js$"
+            }, {
+                "pattern": "\\.html$"
+            }]
+        },
+        "fileNameAdapter": [{
+            "matcher": {"pattern": ".*/modules/(.*)$"},
+            "output": "./modules/$1"
+        }, {
+            "matcher": {"pattern": "^\\./(?:\\./)+"},
+            "output": "./"
+        }],
+        "fileLabelAdapter": [{
+            "matcher": {"pattern": ".*/([^/]+)$"},
+            "output": "$1"
+        }],
+        "types": [{
+            "name": "scripts",
+            "matcher": {
+                "pattern": "/scripts/"
+            },
+            "color": "#001f1f",
+            "bgColor": "#9fa2ce"
+        }],
+        "requireMatcher": [{
+            "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
+            "flags": "g"
+        }],
+        "requireNameAdapter": [{
+            "matcher": {"pattern": "\\./(?!pages/)"},
+            "output": "./pages/"
+        }]
+    }],
+    "passwordFile": "password.txt",
+    "log": "test.log"
 }

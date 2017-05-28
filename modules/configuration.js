@@ -13,8 +13,10 @@ var defaultConfiguration = {
 		whitelist: [],
 		blacklist: []
 	},
-	/* Format files name to be more understandable. The result will be used as an id for this file */
+	/* Format files name to be unique. The result will be used as an id for this file */
 	fileNameAdapter: [],
+	/* Format files name to be more understandable. The result will be displayed in boxes */
+	fileLabelAdapter: [],
 	/* Configure type groups */
 	types: [],
 	/* Describe what should be analysed to be considered as a dependency. */
@@ -40,7 +42,8 @@ var configuration = {
 	},
 
 	/*private attributes should not be changed */
-	_logLevel: -1
+	_logLevel: -1,
+	_parsed: []
 };
 
 /* Assert that configuration is valid */
@@ -77,6 +80,9 @@ configuration.checkConfig = function() {
 			}
 			if (!isArray(conf.fileNameAdapter)) {
 				errors.push('configuration['+idx+'].fileNameAdapter');
+			}
+			if (!isArray(conf.fileLabelAdapter)) {
+				errors.push('configuration['+idx+'].fileLabelAdapter');
 			}
 			if (!isArray(conf.types)) {
 				errors.push('configuration['+idx+'].types');
@@ -219,6 +225,9 @@ function updatePaths() {
 function convertObjects() {
 	configuration.configuration.forEach(function(conf) {
 		conf.fileNameAdapter.forEach(function(rpl) {
+			rpl.matcher = replaceRegexp(rpl.matcher);
+		});
+		conf.fileLabelAdapter.forEach(function(rpl) {
 			rpl.matcher = replaceRegexp(rpl.matcher);
 		});
 		conf.requireNameAdapter.forEach(function(rpl) {

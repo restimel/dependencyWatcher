@@ -73,7 +73,7 @@
         this.el.setAttribute('id', this.data.name);
         this.el.onclick = displayDetails.bind(this, this.data, this, false, true);
 
-        text.textContent = this.data.name;
+        text.textContent = this.data.label;
         // add text to SVG to compute its size
         this.SVG.appendChild(text);
         bbox = text.getBBox();
