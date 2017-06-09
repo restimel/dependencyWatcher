@@ -1,6 +1,8 @@
 (function() {
     'use strict';
-    var xmlns = 'http://www.w3.org/2000/svg';
+    const xmlns = 'http://www.w3.org/2000/svg';
+
+    var items = [];
 
     function defaults(obj, defaultObj) {
         for (var x in defaultObj) {
@@ -12,18 +14,20 @@
     }
 
     function Item(data, options={}) {
-        this.data = data;
-        this.options = options;
+        this.data = data; /* contains information about this item */
+        this.options = options; /* contains positional information */
         defaults(this.options, {
             x: 0,
             y: 0
         });
         this.parent = options.parent;
         this.columnManager = options.columnManager || new ColumnManager();
+        items.push(this);
 
         this._setColumn(options);
 
-        this.children = [];
+        this.children = []; /* reference to children box in tree (do not contains reference to all dependency children) */
+        this.linkedBox = []; /* keep references to every box in relations */
         this.arrows = [];
 
         this._checkTypes();
@@ -35,6 +39,7 @@
     Item.prototype.padding = 10;
 
     Item.prototype.remove = function() {
+        var idx;
         if (this.el) {
             this.el.parentNode.removeChild(this.el);
         }
@@ -42,6 +47,11 @@
         this.columnManager.removeItem(this);
         this.arrows.forEach(a => a.remove());
         this.children.forEach(c => c.remove());
+
+        idx = items.indexOf(this);
+        if (idx !== -1) {
+            items.splice(idx, 1);
+        }
     };
 
     Item.prototype._checkTypes = function(options) {
@@ -68,7 +78,7 @@
         rect = document.createElementNS(xmlns, 'rect');
         text = document.createElementNS(xmlns, 'text');
 
-    // <rect x="0" y="0" fill="#eaeaea" stroke="#666" width="200" height="100" rx="3" ry="3"></rect>
+        // <rect x="0" y="0" fill="#eaeaea" stroke="#666" width="200" height="100" rx="3" ry="3"></rect>
 
         this.el.setAttribute('id', this.data.name);
         this.el.onclick = displayDetails.bind(this, this.data, this, false, true);
@@ -76,7 +86,7 @@
         text.textContent = this.data.label;
         // add text to SVG to compute its size
         this.SVG.appendChild(text);
-        bbox = text.getBBox();
+        bbox = text.getBBox(); /* ← this is not performant */
 
         this.x = this.columnManager.getX(this.column) + this.portMargin;
         this.y = this.columnManager.getBestPosition(this.column, bbox.height, this.options.y, {
@@ -102,20 +112,20 @@
         this.el.appendChild(text);
     };
 
-    Item.prototype.drawArrows = function(done=[], deep=true, className='') {
-        if (done.includes(this)) return;
-        done.push(this);
-
+    Item.prototype.drawArrows = function(className='') {
         this.data.dependencies.forEach((child) => {
             var box = this.getBox(child);
             this.arrows.push(new Arrow(this, box, {
                 className: className,
                 columnManager: this.columnManager
             }));
-            if (deep) {
-                box.drawArrows(done, deep, className);
-            }
         });
+    };
+
+    Item.drawAllArrows = function(className='') {
+        for (let i = 0; i < items.length; i++) {
+            items[i].drawArrows(className);
+        }
     };
 
     Item.prototype.getPort = function(orientation, strokeWidth=3) {
@@ -151,7 +161,7 @@
               break;
         }
 
-        return [x, y, path];;
+        return [x, y, path];
     };
 
     Item.prototype.setActive = function(deep=true, center=false) {
@@ -233,6 +243,7 @@
         };
         subItem = new Item(data, options);
         this.children.push(subItem);
+        this.linkedBox.push(subItem);
 
         return subItem;
     };
@@ -240,27 +251,34 @@
     /** retrieve a box from its name
      *  @return {Item} undefined if no box has been found
      **/
-    Item.prototype.getBox = function(boxName, done = []) {
+    Item.getBox = function(boxName) {
         var box;
 
-        if (done.includes(this)) return;
-        done.push(this);
-
-        if (this.data.name === boxName) return this;
-
-        // search in children
-        this.children.some(c => {
-            var r = c.getBox(boxName, done);
-            if (r) {box = r}
-            return r;
+        items.some(item => {
+            if (item.data.name === boxName) {
+                box = item;
+            }
         });
 
-        // search in parent
-        if (!box) {
-            box = this.parent && this.parent.getBox(boxName, done);
-        }
         return box;
     };
+
+    Item.prototype.getBox = function(boxName) {
+        var box;
+
+        for (let i = 0; i < this.linkedBox.length; i++) {
+            box = this.linkedBox[i];
+            if (box.data.name === boxName) {
+                return box;
+            }
+        }
+
+        box = Item.getBox(boxName);
+        if (box) {
+            this.linkedBox.push(box);
+        }
+        return box;
+    },
 
     /* called by columnManager and should only set attributes value (no change
      * on previous value) */
@@ -287,11 +305,14 @@
         this.columnManager.removeItem(this);
         this._setColumn({column: index});
 
-        this.children.forEach(c => {
-            if (c.column <= this.column) {
-                c.changeColumn(this.column  + 1, done);
+        for (let i = 0; i < this.data.dependencies.length; i++) {
+            let dep = this.data.dependencies[i];
+            let box = this.getBox(dep);
+            if (box && box.column <= this.column) {
+                box.changeColumn(this.column + 1, done);
             }
-        });
+        }
+
         this.arrows.forEach(a => a.el());
 
         if (hadEl) {

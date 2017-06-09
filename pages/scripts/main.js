@@ -1,11 +1,12 @@
 function module_main() {
+	'use strict';
+
 	self.global = {
 		data: [],
 		types: {}
 	};
 
 	function getData(confIdx=0) {
-		var xhr = new XMLHttpRequest();
 		var url = 'data/links.json?configuration=' + confIdx;
 
 		fetch(url)

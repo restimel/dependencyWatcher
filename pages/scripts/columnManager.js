@@ -3,13 +3,13 @@
 
     function ColumnManager() {
         this.columns = {};
-        this.columnsOrder = []; //TODO
+        this.columnsOrder = [];
     }
 
     ColumnManager.prototype.margin = 5; // space between all items (items and wire)
-    ColumnManager.prototype.wiresSpace = 40; // default space between items (to draw wires between them)
+    ColumnManager.prototype.wiresSpace = 60; // default space between items (to draw wires between them)
     ColumnManager.prototype.gridX = 60; // space between columns
-    ColumnManager.prototype.width = 110; // default width of a column
+    ColumnManager.prototype.width = 150; // default width of a column
 
     /* column size */
 

@@ -38,12 +38,12 @@ FileReader.prototype.setExclude = function(exclude) {
 			return path;
 		}
 		path = tools.toRegExp(path);
-		path += '$';
 
 		return new RegExp(path);
 	});
 
 	this.exclude = exclude;
+	logger.trace('Excluded files have been updated. There are now ' + exclude.length + ' rules.');
 };
 
 FileReader.prototype.setAuthorized = function(authorized) {
@@ -52,12 +52,12 @@ FileReader.prototype.setAuthorized = function(authorized) {
 			return path;
 		}
 		path = tools.toRegExp(path);
-		path += '$';
 
 		return new RegExp(path);
 	});
 
 	this.authorized = authorized;
+	logger.trace('Authorized files have been updated. There are now ' + authorized.length + ' rules.');
 };
 
 FileReader.prototype.isAuthorized = function(path) {
@@ -91,7 +91,7 @@ FileReader.prototype.readFile = function(path, err, data) {
 	if (!err) {
 		this.fileCallback(path, data);
 	} else {
-		logger.warn('Warning: file "%s" has not been parsed due to an error while reading. --- [%d] %s', path, err.errno, err.code);
+		logger.warn('Warning: file "' + path + '" has not been parsed due to an error while reading. --- [' + err.errno + '] ' +  err.code);
 	}
 	this.fileDone();
 };
@@ -135,8 +135,15 @@ FileReader.prototype.readPath = function(paths, currentPath) {
 		validPath = '^' + tools.toRegExp(dir) + '$';
 		validPath = new RegExp(validPath);
 
+		if (this.isExcluded(currentPath)) {
+			logger.trace('path "' + currentPath + '" rejected');
+			this.fileDone();
+			return;
+		}
+
 		fs.readdir(currentPath, function(err, files) {
 			logger.info('Read directory "' + currentPath + '".');
+
 			files.forEach(function(file) {
 				var continueReading = true;
 				var fileStat, physicalPath, fpath;

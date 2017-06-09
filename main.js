@@ -68,18 +68,18 @@ function params() {
 
     var args = parser.parseArgs();
 
+    if (args.logLevel !== null) {
+        configuration._logLevel = args.logLevel;
+    }
     changePort(args.port);
     configuration.verbose = args.verbose;
     configurationPath = args.configuration;
-    if (args.logLevel) {
-        configuration._logLevel = args.logLevel;
-    }
 }
 
 function changePort(port) {
     var portNb = Number(port);
     if (isNaN(portNb) || portNb > 65535 || portNb < 0 || portNb%1 !== 0) {
-        console.error('Port number "%s" is invalid. Please enter a valid port number.', port);
+        logger.error('Port number "' + port +'" is invalid. Please enter a valid port number.');
         process.exit(1);
     }
 

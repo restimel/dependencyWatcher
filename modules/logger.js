@@ -5,6 +5,14 @@ var configuration = require('./configuration.js');
 
 var loggerPath;
 
+var logName = {
+	0: 'Debug',
+	1: 'Trace',
+	2: 'Info',
+	3: 'Warn',
+	4: 'Error'
+};
+
 function checkPath() {
 	if (typeof loggerPath === 'undefined') {
 		loggerPath = configuration.log;
@@ -23,7 +31,7 @@ function log(message, level) {
 	}
 
 	timestamp = Date.now();
-	text = '[' + timestamp + '] - ' + message + '\n';
+	text = '[' + timestamp + '][' + logName[level] + '] - ' + message + '\n';
 
 	if (configuration.verbose) {
 		console.log(text);

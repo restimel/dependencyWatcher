@@ -74,6 +74,7 @@
     left: 0;
     right: 400px;
     background-color: #c7f5f5;
+    user-select: none;
 }
 
 #filterArea > input{

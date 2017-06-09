@@ -1,4 +1,6 @@
 function module_svg() {
+    'use strict';
+
     var SVG = document.getElementById('drawArea');
     var SVG_BOXES = SVG.querySelector('.boxes');
     var X = 0;
@@ -49,7 +51,6 @@ function module_svg() {
                 SVG_BOXES.appendChild(item.el);
 
                 data.dependencies.forEach(displayItem.bind(this, item));
-                item.drawArrows();
 
                 if (!mainItem) {
                     mainItem = item;
@@ -57,6 +58,7 @@ function module_svg() {
                 }
             }
         });
+        Item.drawAllArrows();
 
         selectTab();
     }
@@ -131,18 +133,25 @@ function module_svg() {
         moveBox(evt);
     };
 
-    SVG.onmouseup = function(evt) {
+    SVG.onmouseout = SVG.onmouseup = function() {
         mouse.move = false;
     };
 
     SVG.onwheel = function(evt) {
+        var width;
         [mouse.X, mouse.Y] = [X, Y];
         [mouse.x, mouse.y] = getCoord(evt.offsetX, evt.offsetY);
+        width = WX / 10;
+        if (width <= 50) {
+            width = 50;
+        } else {
+            width -= width % 50;
+        }
         if (evt.deltaY < 0) {
             if (WX <= 50) return;
-            WX -= 50;
+            WX -= width;
         } else {
-            WX += 50;
+            WX += width;
         }
         updateYWidth();
         updateBox();
