@@ -105,3 +105,44 @@ exports.generateSalt = function(size, encoding) {
 	}
 	return crypto.randomBytes(size).toString(encoding);
 };
+
+/* Generate a challenge from a salt
+ */
+exports.generateChallenge = function(text, encoding) {
+	if (!encoding) {
+		encoding = 'utf8';
+	}
+	return crypto.createHash('sha256').update(text, encoding).digest();
+};
+
+/* Cipher a text
+ */
+exports.cipher = function(text, key, encoding) {
+	var cipher = crypto.createCipher('aes-128-cbc', key);
+	var encrypted;
+
+	if (!encoding) {
+		encoding = 'utf8';
+	}
+
+	encrypted = cipher.update(text, encoding, 'hex');
+	encrypted += cipher.final('hex');
+
+	return encrypted;
+};
+
+/* Decipher a text
+ */
+exports.decipher = function(text, key, encoding) {
+	var decipher = crypto.createDecipher('aes-128-cbc', key);
+	var decrypted;
+
+	if (!encoding) {
+		encoding = 'utf8';
+	}
+
+	decrypted = decipher.update(text, 'hex', encoding);
+	decrypted += decipher.final(encoding);
+
+	return decrypted;
+};

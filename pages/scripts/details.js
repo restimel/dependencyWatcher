@@ -231,8 +231,18 @@ if (typeof self.reset === 'function') {
 }
 
 /* click on read code */
-elCodeBtn.onclick = function() {
+elCodeBtn.onclick = async function() {
 	console.info('TODO watch data in file')
+	let password;
+
+	if (!currentMainItem.canReadFile) {
+		return;
+	} else if (currentMainItem.canReadFile === 'password') {
+		password = await tools.getPassword();
+	}
+	password = await tools.getPassword();
+
+	console.log(currentMainItem.canReadFile);
 };
 
 /* click on tab */

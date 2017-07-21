@@ -18,7 +18,7 @@ function server(eventEmitter, port) {
         var query = req.url.query;
         var method = req.method;
         var httpBody = req.httpBody;
-        var path, index, data;
+        var path, index, data, salt, challenge, name, type, file;
 
         switch (pathName) {
             case '/logout':
@@ -53,11 +53,40 @@ function server(eventEmitter, port) {
                 });
                 return;
             case '/getSalt':
-                data = generateSalt();
-                if (data) {
-                    servlet.sendHTML_(req, res, data, 200);
+                salt = generateSalt();
+                if (salt) {
+                    servlet.sendHTML_(req, res, salt, 200);
                 } else {
                     servlet.sendHTML_(req, res, 'Too much salt are currently used. Please retry in few moment.', 500);
+                }
+                return;
+            case '/getCode':
+                salt = query && query.salt;
+                challenge = query && query.challenge;
+                name = query && query.item;
+                index = configuration.currentConf;
+
+                if (!name) {
+                    servlet.sendHTML_(req, res, 'Which item do you want to read?', 404);
+                    return;
+                }
+                /* check if name exist and is allowed to required */
+                file = configuration.getFile(name, index);
+                if (!file) {
+                    servlet.sendHTML_(req, res, 'This item is not available', 404);
+                    return;
+                }
+
+                type = configuration.getType(file.type, index);
+                if (checkRight(type, 'readFile', salt, challenge)) {
+                    data = cipher(file.path);
+                    if (!data) {
+                        servlet.sendHTML_(req, res, 'Cannot access the file', 500);
+                        return;
+                    }
+                    servlet.sendHTML_(req, res, data, 200);
+                } else {
+                    servlet.sendHTML_(req, res, 'You cannot access this file.', 403);
                 }
                 return;
             default:
@@ -105,6 +134,41 @@ function removeSalt(salt) {
     if (idx !== -1) {
         saltList.splice(idx, 1);
     }
+}
+
+function checkSalt(salt, challenge) {
+    var password = configuration._password;
+    var realChlg;
+
+    if (!password || !salt || !challenge || saltList.indexOf(salt) === -1) {
+        return false;
+    }
+
+    realChlg = tools.generateChallenge(salt + password);
+
+    if (realChlg !== challenge) {
+        return false;
+    }
+
+    removeSalt(salt);
+    return true;
+}
+
+function checkRight(type, property, salt, challenge) {
+    return type.rights[property] === true
+        || (type.rights[property] === 'password' && checkSalt(salt, challenge));
+}
+
+function cipher(filePath, type) {
+    var data = fs.readFileSync(filePath, {
+        encoding: 'utf8'
+    });
+
+    if (data && type.rights.readFile === 'password') {
+        data = tools.cipher(data, configuration._password);
+    }
+
+    return data;
 }
 
 exports.server = server;

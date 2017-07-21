@@ -41,9 +41,14 @@ var configuration = {
 		maxStoreSalt: 10
 	},
 
+	/* these attributes will be replaced by methods */
+	getType: null,
+	getFile: null,
+
 	/*private attributes should not be changed */
 	_logLevel: -1,
-	_parsed: []
+	_parsed: [],
+	_password: null
 };
 
 /* Assert that configuration is valid */
@@ -55,7 +60,7 @@ configuration.checkConfig = function() {
 		return value instanceof Array;
 	}
 
-	var msg;
+	var msg, data;
 	var errors = [];
 
 	if (!isInt(configuration.logLevel)) {
@@ -99,12 +104,23 @@ configuration.checkConfig = function() {
 	if (typeof configuration.security !== 'object') {
 		errors.push('security');
 	} else {
-		if (typeof configuration.security.passwordFile !== 'string' && configuration.security.passwordFile !== false) {
-			errors.push('security.passwordFile');
-		}
 
 		if (!isInt(configuration.security.maxStoreSalt) || configuration.security.maxStoreSalt === 0) {
 			errors.push('security.maxStoreSalt');
+		}
+
+		if (typeof configuration.security.passwordFile !== 'string' && configuration.security.passwordFile !== false) {
+			errors.push('security.passwordFile');
+		} else {
+			// data = fs.readFileSync(configuration.security.passwordFile, {
+			// 	encoding: 'utf8'
+			// });
+
+			// if (data) {
+			// 	configuration._password = data;
+			// } else {
+			// 	errors.push('security.passwordFile (password not found)')
+			// }
 		}
 	}
 
@@ -172,6 +188,7 @@ configuration.readConfig = function(configPath) {
 		updatePaths();
 		this.checkConfig();
 		convertObjects();
+		applyMethods();
 	}
 };
 
@@ -244,6 +261,37 @@ function convertObjects() {
 	if (configuration._logLevel < 0) {
 		configuration._logLevel = configuration.logLevel;
 	}
+}
+
+function applyMethods() {
+	configuration.getType = getType;
+	configuration.getFile = getFile;
+}
+
+/**
+ * helps to retrieve type from its Name
+ * @param  {string} typeName name of the type
+ * @param  {number} index=currentConf index of configuration to look for
+ * @return {Type}
+ */
+function getType(typeName, index) {
+	index = index || this.currentConf;
+	return this.configuration[index].find(function(type) {
+		return type.name === typename;
+	});
+}
+
+/**
+ * helps to retrieve file from its name
+ * @param  {string} fileName name of the file
+ * @param  {number} index=currentConf index of configuration to look for
+ * @return {FileObject}
+ */
+function getFile(fileName, index) {
+	index = index || this.currentConf;
+	return this._parsed[index].find(function(item) {
+		return item.name === fileName;
+	});
 }
 
 module.exports = configuration;
