@@ -289,6 +289,11 @@ function getType(typeName, index) {
  */
 function getFile(fileName, index) {
 	index = index || this.currentConf;
+	if (!this._parsed[index]) {
+		log.error('index ' + index + 'not found in _parsed');
+		return;
+	}
+
 	return this._parsed[index].find(function(item) {
 		return item.name === fileName;
 	});

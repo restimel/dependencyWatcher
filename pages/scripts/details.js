@@ -233,16 +233,25 @@ if (typeof self.reset === 'function') {
 /* click on read code */
 elCodeBtn.onclick = async function() {
 	console.info('TODO watch data in file')
-	let password;
+	let password, salt, challenge;
 
 	if (!currentMainItem.canReadFile) {
 		return;
 	} else if (currentMainItem.canReadFile === 'password') {
 		password = await tools.getPassword();
+		let response = await fetch('get/salt');
+		salt = await reponse.getText();
+		challenge = salt; //TODO
 	}
-	password = await tools.getPassword();
 
-	console.log(currentMainItem.canReadFile);
+	let getCode = `/getCode?item=${encodeURIComponent(currentMainItem.name)}`;
+
+	if (salt) {
+		getCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
+	}
+
+	let code = await fetch(getCode);
+	console.log(code);
 };
 
 /* click on tab */
