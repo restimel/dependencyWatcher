@@ -68,14 +68,46 @@
                 "pattern": "/scripts/"
             },
             "color": "#001f1f",
-            "bgColor": "#9fa2ce"
+            "bgColor": "#9fa2ce",
+            "rights": {
+                "readFile": "password",
+                "writeFile": "password"
+            }
+        }, {
+            "name": "html",
+            "matcher": {
+                "pattern": ".html"
+            },
+            "color": "#00f11f",
+            "bgColor": "#dce0de",
+            "rights": {
+                "readFile": true,
+                "writeFile": "password"
+            }
+        }, {
+            "name": "libs",
+            "matcher": {
+                "pattern": "/libs/"
+            },
+            "color": "#00333f",
+            "bgColor": "#f9a2ae",
+            "rights": {
+                "readFile": "password",
+                "writeFile": false
+            }
         }],
         "requireMatcher": [{
             "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
             "flags": "g"
+        }, {
+            "pattern": "<script src=\"(.*?)\"></script>",
+            "flags": "g"
         }],
         "requireNameAdapter": [{
             "matcher": {"pattern": "\\./(?!pages/)"},
+            "output": "./pages/"
+        }, {
+            "matcher": {"pattern": "^(?!\\./|/)"},
             "output": "./pages/"
         }]
     }],

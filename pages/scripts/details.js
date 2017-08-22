@@ -232,16 +232,15 @@ if (typeof self.reset === 'function') {
 
 /* click on read code */
 elCodeBtn.onclick = async function() {
-	console.info('TODO watch data in file')
 	let password, salt, challenge;
 
 	if (!currentMainItem.canReadFile) {
 		return;
 	} else if (currentMainItem.canReadFile === 'password') {
 		password = await tools.getPassword();
-		let response = await fetch('get/salt');
-		salt = await reponse.getText();
-		challenge = salt; //TODO
+		let response = await fetch('getSalt');
+		salt = await response.text();
+		challenge = await tools.sha256(salt + password);
 	}
 
 	let getCode = `/getCode?item=${encodeURIComponent(currentMainItem.name)}`;
@@ -250,7 +249,18 @@ elCodeBtn.onclick = async function() {
 		getCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
 	}
 
-	let code = await fetch(getCode);
+	let responseCode = await fetch(getCode);
+	let code = await responseCode.text();
+	if (!responseCode.ok) {
+		sessionStorage.removeItem('password');
+		console.error(code); //TODO prompt to user
+		return;
+	}
+
+	if (currentMainItem.canReadFile === 'password') {
+		code = tools.decipherAES(code, password);
+	}
+	console.info('TODO watch data in file')
 	console.log(code);
 };
 

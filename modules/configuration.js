@@ -111,16 +111,16 @@ configuration.checkConfig = function() {
 
 		if (typeof configuration.security.passwordFile !== 'string' && configuration.security.passwordFile !== false) {
 			errors.push('security.passwordFile');
-		} else {
-			// data = fs.readFileSync(configuration.security.passwordFile, {
-			// 	encoding: 'utf8'
-			// });
+		} else if(typeof configuration.security.passwordFile === 'string') {
+			var data = fs.readFileSync(configuration.security.passwordFile, {
+				encoding: 'utf8'
+			});
 
-			// if (data) {
-			// 	configuration._password = data;
-			// } else {
-			// 	errors.push('security.passwordFile (password not found)')
-			// }
+			if (data) {
+				configuration._password = tools.sha256(data);
+			} else {
+				errors.push('security.passwordFile (password not found)')
+			}
 		}
 	}
 
@@ -276,9 +276,23 @@ function applyMethods() {
  */
 function getType(typeName, index) {
 	index = index || this.currentConf;
-	return this.configuration[index].find(function(type) {
-		return type.name === typename;
-	});
+
+	var getType = function(type) {
+		return type.name === typeName;
+	};
+
+	var type = this.configuration[index].types.find(getType);
+
+	if (!type && typeName !== 'default') {
+		typeName = 'default';
+		type = this.configuration[index].types.find(getType);
+	}
+
+	if (!type) {
+
+	}
+
+	return type;
 }
 
 /**
@@ -290,11 +304,11 @@ function getType(typeName, index) {
 function getFile(fileName, index) {
 	index = index || this.currentConf;
 	if (!this._parsed[index]) {
-		log.error('index ' + index + 'not found in _parsed');
+		logger.error('index ' + index + ' not found in _parsed');
 		return;
 	}
 
-	return this._parsed[index].find(function(item) {
+	return this._parsed[index].files.find(function(item) {
 		return item.name === fileName;
 	});
 }

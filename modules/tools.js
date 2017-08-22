@@ -106,13 +106,31 @@ exports.generateSalt = function(size, encoding) {
 	return crypto.randomBytes(size).toString(encoding);
 };
 
-/* Generate a challenge from a salt
+/**
+ * Encode in sha256
  */
-exports.generateChallenge = function(text, encoding) {
+function sha256(text, encoding) {
 	if (!encoding) {
 		encoding = 'utf8';
 	}
-	return crypto.createHash('sha256').update(text, encoding).digest();
+	var tmp = crypto.createHash('sha256').update(text, encoding).digest();
+	var hex = Array.from(tmp).map(b => {
+        var h = b.toString(16);
+        while (h.length < 2) {
+            h = '0' + h;
+        }
+        return h;
+    }).join('');
+	return (new Buffer(hex)).toString('base64');
+};
+exports.sha256 = sha256;
+
+/* Generate a challenge from a salt
+ */
+exports.generateChallenge = function(salt, password, encoding) {
+	var text = salt + password;
+
+	return sha256(text, encoding);
 };
 
 /* Cipher a text

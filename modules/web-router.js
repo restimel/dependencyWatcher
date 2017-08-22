@@ -3,6 +3,7 @@
 var webServer = require('./web-server.js');
 var configuration = require('./configuration.js');
 var tools = require('./tools.js');
+var fs = require('fs');
 
 var saltList = [];
 
@@ -77,9 +78,11 @@ function server(eventEmitter, port) {
                     return;
                 }
 
-                type = configuration.getType(file.type, index);
-                if (checkRight(type, 'readFile', salt, challenge)) {
-                    data = cipher(file.path);
+                if (file.type) {
+                    type = configuration.getType(file.type.name, index);
+                }
+                if (type && checkRight(type, 'readFile', salt, challenge)) {
+                    data = cipher(file.path, type);
                     if (!data) {
                         servlet.sendHTML_(req, res, 'Cannot access the file', 500);
                         return;
@@ -144,7 +147,7 @@ function checkSalt(salt, challenge) {
         return false;
     }
 
-    realChlg = tools.generateChallenge(salt + password);
+    realChlg = tools.generateChallenge(salt, password);
 
     if (realChlg !== challenge) {
         return false;
