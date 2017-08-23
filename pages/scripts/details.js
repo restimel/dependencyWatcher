@@ -260,8 +260,8 @@ elCodeBtn.onclick = async function() {
 	if (currentMainItem.canReadFile === 'password') {
 		code = tools.decipherAES(code, password);
 	}
-	console.info('TODO watch data in file')
-	console.log(code);
+
+	displayCode(code, currentMainItem);
 };
 
 /* click on tab */

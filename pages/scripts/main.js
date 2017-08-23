@@ -57,3 +57,4 @@ module_main();
 module_filter();
 module_details();
 module_svg();
+module_code();

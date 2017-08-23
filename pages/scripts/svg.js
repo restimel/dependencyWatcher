@@ -18,6 +18,16 @@ function module_svg() {
     Arrow.prototype.SVG_ARROWS = SVG.querySelector('.arrows');
     Arrow.prototype.SVG_ARROWS_ACTIVE = SVG.querySelector('.arrows-highlight');
 
+    function displaySVG() {
+        if (SVG.classList.contains('active')) {
+            return;
+        }
+
+        document.querySelector('.main-page.active').classList.remove('active');
+        SVG.classList.add('active');
+    }
+    self.displaySVG = displaySVG;
+
     function displayItem(item, subItemName) {
         var sItem = item.getBox(subItemName);
         if (sItem) {

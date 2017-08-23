@@ -110,6 +110,35 @@
             "matcher": {"pattern": "^(?!\\./|/)"},
             "output": "./pages/"
         }]
+    }, {
+
+        "name": "Configuration",
+
+        "rootFolders": ["./*"],
+        "fileFilter": {
+            "whitelist": [{
+                "pattern": "\\.json$"
+            }]
+        },
+        "fileNameAdapter": [],
+        "fileLabelAdapter": [{
+            "matcher": {"pattern": ".*/(.*)$"},
+            "output": "$1"
+        }],
+        "types": [{
+            "name": "default",
+            "matcher": {
+                "pattern": ".*"
+            },
+            "color": "#001f1f",
+            "bgColor": "#9fa2ce",
+            "rights": {
+                "readFile": "password",
+                "writeFile": "password"
+            }
+        }],
+        "requireMatcher": [],
+        "requireNameAdapter": []
     }],
     "security": {
         "passwordFile": "password.txt"

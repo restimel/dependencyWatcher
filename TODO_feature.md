@@ -3,7 +3,8 @@
 ## This is plan and must be done:
 
 * Search tile → display graph from it
-* Display graph from file
+    * change code display
+* Display graph starting from file
 * show manager
     * hide a filebox +show
     * hide files with wildcards: "*.html"
@@ -11,9 +12,7 @@
     * hide/show child file
     * show parent files
 * watch file
-    * Ace
     * Security (limit access)
-        * Ask and build challenge
         * Create cipher communication (https://github.com/ricmoo/aes-js)
     * Edit file on server
 
@@ -26,3 +25,7 @@
 * Find a file from its type
 * Color filebox depending of types
     * allow to change color online
+* watch file
+    * Ace
+    * Security (limit access)
+        * Ask and build challenge

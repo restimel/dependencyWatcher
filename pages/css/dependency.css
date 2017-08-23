@@ -67,14 +67,55 @@
     cursor: default;
 }
 
-#drawArea {
+.main-page {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 400px;
+    overflow: hidden;
+}
+
+.main-page:not(.active) {
+    display: none;
+}
+
+#drawArea {
     background-color: #c7f5f5;
     user-select: none;
+}
+
+#codeArea {
+    background-color: #678c9e;
+    text-align: center;
+}
+
+.close-code {
+    position: absolute;
+    font-size: 18px;
+    top: 1em;
+    right: 1em;
+    border-radius: 2em;
+    cursor: pointer;
+}
+
+.save-code {
+    position: absolute;
+    font-size: 18px;
+    bottom: 1em;
+    right: 1em;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+.save-code:not(.active) {
+    display: none;
+}
+
+#codeFile {
+    margin: 1em;
+    height: 95%;
+    width: 90%;
 }
 
 #filterArea > input{
@@ -142,7 +183,7 @@
     cursor: pointer;
 }
 
-.active .fileItem {
+g.active .fileItem {
     fill: rgba(250, 200, 50, 0.7);
 }
 

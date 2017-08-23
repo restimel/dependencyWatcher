@@ -7,11 +7,16 @@
 	<link rel="stylesheet" type="text/css" href="css/dependency.css">
 </head>
 <body>
-<svg id="drawArea" xmlns="http://www.w3.org/2000/svg">
+<svg id="drawArea" class="main-page active" xmlns="http://www.w3.org/2000/svg">
     <g class="arrows"></g>
     <g class="arrows-highlight"></g>
     <g class="boxes"></g>
 </svg>
+<div id="codeArea" class="main-page">
+    <button class="close-code">&times;</button>
+    <button class="save-code">Save</button>
+    <div id="codeFile"></div>
+</div>
 <div id="filterArea">
 	<input id="search" placeholder="search" list="itemsDataList" autocomplete="off">
 	<button id="filterButton"><span class="fa fa-filter"></span></button>
@@ -54,12 +59,14 @@
 </dialog>
 
 <script src="libs/aesjs.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js"></script>
 <script src="scripts/tools.js"></script>
 <script src="scripts/columnManager.js"></script>
 <script src="scripts/arrow.js"></script>
 <script src="scripts/item.js"></script>
 <script src="scripts/filter.js"></script>
 <script src="scripts/details.js"></script>
+<script src="scripts/code.js"></script>
 <script src="scripts/svg.js"></script>
 <script src="scripts/main.js"></script>
 </body>

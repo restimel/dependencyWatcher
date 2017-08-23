@@ -190,6 +190,7 @@ Configuration defines what files or folder to parse, how to parse them and how t
   * color _(string)_ (optional): describes how an item of this category would be displayed (text).
   * bgColor _(string)_ (optional): describes how the background of an item of this category would be displayed.
   * rights _([Rights])_ (optional): describes how files of this type can be manipulated.
+  * language _(string_ (optional)): describes the file language for syntaxic color. If not defined, it tries to choose the best from the file extension.
 
 [Rights]:#Rights
 <a name="Rights"></a>
