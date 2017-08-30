@@ -54,8 +54,35 @@ function module_code() {
     }
     self.displayCode = displayCode;
 
-    function save() {
-        console.info('todo save', session.getValue());
+    async function save() {
+        let salt, challenge;
+
+        if (!currentMainItem.canWriteFile) {
+            return;
+        } else if (currentMainItem.canWriteFile === 'password') {
+            let password = await tools.getPassword();
+            let response = await fetch('getSalt');
+            salt = await response.text();
+            challenge = await tools.sha256(salt + password);
+        }
+
+        let writeCode = `/writeCode?item=${encodeURIComponent(currentMainItem.name)}`;
+
+        if (salt) {
+            writeCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
+        }
+
+        let result = await fetch(writeCode, {
+            method: 'POST',
+            body: session.getValue()
+        })
+
+        if (result.ok) {
+                self.notification('File saved');
+        } else {
+            let msg = await result.text();
+            self.notification('File cannot be saved', msg, 'danger');
+        }
     }
 
     document.querySelector('.close-code').onclick = self.displaySVG;

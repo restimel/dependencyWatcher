@@ -47,6 +47,30 @@ function module_main() {
 		};
 	}
 
+	var elemNotification = document.querySelector('.notification');
+	var elemNotificationTitle = document.querySelector('.notification header');
+	var elemNotificationBody = document.querySelector('.notification p');
+	self.notification = function notification(title, message = '', type = 'success') {
+		if (notification.timer) {
+			clearTimeout(notification.timer);
+		}
+
+		let time = {
+			'success': 3000,
+			'warn': 10000,
+			'danger': 20000
+		}[type] || 10000;
+
+		elemNotificationTitle.textContent = title;
+		elemNotificationBody.textContent = message;
+		elemNotification.classList.remove('danger', 'warn', 'success');
+		elemNotification.classList.add('active', type);
+		notification.timer = setTimeout(() => elemNotification.classList.remove('active'), time);
+	};
+	document.querySelector('.notification button').onclick = () => {
+		elemNotification.classList.remove('active');
+	}
+
 	self.reset = self.reset || function() {};
 
 	getData();

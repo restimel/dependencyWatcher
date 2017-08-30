@@ -68,13 +68,13 @@ function server(eventEmitter, port) {
                 index = configuration.currentConf;
 
                 if (!name) {
-                    servlet.sendHTML_(req, res, 'Which item do you want to read?', 404);
+                    servlet.sendHTML_(req, res, 'Which item do you want to read?', 403);
                     return;
                 }
                 /* check if name exist and is allowed to required */
                 file = configuration.getFile(name, index);
                 if (!file) {
-                    servlet.sendHTML_(req, res, 'This item is not available', 404);
+                    servlet.sendHTML_(req, res, 'This item is not available', 403);
                     return;
                 }
 
@@ -99,7 +99,7 @@ function server(eventEmitter, port) {
                 index = configuration.currentConf;
 
                 if (!name) {
-                    servlet.sendHTML_(req, res, 'Which item do you want to write?', 404);
+                    servlet.sendHTML_(req, res, 'Which item do you want to write?', 403);
                     return;
                 }
                 if (!httpBody) {
@@ -109,7 +109,7 @@ function server(eventEmitter, port) {
                 /* check if name exist and is allowed to required */
                 file = configuration.getFile(name, index);
                 if (!file) {
-                    servlet.sendHTML_(req, res, 'This item is not available', 404);
+                    servlet.sendHTML_(req, res, 'This item is not available', 403);
                     return;
                 }
 
@@ -122,7 +122,7 @@ function server(eventEmitter, port) {
                         servlet.sendHTML_(req, res, 'Cannot access the file', 500);
                         return;
                     }
-                    servlet.sendHTML_(req, res, data, 200);
+                    servlet.sendHTML_(req, res, 'OK', 200);
                 } else {
                     servlet.sendHTML_(req, res, 'You cannot access this file.', 403);
                 }
@@ -210,17 +210,13 @@ function cipher(filePath, type) {
 }
 
 function decipher(filePath, data, type) {
-    /* TODO all */
-
     if (data && type.rights.readFile === 'password') {
         data = tools.decipher(data, configuration._password);
     }
 
-    var logger = require('./logger.js');
-    logger.error(data);
-    // var file = fs.readFileSync(filePath, {
-    //     encoding: 'utf8'
-    // });
+    var file = fs.writeFileSync(filePath, data, {
+        encoding: 'utf8'
+    });
 
     return data;
 }

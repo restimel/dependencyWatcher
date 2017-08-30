@@ -17,7 +17,7 @@ var elCancelTypeColor = document.getElementById('cancelTypeColor');
 var loadDataOrig = self.loadData;
 var isGroupDefined = false;
 var lastAction  ='details';
-var currentMainItem;
+self.currentMainItem = null;
 
 function loadData() {
 	if (global.data) {
@@ -253,12 +253,16 @@ elCodeBtn.onclick = async function() {
 	let code = await responseCode.text();
 	if (!responseCode.ok) {
 		sessionStorage.removeItem('password');
-		console.error(code); //TODO prompt to user
+		self.notification('File is not readable', code, 'danger');
 		return;
 	}
 
 	if (currentMainItem.canReadFile === 'password') {
-		code = tools.decipherAES(code, password);
+		try {
+			code = tools.decipherAES(code, password);
+		} catch(e) {
+			self.notification('Cannot decipher the data', e.message, 'warn');
+		}
 	}
 
 	displayCode(code, currentMainItem);

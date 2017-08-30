@@ -84,7 +84,7 @@ HttpServer.prototype.handleRequest_ = function(req, res) {
       req.on('data', function(chunk) {
         body += chunk.toString();
       });
-      
+
       req.on('end', function() {
         req.httpBody = body;
         handler(req, res);
@@ -111,7 +111,7 @@ StaticServlet.MimeMap = {
   'jpeg': 'image/jpeg',
   'gif': 'image/gif',
   'png': 'image/png',
-  'svg': 'image/svg+xml'
+  'svg': 'image/svg+xml'
 };
 
 StaticServlet.prototype.handleRequest = function(req, res) {
@@ -298,4 +298,4 @@ StaticServlet.prototype.writeDirectoryIndex_ = function(req, res, path, files) {
 };
 
 exports.createServer = createServer;
-// exports.handleResponse = 
+// exports.handleResponse =
