@@ -1,0 +1,41 @@
+graph TD
+
+A((Start<br/>analyze));
+B[List all files in folders<br/>defined by `<b>rootFolders</b>`];
+C{Is file in<br/>`<b>fileFilter.whitelist</b>`<br/>?};
+D{Is file in<br/>`<b>fileFilter.blacklist</b>`<br/>?};
+E[Format file path by applying<br/>`<b>fileNameAdapter</b>`<br/>to extract file unique id];
+K{Is<br/>this file already<br/>analyzed?};
+F[Analyze the file];
+G[Format id name to display name<br/>by applying`<b>fileLabelAdapter</b>`];
+H[Analyze the file to extract dependencies<br/>from`<b>requireMatcher</b>` rules];
+I[Format dependency by applying<br/>`<b>requireNameAdapter</b>`<br/>to match file id];
+J[Look for a type<br/>from `<b>types</b>`];
+
+N[check next file];
+R((File item));
+
+class A center;
+class C center;
+class D center;
+class K center;
+
+A-->B
+B-->|For each file<br/>based on file path|C
+C-->|yes|D;
+C-->|no|N;
+N-->C;
+D-->|yes|N;
+D-->|no|E;
+E-->|File id|K;
+K-->|yes|N;
+K-->|no|F;
+F -->|based on<br/>file id|G;
+G-->|File label|R;
+J-->|File type|R;
+F-->|File id|R;
+F-->|based on<br/>file id|J;
+F-->|based on<br/>file content|H;
+H-->I;
+I-->|File dependencies|R;
+R-->N;

@@ -23,6 +23,7 @@ It is located in the root folder of Dependency Watcher.
 
 * **configuration** _([Configuration][])_: List of all configuration to parse part of the project. Each configuration can parse only a small chunk or the whole project. It is possible to parse the same code on different configuration (for example to display them differently).
 The first one is used by default.
+
   example:
   ```json
   "configuration": [{
@@ -35,12 +36,15 @@ The first one is used by default.
   ```
 
 * **log** _(String)_ (optional): Path to logs all data.
+
   example:
   ```json
   "log": "trace.log"
   ```
 
 * **logLevel** _(Number)_ (optional): Level to prompt logs
+
+  _{ Warning: these values may change in a future version (to fit more what is usually done) }_
   * 0: *debug level* - display debug logs and following logs
   * 1: *trace level* - display trace logs and following logs
   * 2: *info level* - display info logs and following logs
@@ -54,6 +58,7 @@ The first one is used by default.
   ```
 
 * **security** _([Security])_: Define security settings
+
   example:
   ```json
   "security": {
@@ -68,19 +73,24 @@ The first one is used by default.
 
 Configuration defines what files or folder to parse, how to parse them and how then should be displayed.
 
+You can read the [files analyze workflow](technical.md#workflow) to understand how these parameters are used.
+
 * **name** _(string)_: The name of what is parsed inside this configuration. This name will be displayed in the GUI to choose among all configuration available.
+
   example:
   ```json
   "name": "Front-end - charts"
   ```
 
 * **rootFolders** _(string[])_: The path of root directories which contains all files you want to parse. Path must be absolute or relative to where Dependency Watcher is running.
+
   example:
   ```json
   "rootFolders": ["scripts/", "modules/"]
   ```
 
 * **fileFilter** _([List])_: Parse only files which match all given rules.
+
   example:
   ```json
   "fileFilter": {
@@ -89,7 +99,8 @@ Configuration defines what files or folder to parse, how to parse them and how t
   }
   ```
 
-* **fileNameAdapter** _([Replace] [])_: Format the name of files to have a comm pattern. It must stay unique in the whole project otherwise it will be considered as the same file. This must be used to avoid showing the real path of files and to consider as the same file path with different symbolic link. The source is the file path.
+* **fileNameAdapter** _([Replace] [])_: Format the name of files to have a common pattern. It must stay unique in the whole project otherwise it will be considered as the same file. This must be used to avoid showing the real path of files and to consider as the same file path with different symbolic link. The source is the file path.
+
   example:
   ```json
   "fileNameAdapter": [{
@@ -99,21 +110,24 @@ Configuration defines what files or folder to parse, how to parse them and how t
   ```
 
 * **fileLabelAdapter** _([Replace] [])_: Format the name of files to be more understandable by the user. The source is the file id (the result of fileNameAdapter).
+
   example:
   ```json
-  "fileNameAdapter": [{
+  "fileLabelAdapter": [{
     "matcher": {"pattern": ".*/([^/]+)$"},
     "output": "$1"
   }]
   ```
 
 * **requireMatcher** _([RegExp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
+
   example:
   ```json
   "requireMatcher": [{"pattern": "require\\(['\"](.*?)['\"]\\)", "flags": "g"}, {"pattern": "define\\(\\[['\"](.*?)['\"]\\]\\)"}]
   ```
 
 * **requireNameAdapter** _([Replace] [])_: Format the path got in requireMatcher to match unique file name. The source is the source code of the file.
+
   example:
   ```json
   "requireNameAdapter": [{
@@ -123,6 +137,7 @@ Configuration defines what files or folder to parse, how to parse them and how t
   ```
 
 * **types** _([Type] [])_: set a type for given file. It helps to groups files in categories. The matcher will use the id of the file as source.
+
   example:
   ```json
   types: [{
@@ -137,6 +152,7 @@ Configuration defines what files or folder to parse, how to parse them and how t
     "name": "HTML files",
     "macther": {"pattern": "\\.html$"},
     "color": "#0000FF",
+
     "bgColor": "#CCFFFF",
     "rights": {
       "readFile": true,
@@ -172,11 +188,13 @@ Configuration defines what files or folder to parse, how to parse them and how t
 <a name="Security"></a>
 * **Security**: describe security settings
   * passwordFile _(string)_: The path of a file containing the password. If password is missing or if the file cannot be read, action requiring a password will be forbidden.
+
     example:
     ```json
     "passwordFile": "password.txt"
     ```
   * maxStoreSalt _(number)_: Define the maximum number of salt stored at the same time. Any salt asked when this number is reached will fail. See [security section]((securityWork.md)#Communication) for more details. (default value is 10)
+
     example:
     ```json
     "maxStoreSalt": 10
@@ -204,3 +222,6 @@ Configuration defines what files or folder to parse, how to parse them and how t
   * _(boolean)_: If `true`, the action is always authorized. If `false`, the action is always forbiden
   * _(string)_: describes what todo.
     * "password": user must enter the password to perform the action.
+
+
+[Back to main page](../README.md)
