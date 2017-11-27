@@ -145,6 +145,9 @@ Parser.prototype.parseFile = function(path, content) {
             rslt = matcher.r.exec(content);
             if (rslt) {
                 depFile = rslt[1] || rslt[0];
+                if (matcher.prettyOutput) {
+                    depFile = depFile.replace(matcher.prettyOutput.matcher.r, matcher.prettyOutput.output);
+                }
                 this.addDependency(depFile, fileObj);
             }
         } while(matcher.r.lastIndex > 0);

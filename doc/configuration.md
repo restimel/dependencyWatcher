@@ -120,6 +120,7 @@ You can read the [files analyze workflow](technical.md#workflow) to understand h
   ```
 
 * **requireMatcher** _([RegExp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
+It is possible to use _prettyOutput_ to format the result.
 
   example:
   ```json
@@ -171,11 +172,12 @@ You can read the [files analyze workflow](technical.md#workflow) to understand h
   * pattern _(string)_: the pattern to match.
   * flags _(string)_ (optional): flags to apply for this regexp ("gimy").
   * split _([RegExp])_ (optional): another regexp to apply on result to split it.
+  * prettyOutput _([Replace])_ (optional): applied on result to modify it (to keep only some part or to add some other informations). _(only available for some Regexp)_
 
 [Replace]:#Replace
 <a name="Replace"></a>
 * **Replace**: describe a replacements
-  * matcher _([RegExp])_: If the input match this regexp, the replacement will be executed.
+  * matcher _([RegExp])_: If the input match this regexp, the replacement will be executed. (split and prettyOutput are ignored for this RegExp)
   * output _(string)_: the string which will replace the pattern.
 
 [List]:#List

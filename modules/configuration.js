@@ -225,6 +225,10 @@ function replaceRegexp(obj) {
 		obj.split = replaceRegexp(obj.split);
 	}
 
+	if (obj.prettyOutput) {
+		obj.prettyOutput.matcher = replaceRegexp(obj.prettyOutput.matcher);
+	}
+
 	return obj;
 }
 
