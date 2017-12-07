@@ -76,6 +76,10 @@ function createNoItem() {
 
 function displayDetails(itemData=currentMainItem, item=null, center=false, active=false) {
 	currentMainItem = itemData;
+	if (!currentMainItem) {
+		self.notification('No files', 'No files were retrieved. Check your configuration file if there should be some files to analyze.', 'info');
+		return;
+	}
 	elDetails.scrollTop = 0;
 	elTitle.textContent = itemData.label;
 	if (itemData.label === itemData.name) {

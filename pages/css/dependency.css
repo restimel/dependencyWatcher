@@ -230,6 +230,9 @@ g.active .fileItem {
 .notification.active {
     transform: translate(-50%, 0);
 }
+.notification.info {
+    background-color: rgba(150, 150, 250, 0.9);
+}
 .notification.danger {
     background-color: rgba(250, 75, 75, 0.9);
 }

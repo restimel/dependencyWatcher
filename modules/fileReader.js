@@ -142,6 +142,11 @@ FileReader.prototype.readPath = function(paths, currentPath) {
 		}
 
 		fs.readdir(currentPath, function(err, files) {
+			if (!files) {
+				logger.warn('Directory "' + currentPath + '" is empty or cannot be read.');
+				this.fileDone();
+				return;
+			}
 			logger.info('Read directory "' + currentPath + '".');
 
 			files.forEach(function(file) {
