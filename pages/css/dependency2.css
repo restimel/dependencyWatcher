@@ -1,0 +1,274 @@
+.filterArea {
+    position: absolute;
+    top: 0;
+    height: 100px;
+    right: 0;
+    width: 400px;
+    background-color: #184242;
+}
+
+.tabContent {
+    position: absolute;
+    top: 100px;
+    bottom: 55px;
+    right: 0;
+    width: 400px;
+    background-color: #184242;
+    color: #ddf7f7;
+    overflow: auto;
+}
+
+.confSelectArea {
+    position: absolute;
+    height: 25px;
+    bottom: 0;
+    right: 0;
+    width: 400px;
+    background-color: #184242;
+    color: #ddf7f7;
+    overflow: hidden;
+}
+
+.tabsSelection {
+    position: absolute;
+    height: 30px;
+    bottom: 25px;
+    right: 0;
+    width: 400px;
+    background-color: #184242;
+    color: #ddf7f7;
+    overflow: auto;
+    border-top: 2px solid white;
+}
+
+.tabsSelection ul {
+    margin: 0;
+}
+
+.tabsSelection ul li {
+    display: inline-block;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border: 2px solid white;
+    border-top: none;
+    margin-top: -2px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.tabsSelection li.active {
+    background-color: #ddf7f7;
+    color: #184242;
+    cursor: default;
+}
+
+.main-page {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 400px;
+    overflow: hidden;
+}
+
+.drawArea {
+    background-color: #c7f5f5;
+    user-select: none;
+}
+
+.codeArea {
+    background-color: #678c9e;
+    text-align: center;
+}
+
+.close-code {
+    position: absolute;
+    font-size: 18px;
+    top: 1em;
+    right: 1em;
+    border-radius: 2em;
+    cursor: pointer;
+}
+
+.save-code {
+    position: absolute;
+    font-size: 18px;
+    bottom: 1em;
+    right: 1em;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.codeStatus {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    padding: 1em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+    border: 3px solid #051122;
+    transform: translate(-50%, -110%);
+    transition: 500ms;
+    background-color: #678c9e;
+    z-index: 10;
+}
+.codeStatus.active {
+    transform: translate(-50%, 0%);
+}
+
+.codeFile {
+    margin: 1em;
+    height: 95%;
+    width: 90%;
+}
+
+.filterArea > input{
+    display: block;
+    height: 25px;
+    border-radius: 10px;
+    padding-left: 5px;
+    margin: 10px;
+    width: 370px;
+}
+.filterArea > button{
+    display: block;
+    height: 40px;
+    width: 40px;
+    margin-left: 10px;
+}
+
+.tabContent > header {
+    font-size: 1.5em;
+    text-align: center;
+    padding: 10px;
+}
+.tabContent > header * {
+    margin: 0;
+}
+.tabContent > details {
+    margin-left: 10px;
+}
+.tabContent > details > summary {
+    cursor: pointer;
+}
+
+.groupDetail {
+    padding: 10px;
+}
+
+.colorBox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    margin-right: 5px;
+    margin-bottom: -5px;
+    cursor: pointer;
+}
+
+.confSelectArea > select {
+    width: 100%;
+    height: 25px;
+}
+
+.linkToItem {
+    cursor: pointer;
+}
+.linkToItem:hover {
+    text-decoration: underline;
+}
+.linkToItem.active {
+    color: yellow;
+}
+
+.fileItem {
+    cursor: pointer;
+    rx: 3;
+    ry: 3;
+}
+.fileItem~text {
+    cursor: pointer;
+}
+
+g.active .fileItem {
+    fill: rgba(250, 200, 50, 0.7);
+}
+
+.fileItem:hover {
+    fill: rgba(250, 200, 50, 0.9);
+}
+
+.arrow-link {
+    stroke: #051122;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    cursor: pointer;
+}
+
+.arrows-highlight .arrow-link {
+    stroke: rgba(250, 180, 0, 0.8);
+    stroke-width: 3;
+}
+.arrow-link.parentLink {
+    stroke: rgba(100, 220, 50, 0.8);
+}
+.arrow-link.active {
+    stroke: rgba(255, 100, 0, 0.8);
+    stroke-width: 3.2;
+}
+.arrow-link:hover {
+    stroke: rgba(255, 150, 50, 0.9);
+    stroke-width: 3.5;
+}
+
+dialog {
+    position: fixed;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0px 5px 15px #000000;
+}
+.dialogTypeColor header {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.notification {
+    position: fixed;
+    width: 500px;
+    bottom: 2px;
+    left: 50%;
+    box-shadow: 2px 2px 10px 2px;
+    transform: translate(-50%, 110%);
+    padding: 0.3em;
+    transition: transform 1s;
+    z-index: 10000;
+}
+.notification.active {
+    transform: translate(-50%, 0);
+}
+.notification.danger {
+    background-color: rgba(250, 75, 75, 0.9);
+}
+.notification.warn {
+    background-color: rgba(240, 150, 0, 0.9);
+}
+.notification.success {
+    background-color: rgba(90, 175, 90, 0.9);
+}
+
+.notification > header {
+    text-align: center;
+    font-size: 2em;
+}
+.notification > p {
+    text-align: justify;
+}
+.notification > button {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    border-radius: 1em;
+}
