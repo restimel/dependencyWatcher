@@ -97,7 +97,14 @@
             types: {},
         },
         computed: {
-
+            rootItems: function () {
+                return this.items.filter(item => {
+                    return item.requiredBy.length === 0;
+                });
+            },
+            detailItem: function() {
+                return this.selectedItem || (this.rootItems[0] || {}).name;
+            },
         },
         methods: {
             getItems: function(value) {
@@ -172,12 +179,18 @@
 <div>
     <chart-svg v-if="display === 'chartPage'"
         class="main-page"
+        :items="items"
+        :selectedItem="selectedItem"
+        :rootItems="rootItems"
+        :types="types"
+        @selection="changeSelection"
     ></chart-svg>
     <code-page v-else
         class="main-page"
         :items="items"
-        :selectedItem="selectedItem"
+        :selectedItem="detailItem"
     ></code-page>
+
     <aside class="">
         <filter-form
             :items="items"
@@ -185,7 +198,7 @@
             @selection="changeSelection"
         ></filter-form>
         <aside-content
-            :selectedItem="selectedItem"
+            :selectedItem="detailItem"
             :items="items"
             :types="types"
             @selection="changeSelection"

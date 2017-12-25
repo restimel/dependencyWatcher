@@ -1,6 +1,19 @@
 (function() {
     'use strict';
 
+    if (typeof Array.prototype.get !== 'function') {
+        Array.prototype.get = function(index) {
+            if (index >= this.length) {
+                return this[this.length - 1];
+            } else
+            if (index < 0) {
+                return this[0];
+            } else {
+                return this[index];
+            }
+        };
+    }
+
     var tools = {
         sha256: async function(text) {
             const txtBuffer = new TextEncoder('utf-8').encode(text);

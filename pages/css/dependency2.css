@@ -71,7 +71,7 @@
     overflow: hidden;
 }
 
-.drawArea {
+.draw-area {
     background-color: #c7f5f5;
     user-select: none;
 }
@@ -79,6 +79,18 @@
 .codeArea {
     background-color: #678c9e;
     text-align: center;
+}
+
+.fitAll-btn {
+    position: absolute;
+    font-size: 18px;
+    bottom: 1em;
+    right: 1em;
+    border-radius: 5px;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
 }
 
 .close-code {
@@ -180,6 +192,12 @@
 }
 .linkToItem.active {
     color: yellow;
+}
+
+.selection-rectangle {
+    stroke: #333333;
+    fill: none;
+    stroke-dasharray: 5;
 }
 
 .fileItem {

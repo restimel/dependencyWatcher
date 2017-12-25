@@ -11,9 +11,11 @@
     * hide all file of a type
     * hide/show child file
     * show parent files
-* watch file
+* configuration tab (do not center, credits, ...)
+* Read file
     * Security (limit access)
         * Create cipher communication (https://github.com/ricmoo/aes-js)
+        * hash password in sessionStorage
     * Edit file on server
 
 ## This has been done
@@ -23,9 +25,14 @@
 * highlight dependencies
 * allow to change configuration (to display different graph)
 * Find a file from its type
+* Fit zoom to see all fileBox
 * Color filebox depending of types
     * allow to change color online
-* watch file
+* Read file
     * Ace
     * Security (limit access)
         * Ask and build challenge
+
+# Bugs
+
+* links on backward dep are glitchy display at start
