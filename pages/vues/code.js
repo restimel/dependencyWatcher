@@ -7,8 +7,8 @@
     Vue.component('code-page', {
         props: {
             items: {
-                type: Array,
-                default: () => ([])
+                type: Map,
+                required: true,
             },
             selectedItem: String
         },
@@ -22,7 +22,7 @@
         },
         computed: {
             item: function() {
-                return this.items.find(item => item.name === this.selectedItem) || {};
+                return this.items.get(this.selectedItem) || {};
             },
             language: function() {
                 let language = this.item && this.item.type && this.item.type.language;
@@ -106,7 +106,6 @@
             }
         },
         mounted: function() {
-            console.log('mounted');
             this.editor = ace.edit('codeFile');
             this.session = this.editor.session;
             this.editor.setTheme('ace/theme/monokai');

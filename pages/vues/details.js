@@ -2,11 +2,31 @@
     const fileLi = {
         props: {
             file: String,
-            items: Array,
+            items: Map,
         },
         computed: {
             item: function() {
-                return this.items.find(item => item.name === this.file);
+                return this.items.get(this.file);
+            },
+            classNames: function() {
+                const classNames = ['visible-icons', 'fa'];
+                if (this.item.visible) {
+                    classNames.push('fa-eye');
+                } else {
+                    classNames.push('fa-eye-slash');
+                }
+                return classNames;
+            },
+            iconTitle: function() {
+                return this.item.visible ?
+                    'Hide this box' :
+                    'Show this box';
+            },
+        },
+        methods: {
+            showHide: function() {
+                const rule = this.item.visible ? '-' : '+';
+                this.$emit('addFilter', rule + this.item.name);
             }
         },
         template: `
@@ -15,7 +35,14 @@
     :title="item.name"
     @click="$emit('click', file)"
 >
-    {{ item.label }}
+    <span class="flex">
+        {{ item.label }}
+        <span
+            :class="classNames"
+            :title="iconTitle"
+            @click.stop="showHide"
+        ></span>
+    </span>
 </li>
         `
     };
@@ -27,8 +54,8 @@
                 default: () => ([])
             },
             items: {
-                type: Array,
-                default: () => ([])
+                type: Map,
+                required: true,
             },
             selectedItem: String
         },
@@ -44,6 +71,7 @@
         :items="items"
         :file="file"
         @click="$emit('selection', file)"
+        @addFilter="(...values)=>$emit('addFilter', ...values)"
         :key="file"
     ></file-li>
 </ul>
@@ -54,7 +82,7 @@
     const details = {
         props: {
             itemData: Object,
-            items: Array,
+            items: Map,
         },
         computed: {
             item: function() {
@@ -93,6 +121,7 @@
             :files="item.dependencies"
             :items="items"
             @selection="(value)=>$emit('selection', value)"
+            @addFilter="(...values)=>$emit('addFilter', ...values)"
         ></file-list>
     </details>
     <details>
@@ -101,6 +130,7 @@
             :files="item.requiredBy"
             :items="items"
             @selection="(value)=>$emit('selection', value)"
+            @addFilter="(...values)=>$emit('addFilter', ...values)"
         ></file-list>
     </details>
     <br>
@@ -161,29 +191,26 @@
                 this.bgColor = this.type.bgColor || '#eaeaea';
             }
         },
-        created: function() {
-            document.addEventListener('keydown', this.keys);
-        },
-        destroyed: function() {
-            document.removeEventListener('keydown', this.keys);
-        },
         template: `
-<dialog class="dialogTypeColor" :open="isOpen">
-    <header>{{ type.name }}</header>
-    <label>Color (for text and border): <input type="color" v-model="color"></label>
-    <label>Background color: <input type="color" v-model="bgColor"></label>
-    <menu>
-        <button @click="close">Cancel</button>
-        <button @click="save">Apply</button>
-    </menu>
-</dialog>
+<pop-up
+    class="dialogTypeColor"
+    :open="isOpen"
+    :title="type.name"
+    @close="close"
+    @save="save"
+>
+    <template slot="content">
+        <label>Color (for text and border): <input type="color" v-model="color"></label>
+        <label>Background color: <input type="color" v-model="bgColor"></label>
+    </template>
+</pop-up>
         `
     };
 
     const groups = {
         props: {
             itemData: Object,
-            items: Array,
+            items: Map,
             types: Object,
         },
         data: function() {
@@ -221,6 +248,7 @@
             :items="items"
             :selectedItem="itemData && itemData.name"
             @selection="(value)=>$emit('selection', value)"
+            @addFilter="(...values)=>$emit('addFilter', ...values)"
         ></file-list>
     </details>
     <group-color-dialog
@@ -233,39 +261,110 @@
         `
     };
 
+    const filterHelp = {
+        template: `
+<div class="tabContent" data-tab="groups">
+    <header>How to create filter</header>
+    <p>All file boxes which match a rule will not be displayed.</p>
+    <h4>Syntax</h4>
+    <p><code class="example">[group]file:children::&lt;SubRule&gt;</code></p>
+    <table>
+        <tr>
+            <th>Command name</th>
+            <th>Explanation</th>
+        </tr>
+        <tr>
+            <td><i>any chars (* is wildcard)</i></td>
+            <td>name of a file box (can be full name or label)</td>
+        </tr>
+        <tr>
+            <td>[<i>any chars (* is wildcard)</i>]</td>
+            <td>Select a group by its name</td>
+        </tr>
+        <tr>
+            <td>:children::</td>
+            <td>Select children of selected file box</td>
+        </tr>
+        <tr>
+            <td>:andChildren::</td>
+            <td>Select children of selected file box and this file box</td>
+        </tr>
+        <tr>
+            <td>:parents::</td>
+            <td>Select parents of selected file box</td>
+        </tr>
+        <tr>
+            <td>:andParents::</td>
+            <td>Select parents of selected file box and this file box</td>
+        </tr>
+        <tr>
+            <td>:and::</td>
+            <td>Select this file box (to add another rule)</td>
+        </tr>
+    </table>
+    <p>It is possible to start the rule with '+' to force the visibility of matching boxes.
+    <h4>Some examples</h4>
+    <ul>
+        <li><code class="example">*.min.js</code> Do not display all files which end with ".min.js".</li>
+        <li><code class="example">[modules]:andChildren::</code> Do not display files in "modules" group and their children.</li>
+        <li><code class="example">[filter-*]*leaf.js:children::*.html</code> Do not display all children which end with ".html" of files ending by ".js" in groups startings with "filter-".</li>
+    </ul>
+</div>
+        `
+    };
+
     Vue.component('aside-content', {
         props: {
             selectedItem: String,
-            items: Array,
+            items: Map,
             types: Object,
+            help: String,
         },
         data: function() {
             return {
-                activeTab: 'item-details',
+                selectedTab: 'item-details',
                 tabs: [{
                     name: 'Details',
-                    id: 'item-details'
+                    id: 'item-details',
+                    visible: true,
                 }, {
                     name: 'Groups',
-                    id: 'item-groups'
+                    id: 'item-groups',
+                    visible: true,
+                }, {
+                    name: 'Filter',
+                    id: 'item-filter',
+                    visible: false,
                 }]
             };
         },
         computed: {
+            activeTab: function() {
+                let activeTab;
+
+                if (this.help) {
+                    activeTab = this.tabs.find(tab => tab.name === this.help);
+                    activeTab = activeTab && activeTab.id;
+                }
+
+                return activeTab || this.selectedTab;
+            },
             dataSelected: function() {
-                return this.items.find((item) => {
-                    return item.name === this.selectedItem;
-                });
+                return this.items.get(this.selectedItem);
+            },
+            visibleTabs: function() {
+                return this.tabs.filter(tab => tab.visible);
             }
         },
         methods: {
             changeTab: function(tab) {
-                this.activeTab = tab;
+                this.selectedTab = tab;
             }
         },
         components: {
             'item-details': details,
             'item-groups': groups,
+            'item-filter': filterHelp,
         },
         template: `
 <section>
@@ -277,10 +376,11 @@
         @selection="(value)=>$emit('selection', value)"
         @navigate="(location, value) =>$emit('navigate', location, value)"
         @change="(...args)=>$emit('change', ...args)"
+        @addFilter="(...values)=>$emit('addFilter', ...values)"
     ></div>
     <footer class="tabsSelection">
         <ul>
-            <li v-for="tab of tabs"
+            <li v-for="tab of visibleTabs"
                 :class="{active: activeTab === tab.id}"
                 :key="tab.id"
                 @click="changeTab(tab.id)"

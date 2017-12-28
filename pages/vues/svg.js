@@ -193,8 +193,8 @@
     Vue.component('chart-svg', {
         props: {
             items: {
-                type: Array,
-                default: () => ([])
+                type: Map,
+                required: true,
             },
             types: {
                 type: Object,

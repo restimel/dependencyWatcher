@@ -1,6 +1,12 @@
 (function() {
     'use strict';
 
+    Vue.directive('focus', {
+        inserted: function(el) {
+            el.focus();
+        },
+    });
+
     Vue.component('configuration', {
         data: function() {
             return {
@@ -87,37 +93,96 @@
     });
     self.notification = notification;
 
+    Vue.component('pop-up', {
+        props: {
+            title: String,
+            open: {
+                type: Boolean,
+                default: true,
+            }
+        },
+        methods: {
+            keys: function (evt) {
+                if (this.open) {
+                    switch (evt.key) {
+                        case 'Escape': this.$emit('close'); break;
+                        case 'Enter': this.$emit('save'); break;
+                    }
+                }
+            }
+        },
+        created: function () {
+            document.addEventListener('keydown', this.keys);
+        },
+        destroyed: function () {
+            document.removeEventListener('keydown', this.keys);
+        },
+        template: `
+<dialog class="dialog-pop-up" :open="open">
+    <header>{{ title }}</header>
+    <slot name="content"></slot>
+    <menu>
+        <slot name="menu">
+            <button @click="$emit('close')">Cancel</button>
+            <button @click="$emit('save')">Apply</button>
+        </slot>
+    </menu>
+</dialog>
+        `
+    });
 
-    new Vue({
-        el: '#appDependencyWatcher',
-        data: {
-            display: 'chartPage',
-            selectedItem: '',
-            items: [],
-            types: {},
+    Vue.component('dependency-watcher', {
+        data: function() {
+            return {
+                display: 'chartPage',
+                selectedItem: '',
+                items: new Map(),
+                types: {},
+                filters: [],
+                help: '',
+            };
         },
         computed: {
-            rootItems: function () {
-                return this.items.filter(item => {
-                    return item.requiredBy.length === 0;
+            visibleItems: function() {
+                var items = new Map();
+                this.items.forEach((item, key) => {
+                    if (item.visible) {
+                        items.set(key, item);
+                    }
                 });
+                return items;
+            },
+            rootItems: function () {
+                const rootItems = [];
+                this.visibleItems.forEach(item => {
+                    if (item.requiredBy.every(reqItem => {
+                        return !this.visibleItems.get(reqItem);
+                    })) {
+                        rootItems.push(item);
+                    }
+                });
+                return rootItems;
             },
             detailItem: function() {
                 return this.selectedItem || (this.rootItems[0] || {}).name;
+            },
+            fnctfilterRules: function() {
+                return this.filterRules.bind(this);
             },
         },
         methods: {
             getItems: function(value) {
                 const url = 'data/links.json?configuration=' + value;
 
-                this.items = [];
+                this.items = new Map();
                 fetch(url)
                     .then(response => response.json(), error => {
                         notification.set('Failed to retrieve data file', error.message, 'danger');
                     })
                     .then(response => {
-                        this.items = response;
+                        this.items = new Map(response.map(item => [item.name, item]));
                         this.getTypes();
+                        this.updateAllVisiblity();
                     }, error => {
                         notification.set('Failed to parse data file', error.message, 'danger');
                     });
@@ -140,6 +205,9 @@
                 });
                 
                 this.types = types;
+            },
+            showHelp: function (help) {
+                this.help = help;
             },
             changeSelection: function(value) {
                 this.selectedItem = value;
@@ -171,6 +239,126 @@
                         break;
                 }
             },
+            changeFilter: function(filters) {
+                let uid = 0;
+                this.filters = filters.map(filter => {
+                    return {
+                        value: filter,
+                        id: 'stored-' + uid++,
+                        rules: this.buildFilter(filter),
+                    };
+                });
+                this.updateAllVisiblity();
+            },
+            updateAllVisiblity: function() {
+                const allFiles = [];
+                this.items.forEach(item => {
+                    item.visible = true;
+                    allFiles.push(item.name);
+                });
+                for (const filter of this.filters) {
+                    const list = this.filterGetFiles(filter.rules, allFiles);
+                    list.forEach(file => {
+                        this.items.get(file).visible = filter.rules.forceAdd;
+                    });
+                }
+                this.items = new Map(Array.from(this.items)); // to force update
+            },
+            buildFilter: function(filter) {
+                const rules = filter.split('::');
+                const rootRule = {
+                    subRule: null,
+                };
+                const parse = /^([-+]?)(?:\[(.*)\])?(.*?)(?::(this|and|children|andchildren|parents|andparents))?$/i;
+
+                const buildRgx = (str) => {
+                    str = str || '*';
+                    str = str.replace(/([-+?./\\[\](){}^$|])/g, '\\$1')
+                             .replace(/\*/g, '.*');
+                    return new RegExp('^' + str + '$', 'i');
+                };
+                const getSubRule = (subRule) => {
+                    if ([,'', 'this', 'and'].includes(subRule)) {
+                        return 'this';
+                    }
+                    return subRule;
+                };
+
+                let parentRule = rootRule;
+                for (const sRule of rules) {
+                    const [,forceAdd, group, file, subRule] = parse.exec(sRule);
+                    const rule = {
+                        group: buildRgx(group),
+                        file: buildRgx(file),
+                        forceAdd: forceAdd === '+',
+                        filter: getSubRule(subRule),
+                        subRule: null,
+                    };
+                    parentRule.subRule = rule;
+                    parentRule = rule;
+                }
+
+                return rootRule.subRule;
+            },
+            filterRules: function(filter, items) {
+                const rule = this.buildFilter(filter);
+                return this.filterGetFiles(rule, items);
+            },
+            filterGetFiles: function(rule, fileNames = []) {
+                let matchFiles = [];
+
+                for (const file of fileNames) {
+                    const item = this.items.get(file);
+                    const group = item.type && item.type.name || 'undefined';
+                    if (rule.group.test(group) && (rule.file.test(item.name) || rule.file.test(item.label))) {
+                        let list = [];
+                        switch (rule.filter.toLowerCase()) {
+                            case 'parents':
+                                list = item.requiredBy;
+                                break;
+                            case 'andparents':
+                                list = [item.name].concat(item.requiredBy);
+                                break;
+                            case 'children':
+                                list = item.dependencies;
+                                break;
+                            case 'andchildren':
+                                list = [item.name].concat(item.dependencies);
+                                break;
+                            case 'this':
+                            default:
+                                list.push(item.name);
+                        }
+                        if (!rule.subRule) {
+                            matchFiles.push(...list);
+                        } else {
+                            matchFiles = matchFiles.concat(
+                                this.filterGetFiles(rule.subRule, list)
+                            );
+                        }
+                    }
+                }
+
+                return matchFiles;
+            },
+            addFilter: function(rule) {
+                const reverseRule = (
+                    rule[0] === '-' ? '+' : 
+                    rule[0] === '+' ? '-' : 
+                    '+' + rule[0]) + rule.slice(1);
+                const idxRuleReverse = this.filters.findIndex(r => r.value === reverseRule);
+                if (idxRuleReverse !== -1) {
+                    this.filters.splice(idxRuleReverse, 1);
+                } else {
+                    this.filters.push({
+                        value: rule,
+                        id: 'autoRule-' + this.filters.length,
+                        rules: this.buildFilter(rule),
+                    });
+                }
+
+                this.updateAllVisiblity();
+            },
         },
         created: function() {
             this.getItems(0);
@@ -179,7 +367,7 @@
 <div>
     <chart-svg v-if="display === 'chartPage'"
         class="main-page"
-        :items="items"
+        :items="visibleItems"
         :selectedItem="selectedItem"
         :rootItems="rootItems"
         :types="types"
@@ -195,19 +383,29 @@
         <filter-form
             :items="items"
             :selectedItem="selectedItem"
+            :filters="filters"
+            :filterRules="fnctfilterRules"
             @selection="changeSelection"
+            @saveFilter="changeFilter"
+            @showHelp="showHelp"
         ></filter-form>
         <aside-content
             :selectedItem="detailItem"
             :items="items"
             :types="types"
+            :help="help"
             @selection="changeSelection"
             @navigate="navigate"
             @change="changeData"
+            @addFilter="addFilter"
         ></aside-content>
         <configuration @changeConfig="getItems"></configuration>
     </aside>
 </div>
         `
+    });
+
+    new Vue({
+        el: '#appDependencyWatcher',
     });
 })();

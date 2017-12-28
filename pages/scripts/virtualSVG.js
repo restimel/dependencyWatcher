@@ -22,7 +22,10 @@ VirtualSVG.prototype.reset = function(items, rootItems) {
 
 VirtualSVG.prototype.add = function(itemName, idx = 0, done = []) {
     let info;
-    const item = this.items.find(item => item.name === itemName);
+    const item = this.items.get(itemName);
+    if (!item) {
+        return;
+    }
     const name = item.name;
 
     if (this.itemsList.has(name)) {
@@ -100,6 +103,9 @@ VirtualSVG.prototype.build = function() {
         const start = [startIdx, startColIdx, -1, item.name];
         for (const dep of item.dependencies) {
             const depItem = this.itemsList.get(dep);
+            if (!depItem) {
+                continue;
+            }
             const endIdx = depItem.index;
             const endColIdx = depItem.colIdx;
             const inc = endIdx > startIdx ? 1 : -1;

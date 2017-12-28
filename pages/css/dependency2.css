@@ -187,11 +187,23 @@
 .linkToItem {
     cursor: pointer;
 }
+.linkToItem > .flex {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 310px;
+}
 .linkToItem:hover {
     text-decoration: underline;
 }
 .linkToItem.active {
     color: yellow;
+}
+.visible-icons {
+    margin-right: 1em;
+}
+.visible-icons:hover {
+    color: darkorange;
 }
 
 .selection-rectangle {
@@ -242,15 +254,17 @@ g.active .fileItem {
     stroke-width: 3.5;
 }
 
-dialog {
+.dialog-pop-up {
     position: fixed;
     top: 50%;
     transform: translate(-50%, -50%);
     box-shadow: 0px 5px 15px #000000;
 }
-.dialogTypeColor header {
+.dialog-pop-up header {
     font-size: 1.2em;
     font-weight: bold;
+    text-align: center;
+    margin-bottom: 0.8em;
 }
 
 .notification {
@@ -289,4 +303,51 @@ dialog {
     top: 3px;
     right: 3px;
     border-radius: 1em;
+}
+
+button.active {
+    color: darkorange;
+}
+
+.filter-list {
+    padding: 0;
+}
+.filter-item {
+    width: 300px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.add-item {
+    cursor: pointer;
+    margin-top: 0.6em;
+}
+.filter-item .fa {
+    cursor: pointer;
+    margin-left: 0.4em;
+}
+.filter-item:hover {
+    background-color: #eaeaea;
+}
+.add-item:hover {
+    background-color: #fafaea;
+}
+.filter-item .fa:hover {
+    color: darkorange;
+}
+.filter-input-area {
+    position: relative;
+}
+.filter-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250px;
+}
+.filter-item-mainInput {
+    background-color: transparent;
+}
+.filter-item-displayed {
+    max-width: 250px;
+    overflow-wrap: break-word;
 }
