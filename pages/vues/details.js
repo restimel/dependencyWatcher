@@ -1,4 +1,40 @@
 (function() {
+    const visibilityIcon = {
+        props: {
+            visible: Boolean,
+            rule: String,
+        },
+        computed: {
+            classNames: function () {
+                const classNames = ['change-visibility', 'fa'];
+                if (this.visible) {
+                    classNames.push('fa-eye');
+                } else {
+                    classNames.push('fa-eye-slash');
+                }
+                return classNames;
+            },
+            iconTitle: function () {
+                return this.visible ?
+                    'Hide this box' :
+                    'Show this box';
+            },
+        },
+        methods: {
+            showHide: function () {
+                const addRule = this.visible ? '-' : '+';
+                this.$emit('addFilter', addRule + this.rule);
+            }
+        },
+        template: `
+<span
+    :class="classNames"
+    :title="iconTitle"
+    @click.stop.prevent="showHide"
+></span>
+        `
+    };
+
     const fileLi = {
         props: {
             file: String,
@@ -8,26 +44,9 @@
             item: function() {
                 return this.items.get(this.file);
             },
-            classNames: function() {
-                const classNames = ['visible-icons', 'fa'];
-                if (this.item.visible) {
-                    classNames.push('fa-eye');
-                } else {
-                    classNames.push('fa-eye-slash');
-                }
-                return classNames;
-            },
-            iconTitle: function() {
-                return this.item.visible ?
-                    'Hide this box' :
-                    'Show this box';
-            },
         },
-        methods: {
-            showHide: function() {
-                const rule = this.item.visible ? '-' : '+';
-                this.$emit('addFilter', rule + this.item.name);
-            }
+        components: {
+            'visibility-icon': visibilityIcon, 
         },
         template: `
 <li
@@ -37,11 +56,11 @@
 >
     <span class="flex">
         {{ item.label }}
-        <span
-            :class="classNames"
-            :title="iconTitle"
-            @click.stop="showHide"
-        ></span>
+        <visibility-icon
+            :visible="item.visible"
+            :rule="item.name"
+            @addFilter="(...values) => $emit('addFilter', ...values)"
+        />
     </span>
 </li>
         `
@@ -103,11 +122,30 @@
             isReadable: function() {
                 return this.item.canReadFile;
             },
+            visibleDep: function() {
+                const dependencies = this.item.dependencies || [];
+                return {
+                    show: !!dependencies.length,
+                    visible: dependencies.some(item => this.items.get(item).visible),
+                    rule: this.item.name + ':children::',
+                };
+            },
+            visibleReq: function() {
+                const requiredBy = this.item.requiredBy || [];
+                return {
+                    show: !!requiredBy.length,
+                    visible: requiredBy.some(item => this.items.get(item).visible),
+                    rule: this.item.name + ':parents::',
+                };
+            },
         },
         watch: {
             itemData: function() {
                 this.$el.scrollTop = 0;
             }
+        },
+        components: {
+            'visibility-icon': visibilityIcon,
         },
         template: `
 <div class="tabContent">
@@ -116,7 +154,18 @@
         <h5><span>{{ subTitle }}</span></h5>
     </header>
     <details>
-        <summary>Dependencies (<span>{{ depLength }}</span>)</summary>
+        <summary>
+            <span class="flex">
+                <span>Dependencies (<span>{{ depLength }}</span>)</span>
+                <visibility-icon
+                    v-show="visibleDep.show"
+                    class="in-summary"
+                    :visible="visibleDep.visible"
+                    :rule="visibleDep.rule"
+                    @addFilter="(...values)=>$emit('addFilter', ...values)"
+                />
+            </span>
+        </summary>
         <file-list
             :files="item.dependencies"
             :items="items"
@@ -125,7 +174,18 @@
         ></file-list>
     </details>
     <details>
-        <summary>Required by (<span>{{ reqLength }}</span>)</summary>
+        <summary>
+            <span class="flex">
+                <span>Required by (<span>{{ reqLength }}</span>)</span>
+                <visibility-icon
+                    v-show="visibleReq.show"
+                    class="in-summary"
+                    :visible="visibleReq.visible"
+                    :rule="visibleReq.rule"
+                    @addFilter="(...values)=>$emit('addFilter', ...values)"
+                />
+            </span>
+        </summary>
         <file-list
             :files="item.requiredBy"
             :items="items"
@@ -224,7 +284,8 @@
             }
         },
         components: {
-            'group-color-dialog': colorDialog
+            'group-color-dialog': colorDialog,
+            'visibility-icon': visibilityIcon,
         },
         template: `
 <div class="tabContent" data-tab="groups">
@@ -233,15 +294,25 @@
         class="groupDetail"
     >
         <summary>
-            <div class="colorBox"
-                :style="{
-                    'background-color': group.bgColor
- || '#eaeaea',
-                    'border-color': group.color || '#333333',
-                }"
-                @click="changeColor(group.name)"
-            ></div>
-            <label>{{ group.name }}</label>
+            <span class="flex">
+                <span>
+                    <div class="colorBox"
+                        :style="{
+                            'background-color': group.bgColor || '#eaeaea',
+                            'border-color': group.color || '#333333',
+                        }"
+                        @click="changeColor(group.name)"
+                    ></div>
+                    <label>{{ group.name }}</label>
+                </span>
+                <visibility-icon
+                    v-show="group.list.length > 0"
+                    class="in-summary"
+                    :visible="group.list.some(file => items.get(file).visible)"
+                    :rule="'[' + group.name + ']'"
+                    @addFilter="(...values)=>$emit('addFilter', ...values)"
+                />
+            </span>
         </summary>
         <file-list
             :files="group.list"
@@ -267,19 +338,11 @@
     <header>How to create filter</header>
     <p>All file boxes which match a rule will not be displayed.</p>
     <h4>Syntax</h4>
-    <p><code class="example">[group]file:children::&lt;SubRule&gt;</code></p>
+    <p><code class="example">[group]file:modifier::&lt;SubRule&gt;</code></p>
     <table>
         <tr>
-            <th>Command name</th>
+            <th>Modifier name</th>
             <th>Explanation</th>
-        </tr>
-        <tr>
-            <td><i>any chars (* is wildcard)</i></td>
-            <td>name of a file box (can be full name or label)</td>
-        </tr>
-        <tr>
-            <td>[<i>any chars (* is wildcard)</i>]</td>
-            <td>Select a group by its name</td>
         </tr>
         <tr>
             <td>:children::</td>
@@ -305,7 +368,7 @@
     <p>It is possible to start the rule with '+' to force the visibility of matching boxes.
     <h4>Some examples</h4>
     <ul>
-        <li><code class="example">*.min.js</code> Do not display all files which end with ".min.js".</li>
+        <li><code class="example">*.min.js</code> Do not display files which end with ".min.js".</li>
         <li><code class="example">[modules]:andChildren::</code> Do not display files in "modules" group and their children.</li>
         <li><code class="example">[filter-*]*leaf.js:children::*.html</code> Do not display all children which end with ".html" of files ending by ".js" in groups startings with "filter-".</li>
     </ul>

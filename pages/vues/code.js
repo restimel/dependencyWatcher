@@ -109,7 +109,6 @@
             this.editor = ace.edit('codeFile');
             this.session = this.editor.session;
             this.editor.setTheme('ace/theme/monokai');
-            this.session.setValue('toto')
             this.initialize();
         },
         template: `

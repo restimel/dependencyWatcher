@@ -17,20 +17,74 @@
 				status: this.filter ? 'display' : 'edit',
 				hover: false,
 				value: this.filter,
+				suggestIdx: 0,
 			};
 		},
 		computed: {
-			suggest: function() {
-				let text = this.value;
+			suggestion: function() {
+				const text = this.value;
 				
 				if (!text) {
-					text = 'Enter filter rule here';
+					return [''];
 				} else {
-					const list = ['[', ':children:'].filter(l => l.startsWith(text));
-					text = list[0] || '';
-				}
+					let list = [];
+					const rules = text.split('::');
+					const currentRules = rules.slice(0, -1).join('::');
+					const strRules = currentRules ? currentRules + '::' : '';
+					const last = rules.get(Infinity);
 
-				return text;
+					if (!last) {
+						list = ['['];
+					} else
+					if (/^\[[^\]]*?$/.test(last)) {
+						list = this.filterRules(currentRules, this.itemNames);
+						list = list.reduce((list, item) => {
+							let type = this.items.get(item).type;
+							type = '[' + (type && type.name || 'undefined') + ']';
+
+							if (type.startsWith(last) && !list.includes(type)) {
+								list.push(type);
+							}
+							return list;
+						}, []);
+					} else
+					if (/^(?:\[[^\]]*?\])?[^:]*?$/.test(last)) {
+						const group = last.replace(/^(\[[^\]]*?\])?.*$/, '$1');
+						const file = last.slice(group.length);
+						list = this.filterRules(currentRules + '::' + group, this.itemNames);
+						list = list.reduce((list, item) => {
+							let suggest = group + item;
+							if (item.startsWith(file) && !list.includes(suggest)) {
+								list.push(suggest);
+							}
+							const label = (this.items.get(item) || {}).label;
+							suggest = group + label;
+							if (label.startsWith(file) && !list.includes(suggest)) {
+								list.push(suggest);
+							}
+							return list;
+						}, []);
+					} else
+					if (/^(?:\[[^\]]*?\])?[^:]*?:[^:]*:?$/.test(last)) {
+						const file = last.replace(/:[^:]*:?$/, '');
+						const subRule = last.slice(file.length);
+						list = [':children::', ':andChildren::', ':parents::', ':andParents::', ':and::'].reduce((list, sub) => {
+							if (sub.startsWith(subRule)) {
+								list.push(file + sub);
+							}
+							return list;
+						}, []);
+					}
+
+					list = list.map(l => strRules + l);
+					return list;
+				}
+			},
+			suggest: function() {
+				if (!this.value) {
+					return 'Enter filter rule here';
+				}
+				return this.suggestion[this.suggestIdx] || '';
 			},
 			itemNames: function() {
 				const list = [];
@@ -47,7 +101,29 @@
 				if (this.value) {
 					this.status = 'display';
 				}
-			}
+			},
+			incSuggestIndex: function() {
+				this.suggestIdx = (this.suggestIdx + 1) % this.suggestion.length;
+			},
+			decSuggestIndex: function() {
+				this.suggestIdx = (this.suggestIdx + this.suggestion.length - 1) % this.suggestion.length;
+			},
+			selectSuggest: function() {
+				const value = this.suggestion[this.suggestIdx];
+				if (value) {
+					this.value = value;
+					this.$emit('input', value);
+				}
+			},
+		},
+		watch: {
+			suggestion: function(newSuggestion, oldSuggestion) {
+				const currentSuggest = oldSuggestion[this.suggestIdx];
+				this.suggestIdx = newSuggestion.indexOf(currentSuggest);
+				if (this.suggestIdx === -1) {
+					this.suggestIdx = 0;
+				}
+			},
 		},
 		template: `
 <li
@@ -83,8 +159,11 @@
 				class="filter-input filter-item-mainInput"
 				v-model="value"
 				v-focus
-				@input="evt => $emit('input', this.value, evt.currentTarget.value)"
+				@input="$emit('input', value)"
 				@keydown.enter.prevent.stop="submit"
+				@keydown.down.prevent="incSuggestIndex"
+				@keydown.up.prevent="decSuggestIndex"
+				@keydown.right.exact="selectSuggest"
 			>
 		</span>
 		<span>
@@ -142,11 +221,14 @@
 				}
 				return array;
 			},
+			updateValue: function(idx, value) {
+				this.displayedFilters[idx].value = value;
+			},
 		},
 		watch: {
 			filters: function() {
 				this.updateFilters();
-			}
+			},
 		},
 		components: {
 			'li-filter': filterItem,
@@ -164,7 +246,7 @@
 			:filter="item.value"
 			:filterRules="filterRules"
 			:items="items"
-			@input="value => displayedFilters[idx].value = value"
+			@input="value => updateValue(idx, value)"
 			@delete="remove(idx)"
 			:key="item.id"
 		></li-filter>
