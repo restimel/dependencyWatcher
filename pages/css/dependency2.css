@@ -127,6 +127,7 @@
 }
 .codeStatus.active {
     transform: translate(-50%, 0%);
+    transition: none;
 }
 
 .codeFile {
@@ -353,4 +354,13 @@ button.active {
 .filter-item-displayed {
     max-width: 250px;
     overflow-wrap: break-word;
+}
+
+.file-actions {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+}
+.file-actions > button {
+    cursor: pointer;
 }

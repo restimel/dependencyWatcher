@@ -29,8 +29,8 @@ Attributes in **bold** are from a *configuration* attribute.
 ### Workflow explanation
 
  It is possible to set several *configuration*.
- 
- The process is run every times a configuration is selected (by default the first one is selected at start) even if it was already done (like this it ensure to re-analyze files when a modification has been done.
+
+ The process is run every times a configurations is selected (by default the first one is selected at start) even if it was already done (like this it ensure to re-analyze files when a modification has been done.
 
 #### Get all files
  Files are listed from root folders and all their sub-folders. It follows sym-link.

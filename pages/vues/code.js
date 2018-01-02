@@ -17,7 +17,6 @@
                 editor: null,
                 session: null,
                 text: '',
-                status: '',
             };
         },
         computed: {
@@ -59,9 +58,9 @@
             getText: async function() {
                 let password, salt, challenge;
 
-                this.status = 'loading text';
+                this.$emit('status', 'loading text');
                 if (!this.item.canReadFile) {
-                    this.status = 'Permission denied to read this file';
+                    this.$emit('status', 'Permission denied to read this file');
                     return;
                 } else if (this.item.canReadFile === 'password') {
                     password = await tools.getPassword();
@@ -81,7 +80,7 @@
                 if (!responseCode.ok) {
                     sessionStorage.removeItem('password');
                     self.notification('File is not readable', code, 'danger');
-                    this.status = 'File is not readable';
+                    this.$emit('status', 'File is not readable');
                     return;
                 }
 
@@ -90,14 +89,14 @@
                         code = tools.decipherAES(code, password);
                     } catch (e) {
                         self.notification('Cannot decipher the data', e.message, 'warn');
-                        this.status = 'Cannot decipher the data';
+                        this.$emit('status', 'Cannot decipher the data');
                         return;
                     }
                 }
 
                 this.text = code;
                 this.session.setValue(this.text);
-                this.status = '';
+                this.$emit('status', '');
             }
         },
         watch: {
@@ -113,12 +112,6 @@
         },
         template: `
     <div class="codeArea">
-        <aside
-            :class="{
-                codeStatus: true,
-                active: !!status
-            }"
-        >{{ status }}</aside>
         <button class="close-code"
             @click="$emit('navigate', 'chart')"
         >

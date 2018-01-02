@@ -23,7 +23,7 @@
 		computed: {
 			suggestion: function() {
 				const text = this.value;
-				
+
 				if (!text) {
 					return [''];
 				} else {

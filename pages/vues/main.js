@@ -1,6 +1,47 @@
 (function() {
     'use strict';
 
+    self.configuration = {
+        centerOnSelected: true,
+        performance: false,
+        performanceLog: new Map(),
+        perfStart: function(label) {
+            if (!this.performance) return;
+            const currentTime = performance.now();
+            console.time(label);
+            let log = this.performanceLog.get(label);
+            if (!log) {
+                log = {label: label, timers: []};
+                this.performanceLog.set(label, log);
+            }
+            if (log.timers.length % 2 === 1) {
+                console.warn('Start again ' + label);
+                log.timers.pop();
+            }
+            log.timers.push(currentTime);
+        },
+        perfEnd: function(label) {
+            if (!this.performance) return;
+            const currentTime = performance.now();
+            console.timeEnd(label);
+            let log = this.performanceLog.get(label);
+            if (!log || log.timers % 2 === 0) {
+                console.warn(label + ' not started');
+                return;
+            }
+            log.timers.push(currentTime);
+
+        },
+        save: function() {
+            localStorage.setItem('configuration', JSON.stringify({
+                centerOnSelected: this.centerOnSelected,
+                performance: this.performance,
+            }));
+        },
+    };
+
+    Object.assign(self.configuration, JSON.parse(localStorage.getItem('configuration')));
+
     Vue.directive('focus', {
         inserted: function(el) {
             el.focus();
@@ -23,7 +64,7 @@
             },
             change: function(value) {
                 this.$emit('changeConfig', value);
-            }
+            },
         },
         created: function() {
             this.fetchConfiguration();
@@ -140,6 +181,7 @@
                 types: {},
                 filters: [],
                 help: '',
+                status: '',
             };
         },
         computed: {
@@ -175,14 +217,19 @@
                 const url = 'data/links.json?configuration=' + value;
 
                 this.items = new Map();
+                self.configuration.perfStart('getItems');
+                this.changeStatus('Loading data...');
                 fetch(url)
                     .then(response => response.json(), error => {
                         notification.set('Failed to retrieve data file', error.message, 'danger');
                     })
                     .then(response => {
+                        self.configuration.perfEnd('getItems');
+                        self.configuration.perfStart('displayItems');
                         this.items = new Map(response.map(item => [item.name, item]));
                         this.getTypes();
                         this.updateAllVisiblity();
+                        this.changeStatus('');
                     }, error => {
                         notification.set('Failed to parse data file', error.message, 'danger');
                     });
@@ -203,7 +250,7 @@
                         types[typeName].list.push(item.name);
                     }
                 });
-                
+
                 this.types = types;
             },
             showHelp: function (help) {
@@ -359,24 +406,44 @@
 
                 this.updateAllVisiblity();
             },
+            changeStatus: function (status) {
+                this.status = status;
+            },
+            center: function(file) {
+                this.$refs.chart.center(file);
+            },
         },
         created: function() {
             this.getItems(0);
         },
+        updated: function() {
+            self.configuration.perfEnd('displayItems');
+        },
         template: `
 <div>
+    <aside
+        :class="{
+            codeStatus: true,
+            active: !!status
+        }"
+        @click="changeStatus('')"
+    >{{ status }}</aside>
     <chart-svg v-if="display === 'chartPage'"
         class="main-page"
         :items="visibleItems"
         :selectedItem="selectedItem"
         :rootItems="rootItems"
         :types="types"
+        @status="changeStatus"
         @selection="changeSelection"
+        ref="chart"
     ></chart-svg>
     <code-page v-else
         class="main-page"
         :items="items"
         :selectedItem="detailItem"
+        @status="changeStatus"
+        @navigate="navigate"
     ></code-page>
 
     <aside class="">
@@ -398,6 +465,7 @@
             @navigate="navigate"
             @change="changeData"
             @addFilter="addFilter"
+            @center="center"
         ></aside-content>
         <configuration @changeConfig="getItems"></configuration>
     </aside>

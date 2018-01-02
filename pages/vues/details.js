@@ -148,7 +148,7 @@
             'visibility-icon': visibilityIcon,
         },
         template: `
-<div class="tabContent">
+<div>
     <header>
         <h3><span>{{ title }}</span></h3>
         <h5><span>{{ subTitle }}</span></h5>
@@ -194,9 +194,17 @@
         ></file-list>
     </details>
     <br>
-    <footer>
+    <footer class="file-actions">
+        <button
+            v-if="item.name"
+            title="Center on this box"
+            @click="$emit('center', item.name)"
+        >
+            <span class="fa fa-dot-circle-o"></span>
+        </button>
         <button
             v-if="isReadable"
+            title="Display code of this file"
             @click="$emit('navigate', 'code', item.name)"
         >
             <span class="fa fa-file-code-o"></span>
@@ -288,7 +296,7 @@
             'visibility-icon': visibilityIcon,
         },
         template: `
-<div class="tabContent" data-tab="groups">
+<div data-tab="groups">
     <header>Groups</header>
     <details v-for="group in types"
         class="groupDetail"
@@ -334,7 +342,7 @@
 
     const filterHelp = {
         template: `
-<div class="tabContent" data-tab="groups">
+<div>
     <header>How to create filter</header>
     <p>All file boxes which match a rule will not be displayed.</p>
     <h4>Syntax</h4>
@@ -376,6 +384,46 @@
         `
     };
 
+    const configurationTab = {
+        data: function() {
+            return {
+                configuration: self.configuration,
+            };
+        },
+        updated: function(){
+            this.configuration.save();
+        },
+        template: `
+<div>
+    <header>Configuration</header>
+    <form
+        @submit.prevent
+    >
+        <label
+            title="When ticked, the selected box is centered (but not when selected from chart)"
+        >
+            <input
+                type="checkbox"
+                v-model="configuration.centerOnSelected"
+            >
+            Center on selected item
+        </label>
+        <br>
+        <details>
+            <summary>Debug</summary>
+            <label>
+                <input
+                    type="checkbox"
+                    v-model="configuration.performance"
+                >
+                Performance log
+            </label>
+        </details>
+    </form>
+</div>
+        `
+    };
+
     Vue.component('aside-content', {
         props: {
             selectedItem: String,
@@ -393,6 +441,11 @@
                 }, {
                     name: 'Groups',
                     id: 'item-groups',
+                    visible: true,
+                }, {
+                    name: '',
+                    className: 'fa fa-cog',
+                    id: 'tab-configuration',
                     visible: true,
                 }, {
                     name: 'Filter',
@@ -428,10 +481,12 @@
             'item-details': details,
             'item-groups': groups,
             'item-filter': filterHelp,
+            'tab-configuration': configurationTab,
         },
         template: `
 <section>
     <div :is="activeTab"
+        class="tabContent"
         :item="selectedItem"
         :itemData="dataSelected"
         :items="items"
@@ -440,6 +495,7 @@
         @navigate="(location, value) =>$emit('navigate', location, value)"
         @change="(...args)=>$emit('change', ...args)"
         @addFilter="(...values)=>$emit('addFilter', ...values)"
+        @center="(...values)=>$emit('center', ...values)"
     ></div>
     <footer class="tabsSelection">
         <ul>
@@ -447,7 +503,10 @@
                 :class="{active: activeTab === tab.id}"
                 :key="tab.id"
                 @click="changeTab(tab.id)"
-            >{{tab.name}}</li>
+            >
+                <span v-if="tab.className" :class="tab.className"></span>
+                {{tab.name}}
+            </li>
         </ul>
     </footer>
 </section>

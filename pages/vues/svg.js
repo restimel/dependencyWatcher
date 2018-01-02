@@ -71,6 +71,10 @@
             boxes: Array,
             selectedItem: [Array, String],
             types: Object,
+            maximumDisplay: {
+                type: Number,
+                default: 2500,
+            },
         },
         computed: {
             activeItem: function() {
@@ -111,6 +115,10 @@
             },
             itemsList: Map,
             selectedItem: [Array, String],
+            maximumDisplay: {
+                type: Number,
+                default: 1000,
+            },
         },
         computed: {
             paths: function() {
@@ -122,6 +130,7 @@
                         last = result.last;
                         return result.path;
                     });
+
                     return path.join(' ');
                 });
             },
@@ -138,6 +147,12 @@
         methods: {
             getSvgPath: function(order, arrow, last = []) {
                 const item = this.itemsList.get(arrow[3]);
+                if (!item) {
+                    return {
+                        path: '',
+                        newLocation: [0, 0],
+                    };
+                }
                 const position = arrow[2];
 
                 const padding = 7;
@@ -175,6 +190,8 @@
                 };
             }
         },
+        watch: {arrows: function() {configuration.perfStart('Arrows');}},
+        updated: function() {configuration.perfEnd('Arrows');},
         template: `
 <g>
     <path v-for="(path, idx) of paths"
@@ -207,9 +224,17 @@
             selectedItem: [Array, String],
         },
         data: function() {
+            let sizeX = window.innerWidth - 400;
+            let sizeY = window.innerHeight;
+            if (sizeX < 1) {
+                sizeX = 1;
+            }
+            if (sizeY < 1) {
+                sizeY = 1;
+            }
             return {
-                sizeX: window.innerWidth - 400,
-                sizeY: window.innerHeight,
+                sizeX: sizeX,
+                sizeY: sizeY,
                 WX: 1000,
                 X: 0,
                 Y: 0,
@@ -238,22 +263,27 @@
                 return [this.X, this.Y, this.WX, this.WY].join(' ');
             },
             boxes: function() {
+                configuration.perfStart('boxes');
                 return Array.from(this.virtualSVG.itemsList).map(elem => elem[1]);
             },
             selectedArrows: function() {
                 if (!this.activeItem) {
                     return [];
-                } else
-                if (Array.isArray(this.activeItem)) {
-                    return this.virtualSVG.arrows.filter(arrow =>
-                           arrow.get(1)[3] === this.activeItem[0]
-                        && arrow.get(Infinity)[3] === this.activeItem[1]
-                    );
                 } else {
-                    return this.virtualSVG.arrows.filter(arrow =>
-                           arrow.get(1)[3] === this.activeItem
-                        || arrow.get(Infinity)[3] === this.activeItem
-                    );
+                    const arrows = this.virtualSVG.tooManyArrows ?
+                        this.virtualSVG.getArrows():
+                        this.virtualSVG.arrows;
+                    if (Array.isArray(this.activeItem)) {
+                        return arrows.filter(arrow =>
+                            arrow.get(1)[3] === this.activeItem[0]
+                            && arrow.get(Infinity)[3] === this.activeItem[1]
+                        );
+                    } else {
+                        return arrows.filter(arrow =>
+                            arrow.get(1)[3] === this.activeItem
+                            || arrow.get(Infinity)[3] === this.activeItem
+                        );
+                    }
                 }
             },
             cropX: function() {
@@ -273,14 +303,34 @@
             windowSize: function() {
                 this.sizeX = window.innerWidth - 400;
                 this.sizeY = window.innerHeight;
+                if (this.sizeX < 1) {
+                    this.sizeX = 1;
+                }
+                if (this.sizeY < 1) {
+                    this.sizeY = 1;
+                }
             },
             reset: function() {
                 this.virtualSVG.reset(this.items, this.rootItems);
                 this.fitAll();
+                if (this.virtualSVG.tooManyBoxes) {
+                    this.$emit('status', 'Too many boxes to display. Use filter menu to have less.');
+                } else
+                if (this.virtualSVG.tooManyArrows) {
+                    this.$emit('status', 'Too many arrows to display');
+                }
             },
             centerBox: function(x, y) {
                 this.X = x - this.WX / 2;
                 this.Y = y - this.WY / 2;
+            },
+            center: function(file) {
+                if (!file) {
+                    file = this.selectedItem;
+                    if (!file) return;
+                }
+                const selectedItem = this.virtualSVG.itemsList.get(file);
+                this.centerBox(selectedItem.x, selectedItem.y);
             },
             fit: function(x, y, width, height) {
                 const wx = Math.max(width, height * this.sizeX / this.sizeY);
@@ -290,15 +340,10 @@
                 this.WX = wx;
             },
             fitAll: function() {
-                const x = -VirtualSVG.itemMarginY;
-                const y = 0;
-                const lastColumn = this.virtualSVG.columns.get(Infinity);
-                let width = 1000;
-                let height = 0;
-                if (lastColumn) {
-                    width = lastColumn.width + lastColumn.x + VirtualSVG.itemMarginY * 2 + boxPadding * 2;
-                    height = Math.max(...this.virtualSVG.columns.map(c => c.height));
-                }
+                let [x, y, width, height] = this.virtualSVG.bounds;
+                x -= VirtualSVG.itemMarginY;
+                width += VirtualSVG.itemMarginY * 2 + boxPadding * 2;
+
                 this.fit(x, y, width, height);
             },
             getCoord: function(x, y, origin = [this.X, this.Y]) {
@@ -387,7 +432,9 @@
                     return;
                 }
                 const selectedItem = this.virtualSVG.itemsList.get(this.selectedItem);
-                this.centerBox(selectedItem.x, selectedItem.y);
+                if (self.configuration.centerOnSelected) {
+                    this.centerBox(selectedItem.x, selectedItem.y);
+                }
                 this.hasSelected = '';
             }
         },
@@ -396,6 +443,9 @@
         },
         destroyed: function () {
             window.removeEventListener('resize', this.windowSize);
+        },
+        updated: function() {
+            configuration.perfEnd('boxes');
         },
         components: {
             'svg-boxes': svgBoxes,
@@ -416,11 +466,12 @@
         @mouseup="mouseStopMove"
         @wheel="mouseWheel"
         >
-        <svg-arrows
+        <svg-arrows v-if="!virtualSVG.tooManyArrows"
             :itemsList="virtualSVG.itemsList"
             :arrows="virtualSVG.arrows"
             class="arrows"
             @selection="(idx) => wireSelection(virtualSVG.arrows[idx])"
+            @status="(...values) => $emit('status', ...values)"
         ></svg-arrows>
         <svg-arrows
             :itemsList="virtualSVG.itemsList"
@@ -429,11 +480,12 @@
             class="arrows-highlight"
             @selection="(idx) => wireSelection(selectedArrows[idx])"
         ></svg-arrows>
-        <svg-boxes
+        <svg-boxes v-if="!virtualSVG.tooManyBoxes"
             class="boxes"
             :types="types"
             :selectedItem="activeItem"
             :boxes="boxes"
+            @status="(...values) => $emit('status', ...values)"
             @selection="(selection, ...args)=>{
                 hasSelected = selection;
                 $emit('selection', selection, ...args);
