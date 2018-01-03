@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title>Dependency Relationship</title>
+    <link rel="stylesheet" type="text/css" href="libs/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="css/dependency2.css">
+</head>
+<body>
+
+<section id="appDependencyWatcher">
+    <dependency-watcher>
+        Application is loading
+        <progress></progress>
+    </dependency-watcher>
+</section>
+<aside id="notification"></aside>
+
+<!-- load external libs -->
+<script src="libs/vue.js"></script>
+<script src="libs/aesjs.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js"></script>
+
+<!-- load tools -->
+<script src="scripts/tools.js"></script>
+<script src="scripts/virtualSVG.js"></script>
+
+<!-- load vues -->
+<script src="vues/filter.js"></script>
+<script src="vues/details.js"></script>
+<script src="vues/code.js"></script>
+<script src="vues/svg.js"></script>
+<script src="vues/main.js"></script>
+
+</body>
+</html>

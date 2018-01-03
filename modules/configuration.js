@@ -37,7 +37,7 @@ var configuration = {
 	logLevel: 3,
 	/* Settings about security */
 	security: {
-		passwordFile: '',
+		passwordFile: false, // to add one it expects a string (the path of the file)
 		maxStoreSalt: 10
 	},
 
@@ -111,7 +111,7 @@ configuration.checkConfig = function() {
 
 		if (typeof configuration.security.passwordFile !== 'string' && configuration.security.passwordFile !== false) {
 			errors.push('security.passwordFile');
-		} else if(typeof configuration.security.passwordFile === 'string') {
+		} else if (typeof configuration.security.passwordFile === 'string' && configuration.security) {
 			var data = fs.readFileSync(configuration.security.passwordFile, {
 				encoding: 'utf8'
 			});
