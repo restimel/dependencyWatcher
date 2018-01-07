@@ -179,9 +179,11 @@
                 selectedItem: '',
                 items: new Map(),
                 types: {},
-                filters: [],
+                configurations: {},
+                configuration: -1,
                 help: '',
                 status: '',
+                filters: [],
             };
         },
         computed: {
@@ -233,6 +235,14 @@
                     }, error => {
                         notification.set('Failed to parse data file', error.message, 'danger');
                     });
+
+                if (!this.configurations[value]) {
+                    this.configurations[value] = {
+                        filters: [],
+                    };
+                }
+                this.configuration = value;
+                this.filters = this.configurations[value].filters;
             },
             getTypes: function() {
                 const types = {};
@@ -288,13 +298,14 @@
             },
             changeFilter: function(filters) {
                 let uid = 0;
-                this.filters = filters.map(filter => {
+
+                this.filters.splice(0, Infinity, ...filters.map(filter => {
                     return {
                         value: filter,
                         id: 'stored-' + uid++,
                         rules: this.buildFilter(filter),
                     };
-                });
+                }));
                 this.updateAllVisiblity();
             },
             updateAllVisiblity: function() {
