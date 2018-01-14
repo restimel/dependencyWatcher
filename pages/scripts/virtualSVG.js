@@ -80,6 +80,26 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             const idx = column.objects.push(item);
             item.colIdx = idx - 1;
         }
+
+        // compute width of columns
+        let distance = 0;
+        for (const column of columns) {
+            column.x = distance;
+            let width = 0;
+            let y = VirtualSVG.itemMarginY;
+            column.objects.forEach(item => {
+                item.x = distance;
+                item.y = y;
+                width = Math.max(width, item.width);
+                y += item.height + Math.max(VirtualSVG.itemMarginY,
+                    item.arrowSlots * (VirtualSVG.wireHeight + VirtualSVG.wireMarginY) + VirtualSVG.wireMarginY
+                );
+            });
+            column.width = width;
+            column.height = y;
+            distance += width + VirtualSVG.itemMarginX;
+        }
+
         self.configuration.perfStart('buildVirtual Arrows');
 
         //fill arrows
@@ -125,27 +145,8 @@ function VirtualSVG(newItems = [], newRootItems = []) {
 
         self.configuration.perfEnd('buildVirtual Arrows');
 
-        // compute width of columns
-        let distance = 0;
-        for (const column of columns) {
-            column.x = distance;
-            let width = 0;
-            let y = VirtualSVG.itemMarginY;
-            column.objects.forEach(item => {
-                item.x = distance;
-                item.y = y;
-                width = Math.max(width, item.width);
-                y += item.height + Math.max(VirtualSVG.itemMarginY,
-                    item.arrowSlots * (VirtualSVG.wireHeight + VirtualSVG.wireMarginY) + VirtualSVG.wireMarginY
-                );
-            });
-            column.width = width;
-            column.height = y;
-            distance += width + VirtualSVG.itemMarginX;
-        }
-
         // export results
-        if (itemsList.size > 2000) {
+        if (itemsList.size > VirtualSVG.maxBox) {
             result.tooManyBoxes = true;
         } else {
             result.tooManyBoxes = false;
@@ -156,7 +157,7 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             result.bounds[3] = Math.max(0, ...columns.map(c => c.height));
         }
 
-        if (arrows.length > 1000) {
+        if (arrows.length > VirtualSVG.maxArrows) {
             result.tooManyArrows = true;
             result.arrows = [];
         } else {
@@ -202,4 +203,6 @@ VirtualSVG.itemHeight = 30;   // height of each items
 VirtualSVG.wireHeight = 3;    // height of each wire
 VirtualSVG.itemMarginX = 100; // margin between items
 VirtualSVG.itemMarginY = 10;  // margin between items
-VirtualSVG.wireMarginY = 3;   // margin between wires
+VirtualSVG.wireMarginY = 2;   // margin between wires
+VirtualSVG.maxArrows = 2000;  // Do not display arrows when the number reach this value
+VirtualSVG.maxBox = 2000;  // Do not display boxes when the number reach this value

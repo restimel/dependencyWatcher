@@ -300,7 +300,12 @@
 		},
 		computed: {
 			searchItems: function() {
-				return Array.from(this.items);
+				let list = Array.from(this.items);
+				if (this.currentValue) {
+					list = list.filter(item => item[0].includes(this.currentValue));
+				}
+
+				return list.slice(0, configuration.maxItemOptionsList);
 			},
 			filterTitle: function() {
 				if (this.filters.length) {

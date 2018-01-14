@@ -315,6 +315,7 @@
                 this.fitAll();
                 if (this.virtualSVG.tooManyBoxes) {
                     this.$emit('status', 'Too many boxes to display. Use filter menu to have less.');
+                    this.$emit('addFilter', '-*');
                 } else
                 if (this.virtualSVG.tooManyArrows) {
                     this.$emit('status', 'Too many arrows to display');

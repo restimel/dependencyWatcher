@@ -46,7 +46,7 @@
             },
         },
         components: {
-            'visibility-icon': visibilityIcon, 
+            'visibility-icon': visibilityIcon,
         },
         template: `
 <li
@@ -78,12 +78,33 @@
             },
             selectedItem: String
         },
+        data: function () {
+            return {
+                showHidden: false,
+            };
+        },
+        computed: {
+            filesFiltered: function() {
+                let list = this.files;
+                if (!this.showHidden) {
+                    list = list.filter(file => {
+                        const item = this.items.get(file);
+                        return item && item.visible;
+                    });
+                }
+                return list;
+            },
+            nbHidden: function() {
+                return this.files.length - this.filesFiltered.length;
+            }
+        },
         components: {
             'file-li': fileLi,
+            'visibility-icon': visibilityIcon,
         },
         template: `
 <ul v-if="files.length > 0">
-    <file-li v-for="file of files"
+    <file-li v-for="file of filesFiltered"
         :class="{
             active: file === selectedItem
         }"
@@ -93,6 +114,19 @@
         @addFilter="(...values)=>$emit('addFilter', ...values)"
         :key="file"
     ></file-li>
+    <li v-if="nbHidden > 0"
+        class="linkToItem"
+        title="Show hidden files"
+        @click="showHidden=true"
+    >
+        <span class="flex">
+            + {{ nbHidden }} hidden files...
+            <visibility-icon
+                :visible="false"
+                @addFilter="showHidden=true"
+            />
+        </span>
+    </li>
 </ul>
 <span v-else class="no-file">No files</span>
         `
@@ -126,7 +160,10 @@
                 const dependencies = this.item.dependencies || [];
                 return {
                     show: !!dependencies.length,
-                    visible: dependencies.some(item => this.items.get(item).visible),
+                    visible: dependencies.some(file => {
+                        const item = this.items.get(file);
+                        return item && item.visible;
+                    }),
                     rule: this.item.name + ':children::',
                 };
             },
@@ -134,7 +171,10 @@
                 const requiredBy = this.item.requiredBy || [];
                 return {
                     show: !!requiredBy.length,
-                    visible: requiredBy.some(item => this.items.get(item).visible),
+                    visible: requiredBy.some(file => {
+                        const item = this.items.get(file);
+                        return item && item.visible;
+                    }),
                     rule: this.item.name + ':parents::',
                 };
             },
@@ -316,7 +356,7 @@
                 <visibility-icon
                     v-show="group.list.length > 0"
                     class="in-summary"
-                    :visible="group.list.some(file => items.get(file).visible)"
+                    :visible="group.list.some(file => {const item = items.get(file); return item && item.visible;})"
                     :rule="'[' + group.name + ']'"
                     @addFilter="(...values)=>$emit('addFilter', ...values)"
                 />
@@ -409,6 +449,16 @@
             Center on selected item
         </label>
         <br>
+        <label
+            title="Search field displays only this maximum number of propositions"
+        >
+            Maximum search proposition
+            <input
+                type="number"
+                v-model="configuration.maxItemOptionsList"
+            >
+        </label>
+        <br><br>
         <details>
             <summary>Debug</summary>
             <label>
@@ -419,6 +469,8 @@
                 Performance log
             </label>
         </details>
+        <br><hr>
+        version {{configuration.version}}
     </form>
 </div>
         `

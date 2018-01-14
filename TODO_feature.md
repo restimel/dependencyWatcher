@@ -6,9 +6,7 @@
     * change code display
 * Display graph starting from file
 * show manager
-    * In details hide non visible items (and add a 'X items are hidden' to show them)
     * show hide from graph
-* configuration tab (do not center, credits, ...)
 * Read file
     * Security (limit access)
         * Create cipher communication (https://github.com/ricmoo/aes-js)
@@ -31,10 +29,12 @@
     * hide all file of a type
     * hide/show child file
     * show parent files
+    * In details hide non visible items (and add a 'X items are hidden' to show them)
 * Read file
     * Ace
     * Security (limit access)
         * Ask and build challenge
+* configuration tab (do not center, credits, ...)
 
 # Bugs
 

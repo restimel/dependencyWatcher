@@ -2,7 +2,9 @@
     'use strict';
 
     self.configuration = {
+        version: '0.5.0',
         centerOnSelected: true,
+        maxItemOptionsList: 50,
         performance: false,
         performanceLog: new Map(),
         perfStart: function(label) {
@@ -447,6 +449,7 @@
         :types="types"
         @status="changeStatus"
         @selection="changeSelection"
+        @addFilter="addFilter"
         ref="chart"
     ></chart-svg>
     <code-page v-else
