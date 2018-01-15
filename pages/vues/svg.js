@@ -334,11 +334,14 @@
                 this.centerBox(selectedItem.x, selectedItem.y);
             },
             fit: function(x, y, width, height) {
-                const wx = Math.max(width, height * this.sizeX / this.sizeY);
-                if (wx < 2) return;
-                this.X = x;
-                this.Y = y;
-                this.WX = wx;
+                const w = Math.max(width, height * this.sizeX / this.sizeY);
+                if (w < 2) return;
+                const h = w * this.sizeY / this.sizeX;
+                const offsetX = (w - width) / 2;
+                const offsetY = (h - height) / 2;
+                this.X = x - offsetX;
+                this.Y = y - offsetY;
+                this.WX = w;
             },
             fitAll: function() {
                 let [x, y, width, height] = this.virtualSVG.bounds;

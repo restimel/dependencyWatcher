@@ -2,7 +2,7 @@
     'use strict';
 
     self.configuration = {
-        version: '0.5.0',
+        version: '0.5.1',
         centerOnSelected: true,
         maxItemOptionsList: 50,
         performance: false,

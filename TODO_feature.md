@@ -5,13 +5,20 @@
 * Search tile → display graph from it
     * change code display
 * Display graph starting from file
+    → Alt + click
 * show manager
     * show hide from graph
+     → show/hide currentFile
+     → Ctrl + click
+* right click from box
 * Read file
     * Security (limit access)
         * Create cipher communication (https://github.com/ricmoo/aes-js)
         * hash password in sessionStorage
     * Edit file on server
+* Hide groups by default
+* Add a debugger to see why groups have match/not match
+* Add dynamic groups
 
 ## This has been done
 
