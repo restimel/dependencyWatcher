@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/restimel/dependencyWatcher",
   "dependencies": {
+    "ace-builds": "^1.2.9",
     "argparse": "^1.0.9",
     "font-awesome": "^4.7.0",
     "vue": "^2.5.13"
