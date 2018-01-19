@@ -6,17 +6,15 @@
         },
         computed: {
             classNames: function () {
-                const classNames = ['change-visibility', 'fa'];
                 if (this.visible) {
-                    classNames.push('fa-eye');
+                    return 'fa-eye';
                 } else {
-                    classNames.push('fa-eye-slash');
+                    return 'fa-eye-slash';
                 }
-                return classNames;
             },
             iconTitle: function () {
                 return this.visible ?
-                    'Hide this box' :
+                    'Hide this box':
                     'Show this box';
             },
         },
@@ -28,6 +26,7 @@
         },
         template: `
 <span
+    class="change-visibility fa"
     :class="classNames"
     :title="iconTitle"
     @click.stop.prevent="showHide"
@@ -86,9 +85,11 @@
         computed: {
             filesFiltered: function() {
                 let list = this.files;
+
                 if (!this.showHidden) {
+                    const items = this.items;
                     list = list.filter(file => {
-                        const item = this.items.get(file);
+                        const item = items.get(file);
                         return item && item.visible;
                     });
                 }
@@ -145,37 +146,44 @@
                 return this.item.label || 'no file selected';
             },
             subTitle: function() {
+                const name = this.item.name;
                 return this.item.label === this.item.name ? '' : this.item.name;
             },
             depLength: function () {
-                return this.item.dependencies && this.item.dependencies.length || 0;
+                const dependencies = this.item.dependencies;
+                return dependencies && dependencies.length || 0;
             },
             reqLength: function () {
-                return this.item.requiredBy && this.item.requiredBy.length || 0;
+                const requiredBy = this.item.requiredBy;
+                return requiredBy && requiredBy.length || 0;
             },
             isReadable: function() {
                 return this.item.canReadFile;
             },
             visibleDep: function() {
-                const dependencies = this.item.dependencies || [];
+                const item = this.item;
+                const items = this.items;
+                const dependencies = item.dependencies || [];
                 return {
                     show: !!dependencies.length,
                     visible: dependencies.some(file => {
-                        const item = this.items.get(file);
-                        return item && item.visible;
+                        const fileItem = items.get(file);
+                        return fileItem && fileItem.visible;
                     }),
-                    rule: this.item.name + ':children::',
+                    rule: item.name + ':children::',
                 };
             },
             visibleReq: function() {
-                const requiredBy = this.item.requiredBy || [];
+                const item = this.item;
+                const items = this.items;
+                const requiredBy = item.requiredBy || [];
                 return {
                     show: !!requiredBy.length,
                     visible: requiredBy.some(file => {
-                        const item = this.items.get(file);
-                        return item && item.visible;
+                        const fileItem = items.get(file);
+                        return fileItem && fileItem.visible;
                     }),
-                    rule: this.item.name + ':parents::',
+                    rule: item.name + ':parents::',
                 };
             },
         },
@@ -295,8 +303,9 @@
         },
         watch: {
             editColor: function() {
-                this.color = this.type.color || '#333333';
-                this.bgColor = this.type.bgColor || '#eaeaea';
+                const type = this.type;
+                this.color = type.color || '#333333';
+                this.bgColor = type.bgColor || '#eaeaea';
             }
         },
         template: `
@@ -509,9 +518,10 @@
         computed: {
             activeTab: function() {
                 let activeTab;
+                const help = this.help;
 
-                if (this.help) {
-                    activeTab = this.tabs.find(tab => tab.name === this.help);
+                if (help) {
+                    activeTab = this.tabs.find(tab => tab.name === help);
                     activeTab = activeTab && activeTab.id;
                 }
 

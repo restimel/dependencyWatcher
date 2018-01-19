@@ -285,7 +285,10 @@ g.active .fileItem {
 .notification.active {
     transform: translate(-50%, 0);
 }
-.notification.danger {
+.notification.info {
+    background-color: rgba(75, 75, 250, 0.9);
+}
+.notification.error {
     background-color: rgba(250, 75, 75, 0.9);
 }
 .notification.warn {

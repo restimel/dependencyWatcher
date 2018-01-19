@@ -17,11 +17,13 @@
         },
         computed: {
             type: function() {
-                const type = this.item.type && this.item.type.name;
-                if (type && this.types[type]) {
-                    return this.types[type];
+                const item = this.item;
+                const types = this.types;
+                const type = item.type && item.type.name;
+                if (type && types[type]) {
+                    return types[type];
                 }
-                return this.types.undefined;
+                return types.undefined;
             },
             color: function() {
                 return this.type.color || '#333333';
@@ -49,9 +51,7 @@
         :y="y"
         :width="boxWidth"
         :height="boxHeight"
-        :class="{
-            fileItem: true
-        }"
+        class="fileItem"
         :fill="bgColor"
         :stroke="color"
     ></rect>
@@ -78,10 +78,11 @@
         },
         computed: {
             activeItem: function() {
-                if (!Array.isArray(this.selectedItem)) {
-                    return [this.selectedItem];
+                const selectedItem = this.selectedItem;
+                if (!Array.isArray(selectedItem)) {
+                    return [selectedItem];
                 } else {
-                    return this.selectedItem;
+                    return selectedItem;
                 }
             },
         },
@@ -136,8 +137,9 @@
             },
             parents: function() {
                 const list = [];
+                const selectedItem = this.selectedItem;
                 this.arrows.forEach((arrow, index) => {
-                    if (arrow.get(Infinity)[3] === this.selectedItem) {
+                    if (arrow.get(Infinity)[3] === selectedItem) {
                         list.push(index);
                     }
                 });
@@ -196,8 +198,8 @@
 <g>
     <path v-for="(path, idx) of paths"
         :d="path"
+        class="arrow-link"
         :class="{
-            'arrow-link': true,
             'parentLink': parents.includes(idx),
         }"
         @click="$emit('selection', idx)"
@@ -267,30 +269,34 @@
                 return Array.from(this.virtualSVG.itemsList).map(elem => elem[1]);
             },
             selectedArrows: function() {
-                if (!this.activeItem) {
+                const activeItem = this.activeItem;
+                const virtualSVG = this.virtualSVG;
+                if (!activeItem) {
                     return [];
                 } else {
-                    const arrows = this.virtualSVG.tooManyArrows ?
-                        this.virtualSVG.getArrows():
-                        this.virtualSVG.arrows;
-                    if (Array.isArray(this.activeItem)) {
+                    const arrows = virtualSVG.tooManyArrows ?
+                        virtualSVG.getArrows():
+                        virtualSVG.arrows;
+                    if (Array.isArray(activeItem)) {
                         return arrows.filter(arrow =>
-                            arrow.get(1)[3] === this.activeItem[0]
-                            && arrow.get(Infinity)[3] === this.activeItem[1]
+                            arrow.get(1)[3] === activeItem[0]
+                            && arrow.get(Infinity)[3] === activeItem[1]
                         );
                     } else {
                         return arrows.filter(arrow =>
-                            arrow.get(1)[3] === this.activeItem
-                            || arrow.get(Infinity)[3] === this.activeItem
+                            arrow.get(1)[3] === activeItem
+                            || arrow.get(Infinity)[3] === activeItem
                         );
                     }
                 }
             },
             cropX: function() {
-                return this.crop.width < 0 ? this.crop.x + this.crop.width : this.crop.x;
+                const crop = this.crop;
+                return crop.width < 0 ? crop.x + crop.width : crop.x;
             },
             cropY: function() {
-                return this.crop.height < 0 ? this.crop.y + this.crop.height : this.crop.y;
+                const crop = this.crop;
+                return crop.height < 0 ? crop.y + crop.height : crop.y;
             },
             cropWidth: function() {
                 return Math.abs(this.crop.width);
@@ -301,23 +307,28 @@
         },
         methods: {
             windowSize: function() {
-                this.sizeX = window.innerWidth - 400;
-                this.sizeY = window.innerHeight;
-                if (this.sizeX < 1) {
-                    this.sizeX = 1;
+                let sizeX = window.innerWidth - 400;
+                let sizeY = window.innerHeight;
+
+                if (sizeX < 1) {
+                    sizeX = 1;
                 }
-                if (this.sizeY < 1) {
-                    this.sizeY = 1;
+                if (sizeY < 1) {
+                    sizeY = 1;
                 }
+                this.sizeX = sizeX;
+                this.sizeY = sizeY;
             },
             reset: function() {
-                this.virtualSVG.reset(this.items, this.rootItems);
+                const virtualSVG = this.virtualSVG;
+
+                virtualSVG.reset(this.items, this.rootItems);
                 this.fitAll();
-                if (this.virtualSVG.tooManyBoxes) {
+                if (virtualSVG.tooManyBoxes) {
                     this.$emit('status', 'Too many boxes to display. Use filter menu to have less.');
                     this.$emit('addFilter', '-*');
                 } else
-                if (this.virtualSVG.tooManyArrows) {
+                if (virtualSVG.tooManyArrows) {
                     this.$emit('status', 'Too many arrows to display');
                 }
             },
@@ -334,9 +345,11 @@
                 this.centerBox(selectedItem.x, selectedItem.y);
             },
             fit: function(x, y, width, height) {
-                const w = Math.max(width, height * this.sizeX / this.sizeY);
+                const sizeX = this.sizeX;
+                const sizeY = this.sizeY;
+                const w = Math.max(width, height * sizeX / sizeY);
                 if (w < 2) return;
-                const h = w * this.sizeY / this.sizeX;
+                const h = w * sizeY / sizeX;
                 const offsetX = (w - width) / 2;
                 const offsetY = (h - height) / 2;
                 this.X = x - offsetX;
@@ -357,19 +370,21 @@
                 return [x * ratioX + offsetX, y * ratioY + offsetY];
             },
             moveBox: function(evt) {
-                const [x, y] = this.getCoord(evt.offsetX, evt.offsetY, [this.mouse.X, this.mouse.Y]);
-                this.X = this.mouse.X - x + this.mouse.x;
-                this.Y = this.mouse.Y - y + this.mouse.y;
+                const mouse = this.mouse;
+                const [x, y] = this.getCoord(evt.offsetX, evt.offsetY, [mouse.X, mouse.Y]);
+                this.X = mouse.X - x + mouse.x;
+                this.Y = mouse.Y - y + mouse.y;
             },
             startMove: function(evt) {
+                const mouse = this.mouse;
                 const [px, py] = [evt.offsetX, evt.offsetY];
                 const [x, y] = this.getCoord(evt.offsetX, evt.offsetY);
-                this.mouse.px = px;
-                this.mouse.py = py;
-                this.mouse.x = x;
-                this.mouse.y = y;
-                [this.mouse.X, this.mouse.Y] = [this.X, this.Y];
-                this.mouse.move = 'move';
+                mouse.px = px;
+                mouse.py = py;
+                mouse.x = x;
+                mouse.y = y;
+                [mouse.X, mouse.Y] = [this.X, this.Y];
+                mouse.move = 'move';
             },
             startCrop: function(evt) {
                 const [x, y] = this.getCoord(evt.offsetX, evt.offsetY);
@@ -430,14 +445,15 @@
                 this.reset();
             },
             selectedItem: function() {
-                this.activeItem = this.selectedItem;
-                if (this.hasSelected === this.selectedItem) {
+                const selectedItem = this.selectedItem;
+                this.activeItem = selectedItem;
+                if (this.hasSelected === selectedItem) {
                     // avoid centering when click comes from SVG
                     return;
                 }
-                const selectedItem = this.virtualSVG.itemsList.get(this.selectedItem);
+                const item = this.virtualSVG.itemsList.get(selectedItem);
                 if (self.configuration.centerOnSelected) {
-                    this.centerBox(selectedItem.x, selectedItem.y);
+                    this.centerBox(item.x, item.y);
                 }
                 this.hasSelected = '';
             }

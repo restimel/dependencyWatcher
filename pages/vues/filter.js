@@ -13,10 +13,11 @@
 			items: Map,
 		},
 		data: function() {
+			const filter = this.filter;
 			return {
-				status: this.filter ? 'display' : 'edit',
+				status: filter ? 'display' : 'edit',
 				hover: false,
-				value: this.filter,
+				value: filter,
 				suggestIdx: 0,
 			};
 		},
@@ -32,14 +33,16 @@
 					const currentRules = rules.slice(0, -1).join('::');
 					const strRules = currentRules ? currentRules + '::' : '';
 					const last = rules.get(Infinity);
+					const itemNames = this.itemNames;
+					const item = this.item;
 
 					if (!last) {
 						list = ['['];
 					} else
 					if (/^\[[^\]]*?$/.test(last)) {
-						list = this.filterRules(currentRules, this.itemNames);
+						list = this.filterRules(currentRules, itemNames);
 						list = list.reduce((list, item) => {
-							let type = this.items.get(item).type;
+							let type = items.get(item).type;
 							type = '[' + (type && type.name || 'undefined') + ']';
 
 							if (type.startsWith(last) && !list.includes(type)) {
@@ -49,15 +52,18 @@
 						}, []);
 					} else
 					if (/^(?:\[[^\]]*?\])?[^:]*?$/.test(last)) {
+						const itemNames = this.itemNames;
+						const items = this.items;
 						const group = last.replace(/^(\[[^\]]*?\])?.*$/, '$1');
 						const file = last.slice(group.length);
-						list = this.filterRules(currentRules + '::' + group, this.itemNames);
+
+						list = this.filterRules(currentRules + '::' + group, itemNames);
 						list = list.reduce((list, item) => {
 							let suggest = group + item;
 							if (item.startsWith(file) && !list.includes(suggest)) {
 								list.push(suggest);
 							}
-							const label = (this.items.get(item) || {}).label;
+							const label = (items.get(item) || {}).label;
 							suggest = group + label;
 							if (label.startsWith(file) && !list.includes(suggest)) {
 								list.push(suggest);
@@ -106,7 +112,8 @@
 				this.suggestIdx = (this.suggestIdx + 1) % this.suggestion.length;
 			},
 			decSuggestIndex: function() {
-				this.suggestIdx = (this.suggestIdx + this.suggestion.length - 1) % this.suggestion.length;
+				const suggestionLength = this.suggestion.length;
+				this.suggestIdx = (this.suggestIdx + suggestionLength - 1) % suggestionLength;
 			},
 			selectSuggest: function() {
 				const value = this.suggestion[this.suggestIdx];
@@ -118,11 +125,13 @@
 		},
 		watch: {
 			suggestion: function(newSuggestion, oldSuggestion) {
-				const currentSuggest = oldSuggestion[this.suggestIdx];
-				this.suggestIdx = newSuggestion.indexOf(currentSuggest);
-				if (this.suggestIdx === -1) {
-					this.suggestIdx = 0;
+				let suggestIdx = this.suggestIdx;
+				const currentSuggest = oldSuggestion[suggestIdx];
+				suggestIdx = newSuggestion.indexOf(currentSuggest);
+				if (suggestIdx === -1) {
+					suggestIdx = 0;
 				}
+				this.suggestIdx = suggestIdx;
 			},
 		},
 		template: `
@@ -289,8 +298,9 @@
 		},
 		methods: {
 			submit: function() {
-				if (this.currentValue && this.items.get(this.currentValue)) {
-					this.$emit('selection', this.currentValue);
+				const currentValue = this.currentValue;
+				if (currentValue && this.items.get(currentValue)) {
+					this.$emit('selection', currentValue);
 				}
 			},
 			saveFilter: function(value) {
@@ -300,16 +310,18 @@
 		},
 		computed: {
 			searchItems: function() {
+				const currentValue = this.currentValue;
 				let list = Array.from(this.items);
-				if (this.currentValue) {
-					list = list.filter(item => item[0].includes(this.currentValue));
+				if (currentValue) {
+					list = list.filter(item => item[0].includes(currentValue));
 				}
 
 				return list.slice(0, configuration.maxItemOptionsList);
 			},
 			filterTitle: function() {
-				if (this.filters.length) {
-					return this.filters.length + ' rules are enabled';
+				const filtersLength = this.filterLength;
+				if (filtersLength) {
+					return filtersLength + ' rules are enabled';
 				} else {
 					return 'Set filter to hide some elements';
 				}
@@ -330,7 +342,11 @@
 		},
 		template: `
 <div class="filterArea">
-	<input type="search" placeholder="search" list="itemsDataList" autocomplete="off"
+	<input
+		type="search"
+		placeholder="search"
+		list="itemsDataList"
+		autocomplete="off"
 		v-model="currentValue"
 		@input="submit"
 		@key.enter="submit"

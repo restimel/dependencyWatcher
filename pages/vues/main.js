@@ -59,10 +59,10 @@
         methods: {
             fetchConfiguration: function() {
                 fetch('data/configuration.json')
-                    .then(response => response.json(), error => notification.set('Failed to retrieve configuration file', error.message, 'danger'))
+                    .then(response => response.json(), error => notification.set('Failed to retrieve configuration file', error.message, 'error'))
                     .then(response => {
                         this.dependencies = response.dependencies;
-                    }, error => notification.set('Failed to parse configuration file', error.message, 'danger'));
+                    }, error => notification.set('Failed to parse configuration file', error.message, 'error'));
             },
             change: function(value) {
                 this.$emit('changeConfig', value);
@@ -98,23 +98,25 @@
         },
         computed: {
             classNames: function() {
-                const list = ['notification', this.type];
-                if (this.isActive) {
-                    list.push('active');
-                }
+                const list = [this.type, {
+                    active: this.isActive
+                }];
                 return list;
             }
         },
         methods: {
             set: function(title, message = '', type = 'success') {
-                if (this.timer) {
-                    clearTimeout(this.timer);
+                const timer = this.timer;
+
+                if (timer) {
+                    clearTimeout(timer);
                 }
 
                 let timeout = {
+                    'info': 3000,
                     'success': 3000,
                     'warn': 10000,
-                    'danger': 20000
+                    'error': 20000,
                 }[type] || 10000;
 
                 this.title = title;
@@ -127,7 +129,7 @@
             }
         },
         template: `
-<div :class="classNames">
+<div class="notification" :class="classNames">
     <header>{{title}}</header>
     <p>{{message}}</p>
     <button @click="isActive = false">&times;</button>
@@ -200,9 +202,10 @@
             },
             rootItems: function () {
                 const rootItems = [];
-                this.visibleItems.forEach(item => {
+                const visibleItems = this.visibleItems;
+                visibleItems.forEach(item => {
                     if (item.requiredBy.every(reqItem => {
-                        return !this.visibleItems.get(reqItem);
+                        return !visibleItems.get(reqItem);
                     })) {
                         rootItems.push(item);
                     }
@@ -219,13 +222,14 @@
         methods: {
             getItems: function(value) {
                 const url = 'data/links.json?configuration=' + value;
+                const configurations = this.configurations;
 
                 this.items = new Map();
                 self.configuration.perfStart('getItems');
                 this.changeStatus('Loading data...');
                 fetch(url)
                     .then(response => response.json(), error => {
-                        notification.set('Failed to retrieve data file', error.message, 'danger');
+                        notification.set('Failed to retrieve data file', error.message, 'error');
                     })
                     .then(response => {
                         self.configuration.perfEnd('getItems');
@@ -235,16 +239,16 @@
                         this.updateAllVisiblity();
                         this.changeStatus('');
                     }, error => {
-                        notification.set('Failed to parse data file', error.message, 'danger');
+                        notification.set('Failed to parse data file', error.message, 'error');
                     });
 
-                if (!this.configurations[value]) {
-                    this.configurations[value] = {
+                if (!configurations[value]) {
+                    configurations[value] = {
                         filters: [],
                     };
                 }
                 this.configuration = value;
-                this.filters = this.configurations[value].filters;
+                this.filters = configurations[value].filters;
             },
             getTypes: function() {
                 const types = {};
@@ -312,17 +316,18 @@
             },
             updateAllVisiblity: function() {
                 const allFiles = [];
-                this.items.forEach(item => {
+                const items = this.items;
+                items.forEach(item => {
                     item.visible = true;
                     allFiles.push(item.name);
                 });
                 for (const filter of this.filters) {
                     const list = this.filterGetFiles(filter.rules, allFiles);
                     list.forEach(file => {
-                        this.items.get(file).visible = filter.rules.forceAdd;
+                        items.get(file).visible = filter.rules.forceAdd;
                     });
                 }
-                this.items = new Map(Array.from(this.items)); // to force update
+                this.items = new Map(Array.from(items)); // to force update
             },
             buildFilter: function(filter) {
                 const rules = filter.split('::');
@@ -366,9 +371,10 @@
             },
             filterGetFiles: function(rule, fileNames = []) {
                 let matchFiles = [];
+                const items = this.items;
 
                 for (const file of fileNames) {
-                    const item = this.items.get(file);
+                    const item = items.get(file);
                     const group = item.type && item.type.name || 'undefined';
                     if (rule.group.test(group) && (rule.file.test(item.name) || rule.file.test(item.label))) {
                         let list = [];
@@ -402,17 +408,18 @@
                 return matchFiles;
             },
             addFilter: function(rule) {
+                const filters = this.filters;
                 const reverseRule = (
                     rule[0] === '-' ? '+' : 
                     rule[0] === '+' ? '-' : 
                     '+' + rule[0]) + rule.slice(1);
-                const idxRuleReverse = this.filters.findIndex(r => r.value === reverseRule);
+                const idxRuleReverse = filters.findIndex(r => r.value === reverseRule);
                 if (idxRuleReverse !== -1) {
-                    this.filters.splice(idxRuleReverse, 1);
+                    filters.splice(idxRuleReverse, 1);
                 } else {
-                    this.filters.push({
+                    filters.push({
                         value: rule,
-                        id: 'autoRule-' + this.filters.length,
+                        id: 'autoRule-' + filters.length,
                         rules: this.buildFilter(rule),
                     });
                 }
@@ -435,8 +442,8 @@
         template: `
 <div>
     <aside
+        class="codeStatus"
         :class="{
-            codeStatus: true,
             active: !!status
         }"
         @click="changeStatus('')"
