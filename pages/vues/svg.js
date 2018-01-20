@@ -234,6 +234,9 @@
             if (sizeY < 1) {
                 sizeY = 1;
             }
+            if (this.items.size > 0) {
+                this.$nextTick(this.reset);
+            }
             return {
                 sizeX: sizeX,
                 sizeY: sizeY,
@@ -320,6 +323,15 @@
                 this.sizeY = sizeY;
             },
             reset: function() {
+                // debounce reset
+                if (this.resetIsRunning) {
+                    return;
+                }
+                this.resetIsRunning = true;
+                this._reset();
+                setTimeout(() => this.resetIsRunning = false, 50);
+            },
+            _reset: function() {
                 const virtualSVG = this.virtualSVG;
 
                 virtualSVG.reset(this.items, this.rootItems);

@@ -276,6 +276,7 @@
                 this.selectedItem = value;
             },
             navigate: function(location, value) {
+                const oldDisplay  = this.display;
                 switch (location) {
                     case 'code':
                         this.display = 'codePage';

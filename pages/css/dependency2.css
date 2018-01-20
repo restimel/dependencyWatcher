@@ -5,6 +5,7 @@
     right: 0;
     width: 400px;
     background-color: #184242;
+    box-shadow: inset 80px 0 100px -80px #41b4b4;
 }
 
 .tabContent {
@@ -14,6 +15,7 @@
     right: 0;
     width: 400px;
     background-color: #184242;
+    box-shadow: inset 80px 0 100px -80px #41b4b4;
     color: #ddf7f7;
     overflow: auto;
 }
@@ -25,6 +27,7 @@
     right: 0;
     width: 400px;
     background-color: #184242;
+    box-shadow: inset 80px 0 100px -80px #41b4b4;
     color: #ddf7f7;
     overflow: hidden;
 }
@@ -36,6 +39,7 @@
     right: 0;
     width: 400px;
     background-color: #184242;
+    box-shadow: inset 80px 0 100px -80px #41b4b4;
     color: #ddf7f7;
     overflow: auto;
     border-top: 2px solid white;
