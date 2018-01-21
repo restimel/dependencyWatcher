@@ -222,11 +222,12 @@
 
 .fileItem {
     cursor: pointer;
-    rx: 3;
-    ry: 3;
+    rx: 50;
+    ry: 14;
 }
 .fileItem~text {
     cursor: pointer;
+    font-family: Courier New, Courier, monospace;
 }
 
 g.active .fileItem {

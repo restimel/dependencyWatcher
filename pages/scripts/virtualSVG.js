@@ -57,11 +57,7 @@ function VirtualSVG(newItems = [], newRootItems = []) {
     };
 
     const lengthEstimation = (str) => {
-        let length = str.length * 6.5; // TODO use a monospace font
-
-        length += str.replace(/[^mw_]/gi, '').length * 1.8;
-
-        return Math.ceil(length);
+        return str.length * 10;
     };
 
     const build = () => {
