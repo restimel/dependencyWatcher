@@ -360,7 +360,7 @@
                         }"
                         @click="changeColor(group.name)"
                     ></div>
-                    <label>{{ group.name }}</label>
+                    <label>{{ group.name }} (<span>{{ group.list.length }}</span>)</label>
                 </span>
                 <visibility-icon
                     v-show="group.list.length > 0"
