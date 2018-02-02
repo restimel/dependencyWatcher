@@ -219,6 +219,16 @@
     margin-right: -1em;
 }
 
+.loading-data {
+    position: fixed;
+    top: 50%;
+    left: calc(50% - 200px);
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 40px;
+    box-shadow: 0px 5px 14px 3px black;
+}
+
 .selection-rectangle {
     stroke: #333333;
     fill: none;

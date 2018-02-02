@@ -237,7 +237,7 @@
                         this.items = new Map(response.map(item => [item.name, item]));
                         this.getTypes();
                         this.updateAllVisiblity();
-                        this.changeStatus('');
+                        // this.changeStatus('');
                     }, error => {
                         notification.set('Failed to parse data file', error.message, 'error');
                     });
@@ -428,6 +428,7 @@
                 this.updateAllVisiblity();
             },
             changeStatus: function (status) {
+                console.log('Main status', status, performance.now() /1000)
                 this.status = status;
             },
             center: function(file) {

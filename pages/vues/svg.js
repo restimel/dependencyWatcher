@@ -258,6 +258,7 @@
                 hasSelected: '',
                 activeItem: this.selectedItem,
                 virtualSVG: new VirtualSVG(this.items, this.rootItems),
+                progress: 0,
             };
         },
         computed: {
@@ -307,6 +308,22 @@
             cropHeight: function() {
                 return Math.abs(this.crop.height);
             },
+            status: function() {
+                let status, progress;
+                
+                if (this.virtualSVG.status.includes('progress')) {
+                    [status, progress] = this.virtualSVG.status.split('-');
+                    this.progress = +progress;
+                } else {
+                    status = this.virtualSVG.status;
+                }
+                console.log('changeStatus', status, performance.now()/1000);
+                
+                if (status === 'loaded') {
+                    this._loaded();
+                }
+                return status;
+            },
         },
         methods: {
             windowSize: function() {
@@ -327,6 +344,10 @@
                 if (this.resetIsRunning) {
                     return;
                 }
+                if (this.items.size === 0) {
+                    this.virtualSVG.prepare();
+                    return;
+                }
                 this.resetIsRunning = true;
                 this._reset();
                 setTimeout(() => this.resetIsRunning = false, 50);
@@ -335,13 +356,17 @@
                 const virtualSVG = this.virtualSVG;
 
                 virtualSVG.reset(this.items, this.rootItems);
+            },
+            _loaded: function() {
                 this.fitAll();
-                if (virtualSVG.tooManyBoxes) {
+                if (this.virtualSVG.tooManyBoxes) {
                     this.$emit('status', 'Too many boxes to display. Use filter menu to have less.');
                     this.$emit('addFilter', '-*');
                 } else
-                if (virtualSVG.tooManyArrows) {
+                if (this.virtualSVG.tooManyArrows) {
                     this.$emit('status', 'Too many arrows to display');
+                } else {
+                    this.$emit('status', '');
                 }
             },
             centerBox: function(x, y) {
@@ -468,7 +493,7 @@
                     this.centerBox(item.x, item.y);
                 }
                 this.hasSelected = '';
-            }
+            },
         },
         created: function () {
             window.addEventListener('resize', this.windowSize);
@@ -535,7 +560,15 @@
         title="Fit all"
         class="fitAll-btn"
         @click="fitAll"
-    ><span class="fa fa-expand"></span></button>
+    >
+        <span class="fa fa-expand"></span>
+    </button>
+    
+    <progress v-if="status === 'progress'"
+        class="loading-data"
+        :value="progress"
+        max="100"
+    />
 </section>
         `
     });
