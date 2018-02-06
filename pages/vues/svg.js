@@ -464,7 +464,7 @@
                     return;
                 }
                 const item = this.virtualSVG.itemsList.get(selectedItem);
-                if (self.configuration.centerOnSelected) {
+                if (item && self.configuration.centerOnSelected) {
                     this.centerBox(item.x, item.y);
                 }
                 this.hasSelected = '';

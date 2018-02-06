@@ -1,7 +1,11 @@
 (function() {
     const extension = {
         'js': 'javascript',
-        'txt': 'text'
+        'ts': 'typescript',
+        'txt': 'text',
+        'py': 'python',
+        'tex': 'latex',
+        'htm': 'html',
     };
 
     Vue.component('code-page', {

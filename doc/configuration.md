@@ -151,14 +151,15 @@ It is possible to use _prettyOutput_ to format the result.
     }
   }, {
     "name": "HTML files",
-    "macther": {"pattern": "\\.html$"},
+    "macther": {"pattern": "\\.html?$"},
     "color": "#0000FF",
 
     "bgColor": "#CCFFFF",
     "rights": {
       "readFile": true,
       "writeFile": false
-    }
+    },
+    "language": "html"
   }]
   ```
 
