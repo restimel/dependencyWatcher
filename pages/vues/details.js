@@ -197,65 +197,78 @@
         },
         template: `
 <div>
-    <header>
+    <header
+        :class="{notVisible: !item.visible}"
+    >
         <h3><span>{{ title }}</span></h3>
         <h5><span>{{ subTitle }}</span></h5>
     </header>
-    <details>
-        <summary>
-            <span class="flex">
-                <span>Dependencies (<span>{{ depLength }}</span>)</span>
-                <visibility-icon
-                    v-show="visibleDep.show"
-                    class="in-summary"
-                    :visible="visibleDep.visible"
-                    :rule="visibleDep.rule"
-                    @addFilter="(...values)=>$emit('addFilter', ...values)"
-                />
-            </span>
-        </summary>
-        <file-list
-            :files="item.dependencies"
-            :items="items"
-            @selection="(value)=>$emit('selection', value)"
-            @addFilter="(...values)=>$emit('addFilter', ...values)"
-        ></file-list>
-    </details>
-    <details>
-        <summary>
-            <span class="flex">
-                <span>Required by (<span>{{ reqLength }}</span>)</span>
-                <visibility-icon
-                    v-show="visibleReq.show"
-                    class="in-summary"
-                    :visible="visibleReq.visible"
-                    :rule="visibleReq.rule"
-                    @addFilter="(...values)=>$emit('addFilter', ...values)"
-                />
-            </span>
-        </summary>
-        <file-list
-            :files="item.requiredBy"
-            :items="items"
-            @selection="(value)=>$emit('selection', value)"
-            @addFilter="(...values)=>$emit('addFilter', ...values)"
-        ></file-list>
-    </details>
-    <br>
+    <section>
+        <details>
+            <summary>
+                <span class="flex">
+                    <span>Dependencies (<span>{{ depLength }}</span>)</span>
+                    <visibility-icon
+                        v-show="visibleDep.show"
+                        class="in-summary"
+                        :visible="visibleDep.visible"
+                        :rule="visibleDep.rule"
+                        @addFilter="(...values)=>$emit('addFilter', ...values)"
+                    />
+                </span>
+            </summary>
+            <file-list
+                :files="item.dependencies"
+                :items="items"
+                @selection="(value)=>$emit('selection', value)"
+                @addFilter="(...values)=>$emit('addFilter', ...values)"
+            ></file-list>
+        </details>
+        <details>
+            <summary>
+                <span class="flex">
+                    <span>Required by (<span>{{ reqLength }}</span>)</span>
+                    <visibility-icon
+                        v-show="visibleReq.show"
+                        class="in-summary"
+                        :visible="visibleReq.visible"
+                        :rule="visibleReq.rule"
+                        @addFilter="(...values)=>$emit('addFilter', ...values)"
+                    />
+                </span>
+            </summary>
+            <file-list
+                :files="item.requiredBy"
+                :items="items"
+                @selection="(value)=>$emit('selection', value)"
+                @addFilter="(...values)=>$emit('addFilter', ...values)"
+            ></file-list>
+        </details>
+    </section>
     <footer class="file-actions">
-        <button
-            v-if="item.name"
+        <button v-if="item.name"
             title="Center on this box"
             @click="$emit('center', item.name)"
         >
             <span class="fa fa-dot-circle-o"></span>
         </button>
-        <button
-            v-if="isReadable"
+        <button v-if="isReadable"
             title="Display code of this file"
             @click="$emit('navigate', 'code', item.name)"
         >
             <span class="fa fa-file-code-o"></span>
+        </button>
+        <button v-if="item.visible"
+            title="Hide this file"
+            @click="$emit('addFilter', '-' + item.name)"
+        >
+            <span class="fa fa-eye-slash"></span>
+        </button>
+        <button v-if="item.visible === false"
+            title="Show this file"
+            @click="$emit('addFilter', '+' + item.name)"
+        >
+            <span class="fa fa-eye"></span>
         </button>
     </footer>
 </div>
