@@ -77,7 +77,12 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             item.colIdx = idx - 1;
         }
 
-        // compute width of columns
+        // check maximum number of items in a column
+        let maxItemColumn = columns.reduce((sum, col) => {
+            return sum;
+        }, 0);
+
+        // compute width and height of columns
         let distance = 0;
         for (const column of columns) {
             column.x = distance;

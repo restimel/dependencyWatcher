@@ -360,44 +360,46 @@
         template: `
 <div data-tab="groups">
     <header>Groups</header>
-    <details v-for="group in types"
-        class="groupDetail"
-    >
-        <summary>
-            <span class="flex">
-                <span>
-                    <div class="colorBox"
-                        :style="{
-                            'background-color': group.bgColor || '#eaeaea',
-                            'border-color': group.color || '#333333',
-                        }"
-                        @click="changeColor(group.name)"
-                    ></div>
-                    <label>{{ group.name }} (<span>{{ group.list.length }}</span>)</label>
+    <section>
+        <details v-for="group in types"
+            class="groupDetail"
+        >
+            <summary>
+                <span class="flex">
+                    <span>
+                        <div class="colorBox"
+                            :style="{
+                                'background-color': group.bgColor || '#eaeaea',
+                                'border-color': group.color || '#333333',
+                            }"
+                            @click="changeColor(group.name)"
+                        ></div>
+                        <label>{{ group.name }} (<span>{{ group.list.length }}</span>)</label>
+                    </span>
+                    <visibility-icon
+                        v-show="group.list.length > 0"
+                        class="in-summary"
+                        :visible="group.list.some(file => {const item = items.get(file); return item && item.visible;})"
+                        :rule="'[' + group.name + ']'"
+                        @addFilter="(...values)=>$emit('addFilter', ...values)"
+                    />
                 </span>
-                <visibility-icon
-                    v-show="group.list.length > 0"
-                    class="in-summary"
-                    :visible="group.list.some(file => {const item = items.get(file); return item && item.visible;})"
-                    :rule="'[' + group.name + ']'"
-                    @addFilter="(...values)=>$emit('addFilter', ...values)"
-                />
-            </span>
-        </summary>
-        <file-list
-            :files="group.list"
-            :items="items"
-            :selectedItem="itemData && itemData.name"
-            @selection="(value)=>$emit('selection', value)"
-            @addFilter="(...values)=>$emit('addFilter', ...values)"
-        ></file-list>
-    </details>
-    <group-color-dialog
-        :editColor="editColor"
-        :types="types"
-        @close="editColor=''"
-        @change="(...args)=>$emit('change', ...args)"
-    ></group-color-dialog>
+            </summary>
+            <file-list
+                :files="group.list"
+                :items="items"
+                :selectedItem="itemData && itemData.name"
+                @selection="(value)=>$emit('selection', value)"
+                @addFilter="(...values)=>$emit('addFilter', ...values)"
+            ></file-list>
+        </details>
+        <group-color-dialog
+            :editColor="editColor"
+            :types="types"
+            @close="editColor=''"
+            @change="(...args)=>$emit('change', ...args)"
+        ></group-color-dialog>
+    </section>
 </div>
         `
     };

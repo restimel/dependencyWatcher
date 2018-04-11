@@ -51,6 +51,9 @@
     });
 
     Vue.component('configuration', {
+        props: {
+            selected: [Number, String],
+        },
         data: function() {
             return {
                 dependencies: [],
@@ -67,6 +70,9 @@
             change: function(value) {
                 this.$emit('changeConfig', value);
             },
+            refresh: function() {
+                this.$emit('changeConfig', this.selected);
+            }
         },
         created: function() {
             this.fetchConfiguration();
@@ -79,10 +85,17 @@
     >
         <option v-for="(value, idx) of dependencies"
             :value="idx"
+            :selected="selected == idx"
         >
             {{value}}
         </option>
     </select>
+    <button
+        title="Refresh this configuration"
+        @click="refresh"
+    >
+        <span class="fa fa-refresh"></span>
+    </button>
 </div>
         `
     });
@@ -411,8 +424,8 @@
             addFilter: function(rule) {
                 const filters = this.filters;
                 const reverseRule = (
-                    rule[0] === '-' ? '+' : 
-                    rule[0] === '+' ? '-' : 
+                    rule[0] === '-' ? '+' :
+                    rule[0] === '+' ? '-' :
                     '+' + rule[0]) + rule.slice(1);
                 const idxRuleReverse = filters.findIndex(r => r.value === reverseRule);
                 if (idxRuleReverse !== -1) {
@@ -489,7 +502,10 @@
             @addFilter="addFilter"
             @center="center"
         ></aside-content>
-        <configuration @changeConfig="getItems"></configuration>
+        <configuration
+            :selected="configuration"
+            @changeConfig="getItems"
+        ></configuration>
     </aside>
 </div>
         `
