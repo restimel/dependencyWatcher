@@ -51,7 +51,7 @@
         methods: {
             save: function() {
                 console.log('todo SAVE');
-                notification.set('Save is not implemented yet :(', 'warn');
+                notification.set('Save is not implemented yet :(', '', 'warn');
             },
             initialize: function() {
                 this.session.setMode('ace/mode/' + this.mode);

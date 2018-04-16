@@ -115,6 +115,31 @@ Parser.prototype.parseDone = function() {
     this.eventEmitter.emit('parsed:parser', parseObj);
 }
 
+Parser.prototype.parseRgx = function(parser, str, callback) {
+    var result, rslt;
+
+    logger.debug('parse string "' + str + '" with ' + parser.r.toString());
+
+    if (typeof callback !== 'function') {
+        callback = function() {};
+    }
+
+    do {
+        rslt = parser.r.exec(str);
+        if (rslt) {
+            result = rslt[1] || rslt[0];
+            if (parser.split) {
+                this.parseRgx(parser.split, result, callback);
+            } else {
+                if (parser.prettyOutput) {
+                    result = result.replace(parser.prettyOutput.matcher.r, parser.prettyOutput.output);
+                }
+                callback(result);
+            }
+        }
+    } while(parser.r.lastIndex > 0);
+};
+
 Parser.prototype.parseFile = function(path, content) {
     var pathId, items, fileObj, type;
 
@@ -138,19 +163,9 @@ Parser.prototype.parseFile = function(path, content) {
     }
 
     config.requireMatcher.forEach(function(matcher) {
-        var rslt, depFile;
-
-        logger.debug('to ' + matcher.r.toString());
-        do {
-            rslt = matcher.r.exec(content);
-            if (rslt) {
-                depFile = rslt[1] || rslt[0];
-                if (matcher.prettyOutput) {
-                    depFile = depFile.replace(matcher.prettyOutput.matcher.r, matcher.prettyOutput.output);
-                }
-                this.addDependency(depFile, fileObj);
-            }
-        } while(matcher.r.lastIndex > 0);
+        this.parseRgx(matcher, content, function(depFile) {
+            this.addDependency(depFile, fileObj);
+        }.bind(this))
     }, this);
 }
 
