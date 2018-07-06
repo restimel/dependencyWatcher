@@ -303,6 +303,10 @@ g.active .fileItem {
     text-align: center;
     margin-bottom: 0.8em;
 }
+.menu-pop-up {
+    display: flex;
+    justify-content: space-around;
+}
 
 .notification {
     position: fixed;

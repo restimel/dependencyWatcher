@@ -180,7 +180,7 @@
 <dialog class="dialog-pop-up" :open="open">
     <header>{{ title }}</header>
     <slot name="content"></slot>
-    <menu>
+    <menu class="menu-pop-up">
         <slot name="menu">
             <button @click="$emit('close')">Cancel</button>
             <button @click="$emit('save')">Apply</button>

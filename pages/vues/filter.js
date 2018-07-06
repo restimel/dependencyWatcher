@@ -97,7 +97,7 @@
 				this.items.forEach(item => list.push(item.name));
 				return list;
 			},
-			title: function() {				
+			title: function() {
 				var filters = this.filterRules(this.value, this.itemNames);
 				return ['match ' + filters.length + ' files'];
 			},
@@ -215,6 +215,9 @@
 			save: function() {
 				this.$emit('save', this.displayedFilters.map(filter => filter.value));
 			},
+			clear: function() {
+				this.filters.splice(0, this.filters.length);
+			},
 			remove: function(idx) {
 				this.displayedFilters.splice(idx, 1);
 			},
@@ -246,8 +249,6 @@
 <pop-up
 	title="Filter"
 	:open="open"
-	@close="$emit('close')"
-	@save="save"
 >
 	<ul slot="content" class="filter-list">
 		<li-filter v-for="(item, idx) of displayedFilters"
@@ -270,6 +271,11 @@
 			</span>
 		</li>
 	</ul>
+	<template slot="menu">
+        <button @click="clear" title="Remove all filters">Clear</button>
+        <button @click="$emit('close')">Cancel</button>
+        <button @click="save">Apply</button>
+    </template>
 </pop-up>
 		`
 	};
