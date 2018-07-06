@@ -1,3 +1,9 @@
+:root {
+    --hover-color: darkOrange;
+    --active-color: darkOrange;
+    --aside-color: #ddf7f7;
+}
+
 button {
     cursor: pointer;
 }
@@ -20,7 +26,7 @@ button {
     width: 400px;
     background-color: #184242;
     box-shadow: inset 80px 0 100px -80px #41b4b4;
-    color: #ddf7f7;
+    color: var(--aside-color);
     overflow: auto;
     display: grid;
     grid-template: "header" 90px "body" 1fr "footer" 40px "margin" 5px;
@@ -35,7 +41,7 @@ button {
     width: 400px;
     background-color: #184242;
     box-shadow: inset 80px 0 100px -80px #41b4b4;
-    color: #ddf7f7;
+    color: var(--aside-color);
     display: grid;
     grid-template: 25px / 1fr 25px;
     overflow: hidden;
@@ -49,7 +55,7 @@ button {
     width: 400px;
     background-color: #184242;
     box-shadow: inset 80px 0 100px -80px #41b4b4;
-    color: #ddf7f7;
+    color: var(--aside-color);
     overflow: auto;
     border-top: 2px solid white;
 }
@@ -70,7 +76,7 @@ button {
 }
 
 .tabsSelection li.active {
-    background-color: #ddf7f7;
+    background-color: var(--aside-color);
     color: #184242;
     cursor: default;
 }
@@ -219,10 +225,18 @@ button {
     margin-right: 0.5em;
 }
 .change-visibility:hover {
-    color: darkorange;
+    color: var(--hover-color);
 }
 .change-visibility.in-summary {
     margin-right: -1em;
+}
+.item-icon {
+    margin-right: 0.5em;
+    color: var(--aside-color);
+}
+.item-icon:hover {
+    font-weight: bold;
+    color: var(--hover-color);
 }
 
 .selection-rectangle {
@@ -332,7 +346,7 @@ g.active .fileItem {
 }
 
 button.active {
-    color: darkorange;
+    color: var(--active-color);
 }
 
 .filter-list {
@@ -359,7 +373,7 @@ button.active {
     background-color: #fafada;
 }
 .filter-item .fa:hover {
-    color: darkorange;
+    color: var(--hover-color);
 }
 .filter-input-area {
     position: relative;
@@ -382,13 +396,26 @@ header.notVisible {
     font-style: italic;
 }
 
-.file-actions {
+.btn-actions {
     display: flex;
     justify-content: space-evenly;
     flex-direction: row;
 }
-.file-actions > button {
+.btn-actions > button {
     cursor: pointer;
     font-size: 1.3em;
     width: 40px;
+}
+
+.isEmpty {
+    font-style: italic;
+}
+
+.link-item {
+    cursor: pointer;
+}
+
+.link-item:hover {
+    cursor: pointer;
+    color: var(--hover-color);
 }

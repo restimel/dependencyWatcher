@@ -245,7 +245,7 @@
             ></file-list>
         </details>
     </section>
-    <footer class="file-actions">
+    <footer class="btn-actions">
         <button v-if="item.name"
             title="Center on this box"
             @click="$emit('center', item.name)"
@@ -404,6 +404,76 @@
         `
     };
 
+    const workspaces = {
+        props: {
+            itemData: Object,
+            items: Map,
+        },
+        data: function() {
+            return {
+                workspaces: self.configuration.workspaces,
+            };
+        },
+        computed: {
+            isEmpty: function() {
+                return this.workspaces.length === 0;
+            },
+        },
+        methods: {
+            save: function() {
+                var name = prompt('name?');
+                this.saveToConfig(name);
+            },
+            saveToConfig: function(name) {
+                this.$emit('saveWorkspace', name);
+            },
+            remove: function(name) {
+                const workspaces = self.configuration.workspaces;
+                const index = workspaces.findIndex(w => w.name === name);
+                if (index >= 0) {
+                    workspaces.splice(index, 1);
+                }
+            },
+        },
+        components: {
+        },
+        template: `
+<div data-tab="groups">
+    <header>Workspaces</header>
+    <section>
+        <div v-if="isEmpty" class="isEmpty groupDetail">
+            There are currently no workspaces saved.
+        </div>
+        <ul v-else>
+            <li v-for="ws in workspaces"
+                :keys="ws.name"
+                class="groupDetail link-item"
+                @click="$emit('loadWorkspace', ws.name)"
+            >
+                <span class="flex">
+                    {{ws.name}}
+                    <span
+                        class="item-icon fa fa-trash"
+                        title="remove this workspace"
+                        @click.stop.prevent="remove(ws.name)"
+                    ></span>
+                </span>
+            </li>
+        </ul>
+
+        <div class="btn-actions">
+            <button
+                title="Save current workspace"
+                @click="save"
+            >
+                <span class="fa fa-save"></span>
+            </button>
+        </div>
+    </section>
+</div>
+        `
+    };
+
     const filterHelp = {
         template: `
 <div>
@@ -519,6 +589,10 @@
                     id: 'item-groups',
                     visible: true,
                 }, {
+                    name: 'Workspaces',
+                    id: 'item-workspaces',
+                    visible: true,
+                }, {
                     name: '',
                     className: 'fa fa-cog',
                     id: 'tab-configuration',
@@ -557,6 +631,7 @@
         components: {
             'item-details': details,
             'item-groups': groups,
+            'item-workspaces': workspaces,
             'item-filter': filterHelp,
             'tab-configuration': configurationTab,
         },
@@ -573,6 +648,8 @@
         @change="(...args)=>$emit('change', ...args)"
         @addFilter="(...values)=>$emit('addFilter', ...values)"
         @center="(...values)=>$emit('center', ...values)"
+        @saveWorkspace="(...values)=>$emit('saveWorkspace', ...values)"
+        @loadWorkspace="(...values)=>$emit('loadWorkspace', ...values)"
     ></div>
     <footer class="tabsSelection">
         <ul>

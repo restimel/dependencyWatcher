@@ -2,9 +2,10 @@
     'use strict';
 
     self.configuration = {
-        version: '0.5.1',
+        version: '0.5.2',
         centerOnSelected: true,
         maxItemOptionsList: 50,
+        workspaces: [],
         performance: false,
         performanceLog: new Map(),
         perfStart: function(label) {
@@ -32,12 +33,12 @@
                 return;
             }
             log.timers.push(currentTime);
-
         },
         save: function() {
             localStorage.setItem('configuration', JSON.stringify({
                 centerOnSelected: this.centerOnSelected,
                 performance: this.performance,
+                workspaces: this.workspaces,
             }));
         },
     };
@@ -446,6 +447,26 @@
             center: function(file) {
                 this.$refs.chart.center(file);
             },
+            saveWorkspace: function(name) {
+                self.configuration.workspaces.push({
+                    name: name,
+                    filters: this.filters.map(f => ({
+                        id: f.id,
+                        value: f.value,
+                    })),
+                });
+                self.configuration.save();
+            },
+            loadWorkspace: function(name) {
+                console.log('loadWorkspace')
+                var ws = self.configuration.workspaces.find((ws) => ws.name === name);
+
+                if (ws) {
+                    this.filters = ws.filters;
+                    this.filters.forEach(f => f.rules = this.buildFilter(f.value));
+                    this.updateAllVisiblity();
+                }
+            },
         },
         created: function() {
             this.getItems(0);
@@ -501,6 +522,8 @@
             @change="changeData"
             @addFilter="addFilter"
             @center="center"
+            @saveWorkspace="saveWorkspace"
+            @loadWorkspace="loadWorkspace"
         ></aside-content>
         <configuration
             :selected="configuration"
