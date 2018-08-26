@@ -14,7 +14,7 @@ function shortestPath(items, item1, item2) {
             if (!item) {
                 return costMax;
             }
-            cost = item.dependencies.length + item.requiredBy.length + 1;
+            cost = item.dependencies.length * 1 + item.requiredBy.length * 10 + 1;
             costItems.set(itemName, cost);
         }
 
@@ -95,15 +95,23 @@ function shortestPath(items, item1, item2) {
     }
 
     addNode(item1);
-    let notFound = true;
+    let notFinished = true;
     const result = [];
-    while(notFound && listTodo.size) {
+    let costLimit = Infinity;
+    while(notFinished && listTodo.size) {
         const node = getNextItem();
+        if (node.cost > costLimit) {
+            notFinished = false;
+            console.log('→', node.cost, costLimit)
+        }
         if (isTarget(node)) {
-            notFound = false;
             result.push(node);
-        } else {
-            searchNextNodes(node);
+            if (!Number.isFinite(costLimit)) {
+                costLimit = node.cost * 30.5;
+            }
+            console.log(node.cost, costLimit)
+        } else  if (notFinished) {
+            searchNextNodes(node); // isTarget should be managed here
         }
     }
 

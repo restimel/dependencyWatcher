@@ -410,6 +410,66 @@
         `
     };
 
+    const askName = {
+        props: {
+            show: Boolean,
+            types: Object,
+        },
+        data: function() {
+            return {};
+        },
+        computed: {
+            isOpen: function() {
+                return !!this.show;
+            },
+            type: function() {
+                return this.types[this.editColor] || {};
+            }
+        },
+        methods: {
+            close: function() {
+                this.$emit('close');
+            },
+            save: function() {
+                this.$emit('change', 'type', this.editColor, Object.assign({}, this.type, {
+                    color: this.color,
+                    bgColor: this.bgColor
+                }));
+                this.close();
+            },
+            keys: function(evt) {
+                if (this.isOpen) {
+                    switch(evt.key) {
+                        case 'Escape': this.close(); break;
+                        case 'Enter': this.save(); break;
+                    }
+                }
+            }
+        },
+        watch: {
+            editColor: function() {
+                const type = this.type;
+                this.color = type.color || '#333333';
+                this.bgColor = type.bgColor || '#eaeaea';
+            }
+        },
+        template: `
+<pop-up
+    class="dialogTypeColor"
+    :open="isOpen"
+    :title="type.name"
+    @close="close"
+    @save="save"
+>
+    <template slot="content">
+        <label>Color (for text and border): <input type="color" v-model="color"></label>
+        <label>Background color: <input type="color" v-model="bgColor"></label>
+    </template>
+</pop-up>
+
+        `
+    };
+
     const workspaces = {
         props: {
             itemData: Object,
@@ -418,6 +478,8 @@
         data: function() {
             return {
                 workspaces: self.configuration.workspaces,
+                isDialogOpen: true,
+                wsName: '',
             };
         },
         computed: {
@@ -439,6 +501,10 @@
                 if (index >= 0) {
                     workspaces.splice(index, 1);
                 }
+            },
+
+            close: function() {
+                this.isDialogOpen = false;
             },
         },
         components: {
@@ -476,6 +542,17 @@
             </button>
         </div>
     </section>
+    <pop-up
+        class="dialogTypeColor"
+        :open="isDialogOpen"
+        title="Enter workspace information"
+        @close="close"
+        @save="save"
+    >
+        <template slot="content">
+            <label>Name of the workspace: <input type="text" v-model="wsName"></label>
+        </template>
+    </pop-up>
 </div>
         `
     };
