@@ -2,7 +2,7 @@
     'use strict';
 
     self.configuration = {
-        version: '0.5.2',
+        version: '0.6.0',
         centerOnSelected: true,
         maxItemOptionsList: 50,
         workspaces: [],
@@ -447,6 +447,20 @@
             center: function(file) {
                 this.$refs.chart.center(file);
             },
+            showPath: function(item1, item2) {
+                const result = shortestPath(this.items, item1, item2);
+                if (result.length === 1) {
+                    this.selectedItem = result[0];
+                    if (this.filters.length) {
+                        this.selectedItem.forEach(itemName => this.addFilter('+' + itemName));
+                    }
+                } else
+                if (result.length > 1) {
+                    console.log('TODO: choice multipath');
+                } else {
+                    notification.set('No relation found', 'These files ("' + item1 + '" and "' + item2 + '") seems to have no relation at all', 'error');
+                }
+            },
             saveWorkspace: function(name) {
                 self.configuration.workspaces.push({
                     name: name,
@@ -513,7 +527,7 @@
             @showHelp="showHelp"
         ></filter-form>
         <aside-content
-            :selectedItem="detailItem"
+            :selectedItems="detailItem"
             :items="items"
             :types="types"
             :help="help"
@@ -522,6 +536,7 @@
             @change="changeData"
             @addFilter="addFilter"
             @center="center"
+            @showPath="showPath"
             @saveWorkspace="saveWorkspace"
             @loadWorkspace="loadWorkspace"
         ></aside-content>

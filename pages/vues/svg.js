@@ -281,10 +281,12 @@
                         virtualSVG.getArrows():
                         virtualSVG.arrows;
                     if (Array.isArray(activeItem)) {
-                        return arrows.filter(arrow =>
-                            arrow.get(1)[3] === activeItem[0]
-                            && arrow.get(Infinity)[3] === activeItem[1]
-                        );
+                        return arrows.filter(arrow => {
+                            const index = activeItem.indexOf(arrow.get(1)[3]);
+                            return index !== -1
+                            && (arrow.get(Infinity)[3] === activeItem[index+1]
+                             || arrow.get(Infinity)[3] === activeItem[index-1]);
+                        });
                     } else {
                         return arrows.filter(arrow =>
                             arrow.get(1)[3] === activeItem

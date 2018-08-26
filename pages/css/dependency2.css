@@ -8,6 +8,11 @@ button {
     cursor: pointer;
 }
 
+input[readonly] {
+    color: rgba(0, 0, 0, 0.5);
+    cursor: not-allowed;
+}
+
 .filterArea {
     position: absolute;
     top: 0;
@@ -152,7 +157,7 @@ button {
     width: 90%;
 }
 
-.filterArea > input{
+.filter-files > input{
     display: block;
     height: 25px;
     border-radius: 10px;
@@ -349,6 +354,10 @@ g.active .fileItem {
     border-radius: 1em;
 }
 
+.border-error {
+    border: 3px solid rgba(250, 75, 75, 0.9);
+}
+
 button.active {
     color: var(--active-color);
 }
@@ -422,4 +431,14 @@ header.notVisible {
 .link-item:hover {
     cursor: pointer;
     color: var(--hover-color);
+}
+
+.path-file-item2 {
+    display: inline;
+}
+.path-file-item2.border-error {
+    border: none;
+}
+.path-file-item2.border-error > input {
+    border: 3px solid rgba(250, 75, 75, 0.9);
 }

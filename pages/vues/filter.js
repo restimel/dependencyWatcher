@@ -103,7 +103,7 @@
 			},
 		},
 		methods: {
-			submit: function() {
+			submitted: function() {
 				if (this.value) {
 					this.status = 'display';
 				}
@@ -169,7 +169,7 @@
 				v-model="value"
 				v-focus
 				@input="$emit('input', value)"
-				@keydown.enter.prevent.stop="submit"
+				@keydown.enter.prevent.stop="submitted"
 				@keydown.down.prevent="incSuggestIndex"
 				@keydown.up.prevent="decSuggestIndex"
 				@keydown.right.exact="selectSuggest"
@@ -179,7 +179,7 @@
 			<span
 				class="fa fa-check-circle"
 				title="Confirm"
-				@click="submit"
+				@click="submitted"
 			></span>
 			<span
 				class="fa fa-times-circle"
@@ -280,6 +280,70 @@
 		`
 	};
 
+	Vue.component('search-files', {
+		props: {
+			items: {
+				type: Map,
+				required: true,
+			},
+			value: String,
+		},
+		data: function () {
+			return {
+				currentValue: '',
+				listId: 'itemsDataList' + (uid++),
+			};
+		},
+		methods: {
+			submitted: function () {
+				const currentValue = this.currentValue;
+				if (currentValue && this.items.get(currentValue)) {
+					this.$emit('submitted', currentValue);
+				}
+			},
+			changeValue: function () {
+				this.$emit('input', this.currentValue);
+			},
+		},
+		computed: {
+			searchItems: function () {
+				const currentValue = this.currentValue;
+				let list = Array.from(this.items);
+				if (currentValue) {
+					list = list.filter(item => item[0].includes(currentValue));
+				}
+
+				return list.slice(0, configuration.maxItemOptionsList);
+			},
+		},
+		watch: {
+			value: function () {
+				this.currentValue = this.value;
+			},
+		},
+		components: {
+			'dialog-filter': filterDialog,
+		},
+		template: `
+<div class="search-files">
+	<input
+		type="search"
+		placeholder="search"
+		:list="listId"
+		autocomplete="off"
+		v-model="currentValue"
+		@input="changeValue"
+		@key.enter.stop.prevent="submitted"
+	>
+	<datalist :id="listId">
+		<option v-for="[itemId, item] of searchItems"
+			:value="item.name"
+		>{{ item.name }}</option>
+	</datalist>
+</div>
+		`
+	});
+
 	Vue.component('filter-form', {
 		props: {
 			items: {
@@ -294,7 +358,7 @@
 				type: Function,
 				required: true,
 			},
-			selectedItem: String
+			selectedItem: [String, Array],
 		},
 		data: function() {
 			return {
@@ -303,7 +367,7 @@
 			};
 		},
 		methods: {
-			submit: function() {
+			submitted: function() {
 				const currentValue = this.currentValue;
 				if (currentValue && this.items.get(currentValue)) {
 					this.$emit('selection', currentValue);
@@ -315,15 +379,6 @@
 			}
 		},
 		computed: {
-			searchItems: function() {
-				const currentValue = this.currentValue;
-				let list = Array.from(this.items);
-				if (currentValue) {
-					list = list.filter(item => item[0].includes(currentValue));
-				}
-
-				return list.slice(0, configuration.maxItemOptionsList);
-			},
 			filterTitle: function() {
 				const filtersLength = this.filterLength;
 				if (filtersLength) {
@@ -334,7 +389,13 @@
 			},
 		},
 		watch: {
-			selectedItem: function(selectedItem) {
+			selectedItem: function(selectedItems) {
+				let selectedItem;
+				if (selectedItems instanceof Array) {
+					selectedItem = selectedItems[0];
+				} else {
+					selectedItem = selectedItems;
+				}
 				if (selectedItem !== this.currentValue) {
 					this.currentValue = '';
 				}
@@ -348,15 +409,13 @@
 		},
 		template: `
 <div class="filterArea">
-	<input
-		type="search"
-		placeholder="search"
-		list="itemsDataList"
-		autocomplete="off"
+	<search-files
+		class="filter-files"
 		v-model="currentValue"
-		@input="submit"
-		@key.enter="submit"
-	>
+		:items="items"
+		@input="submitted"
+		@submitted="submitted"
+	/>
 	<button
 		:class="{active: !!filters.length}"
 		:title="filterTitle"
@@ -364,11 +423,6 @@
 	>
 		<span class="fa fa-filter"></span>
 	</button>
-	<datalist id="itemsDataList">
-		<option v-for="[itemName, item] of searchItems"
-			:value="item.name"
-		>{{ item.name }}</option>
-	</datalist>
 
 	<dialog-filter
 		:open="openFilter"

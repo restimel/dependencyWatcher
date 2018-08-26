@@ -258,6 +258,12 @@
         >
             <span class="fa fa-file-code-o"></span>
         </button>
+        <button v-if="item.name"
+            title="Search a relation from this file to another"
+            @click="$emit('prepareShowPath', item.name)"
+        >
+            <span class="fa fa-share-alt"></span>
+        </button>
         <button v-if="item.visible"
             title="Hide this file"
             @click="$emit('addFilter', '-' + item.name)"
@@ -518,6 +524,78 @@
         `
     };
 
+    const prepareShowPath = {
+        props: {
+            items: Map,
+            saveData: Object,
+        },
+        data: function() {
+            return {
+                item2: '',
+                hasSubmit: false,
+            };
+        },
+        computed: {
+            item1: function() {
+                return this.saveData.item1;
+            },
+            hasError: function() {
+                const item2 = this.item2;
+                return (this.hasSubmit && (!item2 || !this.items.has(item2))) || item2 === this.item1;
+            },
+        },
+        methods: {
+            submitted: function() {
+                this.hasSubmit = true;
+                if (!this.hasError) {
+                    this.$emit('showPath', this.item1, this.item2);
+                }
+            },
+            cancel: function() {
+                this.$emit('gotoLastView');
+            },
+        },
+        template: `
+<div>
+    <header>Look for linked path</header>
+    <form
+        @submit.prevent
+    >
+        <label
+            title="The file from which to find links"
+        >
+            From
+            <input
+                type="text"
+                :value="item1"
+                readonly
+            >
+        </label>
+        <br>
+        <label
+            title="The other file"
+        >
+            To
+            <search-files
+                class="path-file-item2"
+                :class="{'border-error': hasError}"
+                v-model="item2"
+                :items="items"
+                @submitted="submitted"
+            />
+
+        </label>
+        <br><br>
+        <hr>
+        <footer class="btn-actions">
+            <button @click.prevent="submitted" title="Search"><span class="fa fa-search"></span></button>
+            <button @click.prevent="cancel" title="Cancel"><span class="fa fa-times"></span></button>
+        </footer>
+    </form>
+</div>
+        `
+    };
+
     const configurationTab = {
         data: function() {
             return {
@@ -572,13 +650,14 @@
 
     Vue.component('aside-content', {
         props: {
-            selectedItem: String,
+            selectedItems: [String, Array],
             items: Map,
             types: Object,
             help: String,
         },
         data: function() {
             return {
+                saveData: {},
                 selectedTab: 'item-details',
                 tabs: [{
                     name: 'Details',
@@ -601,10 +680,18 @@
                     name: 'Filter',
                     id: 'item-filter',
                     visible: false,
+                }, {
+                    name: '',
+                    id: 'item-prepare-show-path',
+                    visible: false,
                 }]
             };
         },
         computed: {
+            selectedItem: function() {
+                const selectedItems = this.selectedItems;
+                return selectedItems instanceof Array ? selectedItems[0] : selectedItems;
+            },
             activeTab: function() {
                 let activeTab;
                 const help = this.help;
@@ -626,7 +713,22 @@
         methods: {
             changeTab: function(tab) {
                 this.selectedTab = tab;
-            }
+            },
+            prepareShowPath: function(item1) {
+                this.saveData = {
+                    item1: item1,
+                    lastView: this.selectedTab,
+                };
+                this.selectedTab = 'item-prepare-show-path';
+            },
+            showPath: function(item1, item2) {
+                this.gotoLastView();
+                this.$emit('showPath', item1, item2);
+            },
+            gotoLastView: function() {
+                this.selectedTab = this.saveData.lastView;
+                this.saveData = {};
+            },
         },
         components: {
             'item-details': details,
@@ -634,6 +736,7 @@
             'item-workspaces': workspaces,
             'item-filter': filterHelp,
             'tab-configuration': configurationTab,
+            'item-prepare-show-path': prepareShowPath,
         },
         template: `
 <section>
@@ -643,6 +746,7 @@
         :itemData="dataSelected"
         :items="items"
         :types="types"
+        :saveData="saveData"
         @selection="(value)=>$emit('selection', value)"
         @navigate="(location, value) =>$emit('navigate', location, value)"
         @change="(...args)=>$emit('change', ...args)"
@@ -650,6 +754,9 @@
         @center="(...values)=>$emit('center', ...values)"
         @saveWorkspace="(...values)=>$emit('saveWorkspace', ...values)"
         @loadWorkspace="(...values)=>$emit('loadWorkspace', ...values)"
+        @prepareShowPath="prepareShowPath"
+        @showPath="showPath"
+        @gotoLastView="gotoLastView"
     ></div>
     <footer class="tabsSelection">
         <ul>
