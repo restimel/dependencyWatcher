@@ -1,6 +1,6 @@
 # Features
 
-## This is plan and must be done:
+## This is planned and must be done:
 
 * Search tile → display graph from it
     * change code display
@@ -18,6 +18,7 @@
     * Edit file on server
 * Hide groups by default
 * Add a debugger to see why groups have match/not match
+    * maybe a dynamic configuation
 * Add dynamic groups
 
 ## This has been done
@@ -42,6 +43,7 @@
     * Security (limit access)
         * Ask and build challenge
 * configuration tab (do not center, credits, ...)
+* save current display and restore it → Workspace
 
 # Bugs
 
