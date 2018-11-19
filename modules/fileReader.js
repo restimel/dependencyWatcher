@@ -159,7 +159,11 @@ FileReader.prototype.readPath = function(paths, currentPath) {
 				}
 
 				fpath = currentPath +'/' + file;
-				physicalPath = fs.realpathSync(fpath);
+				try {
+					physicalPath = fs.realpathSync(fpath);
+				} catch(e) {
+					logger.error('path "' + fpath + '" cannot be read');
+				}
 
 				if (continueReading && this.isAlreadyParsed(physicalPath, paths)) {
 					continueReading = false;
