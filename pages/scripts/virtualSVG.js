@@ -147,7 +147,9 @@ function VirtualSVG(newItems = [], newRootItems = []) {
         self.configuration.perfEnd('buildVirtual Arrows');
 
         // export results
-        if (itemsList.size > VirtualSVG.maxBox) {
+        const limitReached = itemsList.size > VirtualSVG.maxBox || arrows.length > VirtualSVG.maxArrows;
+
+        if (limitReached) {
             result.tooManyBoxes = true;
         } else {
             result.tooManyBoxes = false;
@@ -158,7 +160,7 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             result.bounds[3] = Math.max(0, ...columns.map(c => c.height));
         }
 
-        if (arrows.length > VirtualSVG.maxArrows) {
+        if (limitReached) {
             result.tooManyArrows = true;
             result.arrows = [];
         } else {

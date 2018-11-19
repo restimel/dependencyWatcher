@@ -307,10 +307,10 @@
 		},
 		computed: {
 			searchItems: function () {
-				const currentValue = this.currentValue;
+				const currentValue = this.currentValue.toLowerCase();
 				let list = Array.from(this.items);
 				if (currentValue) {
-					list = list.filter(item => item[0].includes(currentValue));
+					list = list.filter(item => item[0].toLowerCase().includes(currentValue));
 				}
 
 				return list.slice(0, configuration.maxItemOptionsList);

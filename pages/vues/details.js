@@ -478,7 +478,7 @@
         data: function() {
             return {
                 workspaces: self.configuration.workspaces,
-                isDialogOpen: true,
+                isDialogOpen: false,
                 wsName: '',
             };
         },
@@ -488,9 +488,12 @@
             },
         },
         methods: {
+            askForName: function() {
+                this.isDialogOpen = true;
+            },
             save: function() {
-                var name = prompt('name?');
-                this.saveToConfig(name);
+                this.saveToConfig(this.wsName);
+                this.close();
             },
             saveToConfig: function(name) {
                 this.$emit('saveWorkspace', name);
@@ -536,7 +539,7 @@
         <div class="btn-actions">
             <button
                 title="Save current workspace"
-                @click="save"
+                @click="askForName"
             >
                 <span class="fa fa-save"></span>
             </button>
