@@ -19,6 +19,7 @@
 * Add a debugger to see why groups have match/not match
     * maybe a dynamic configuation
 * Add dynamic groups
+* Allow to write configuration dynamically
 
 ## This has been done
 
