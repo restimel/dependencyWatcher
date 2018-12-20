@@ -13,7 +13,6 @@
 * right click from box
 * Read file
     * Security (limit access)
-        * Create cipher communication (https://github.com/ricmoo/aes-js)
         * hash password in sessionStorage
     * Edit file on server
 * Hide groups by default
@@ -42,6 +41,7 @@
     * Ace
     * Security (limit access)
         * Ask and build challenge
+* https connection
 * configuration tab (do not center, credits, ...)
 * save current display and restore it → Workspace
 

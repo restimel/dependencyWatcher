@@ -63,7 +63,9 @@ The first one is used by default.
   ```json
   "security": {
     "passwordFile": "password.txt",
-    "maxStoreSalt": 10
+    "maxStoreSalt": 10,
+    "cert": "cert.pem",
+    "key": "key.pem"
   }
   ```
 
@@ -201,6 +203,18 @@ It is possible to use _prettyOutput_ to format the result.
     example:
     ```json
     "maxStoreSalt": 10
+    ```
+  * key _(string)_: Define the path of the `key` file. The path is relative to where the application is run. If defined with `cert` attribute, the connection will be done in HTTPS.
+
+    example:
+    ```json
+    "key": "key.pem"
+    ```
+  * cert _(string)_: Define the path of the `certificate` file. The path is relative to where the application is run. If defined with `key` attribute, the connection will be done in HTTPS.
+
+    example:
+    ```json
+    "cert": "cert.pem"
     ```
 
 [Type]:#Type

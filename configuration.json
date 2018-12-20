@@ -141,7 +141,9 @@
         "requireNameAdapter": []
     }],
     "security": {
-        "passwordFile": "password.txt"
+        "passwordFile": "password.txt",
+        "key": "./security/key.pem",
+        "cert": "./security/cert.pem"
     },
     "log": "test.log"
 }

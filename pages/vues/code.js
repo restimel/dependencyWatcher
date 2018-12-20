@@ -87,20 +87,20 @@
                 let code = await responseCode.text();
                 if (!responseCode.ok) {
                     sessionStorage.removeItem('password');
-                    self.notification('File is not readable', code, 'error');
+                    self.notification.set('File is not readable', code, 'error');
                     this.$emit('status', 'File is not readable');
                     return;
                 }
 
-                if (item.canReadFile === 'password') {
-                    try {
-                        code = tools.decipherAES(code, password);
-                    } catch (e) {
-                        self.notification('Cannot decipher the data', e.message, 'warn');
-                        this.$emit('status', 'Cannot decipher the data');
-                        return;
-                    }
-                }
+                // if (item.canReadFile === 'password') {
+                //     try {
+                //         code = tools.decipherAES(code, password);
+                //     } catch (e) {
+                //         self.notification.set('Cannot decipher the data', e.message, 'warn');
+                //         this.$emit('status', 'Cannot decipher the data');
+                //         return;
+                //     }
+                // }
 
                 this.text = code;
                 this.session.setValue(code);

@@ -56,10 +56,8 @@ Salt are removed after a timeout delay if they are not used.
 
 ### Assert you are the one to read the given data
 
-When requesting sensible data, we must encrypt data on network to ensure that no one between browser and web-server is able to read the data.
-A good way should be to use a https connection. I wouldn't go so far by now (mainly to generate valid certificates).
-
-As a common password is already known by both side, this password is used as key to cipher communication (symmetric-key algorithm). An AES-CTR algorithm has been chosen.
+When requesting sensitive data, we must encrypt data on network to ensure that no one between browser and web-server is able to read the data.
+A good way is to use a https connection, you should generate key and certificate files and set their path in [configuration](configuration.md#Security). Then the page will be provided in https.
 
 So communication cannot be understood by someone who ignore the password.
 

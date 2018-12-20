@@ -2,6 +2,7 @@
 
 var util = require('util');
 var http = require('http');
+var https = require('https');
 var fs = require('fs');
 var url = require('url');
 var events = require('events');
@@ -9,14 +10,18 @@ var logger = require('./logger.js');
 
 var DEFAULT_PORT = 8000;
 
-function createServer(port) {
+/* To generate cert with open SSL in dev mode
+ * openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+ */
+
+function createServer(port, options) {
   new HttpServer({
     'GET': createServlet(StaticServlet),
     'HEAD': createServlet(StaticServlet),
     'PUT': createServlet(StaticServlet),
     'POST': createServlet(StaticServlet),
     'DELETE': createServlet(StaticServlet)
-  }).start(Number(port) || DEFAULT_PORT);
+  }, options).start(Number(port) || DEFAULT_PORT);
 }
 
 function escapeHtml(value) {
@@ -36,10 +41,30 @@ function createServlet(Class) {
  * action routing.
  *
  * @param {Object} Map of method => Handler function
+ * @param {Object} Options as key and cert to define certificate
  */
-function HttpServer(handlers) {
+function HttpServer(handlers, options) {
+  var key, cert;
   this.handlers = handlers;
-  this.server = http.createServer(this.handleRequest_.bind(this));
+
+  if (options.key) {
+    key = fs.readFileSync(options.key);
+  }
+
+  if (options.cert) {
+    cert = fs.readFileSync(options.cert);
+  }
+
+  if (key && cert) {
+    this.server = https.createServer({
+      key: key,
+      cert: cert,
+    }, this.handleRequest_.bind(this));
+    this.protocol = 'https';
+  } else {
+    this.server = http.createServer(this.handleRequest_.bind(this));
+    this.protocol = 'http';
+  }
 }
 
 HttpServer.prototype.start = function(port) {
@@ -52,7 +77,7 @@ HttpServer.prototype.start = function(port) {
     logger.error(port + ' is already in used.');
     return;
   }
-  message = 'Http Server running at http://localhost:' + port + '/';
+  message = 'Web Server running at ' + this.protocol + '://localhost:' + port + '/';
   logger.info(message);
   console.log(message);
 };

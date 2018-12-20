@@ -109,19 +109,36 @@ exports.generateSalt = function(size, encoding) {
 /**
  * Encode in sha256
  */
-function sha256(text, encoding) {
+// function sha256(text, encoding) {
+// 	if (!encoding) {
+// 		encoding = 'utf8';
+// 	}
+// 	var tmp = crypto.createHash('sha256').update(text, encoding).digest();
+// 	var hex = Array.from(tmp).map(b => {
+//         var h = b.toString(16);
+//         while (h.length < 2) {
+//             h = '0' + h;
+//         }
+//         return h;
+//     }).join('');
+// 	return (new Buffer(hex)).toString('base64');
+// };
+function sha256Buffer(text, encoding) {
 	if (!encoding) {
 		encoding = 'utf8';
 	}
 	var tmp = crypto.createHash('sha256').update(text, encoding).digest();
 	var hex = Array.from(tmp).map(b => {
-        var h = b.toString(16);
-        while (h.length < 2) {
-            h = '0' + h;
-        }
-        return h;
-    }).join('');
-	return (new Buffer(hex)).toString('base64');
+		var h = b.toString(16);
+		while (h.length < 2) {
+			h = '0' + h;
+		}
+		return h;
+	}).join('');
+	return new Buffer(hex);
+}
+function sha256(text, encoding) {
+	return sha256Buffer(text, encoding).toString('base64');
 };
 exports.sha256 = sha256;
 
@@ -131,36 +148,4 @@ exports.generateChallenge = function(salt, password, encoding) {
 	var text = salt + password;
 
 	return sha256(text, encoding);
-};
-
-/* Cipher a text
- */
-exports.cipher = function(text, key, encoding) {
-	var cipher = crypto.createCipher('aes-128-cbc', key);
-	var encrypted;
-
-	if (!encoding) {
-		encoding = 'utf8';
-	}
-
-	encrypted = cipher.update(text, encoding, 'hex');
-	encrypted += cipher.final('hex');
-
-	return encrypted;
-};
-
-/* Decipher a text
- */
-exports.decipher = function(text, key, encoding) {
-	var decipher = crypto.createDecipher('aes-128-cbc', key);
-	var decrypted;
-
-	if (!encoding) {
-		encoding = 'utf8';
-	}
-
-	decrypted = decipher.update(text, 'hex', encoding);
-	decrypted += decipher.final(encoding);
-
-	return decrypted;
 };

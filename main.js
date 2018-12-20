@@ -89,7 +89,10 @@ function changePort(port) {
 function startProcess() {
     parser = new Parser(eventEmitter);
 
-    web.server(eventEmitter, serverPort);
+    web.server(eventEmitter, serverPort, {
+        key: configuration.security.key,
+        cert: configuration.security.cert,
+    });
 
     eventEmitter.addListener('parseFiles', parseFiles);
 }

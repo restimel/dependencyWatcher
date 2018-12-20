@@ -38,7 +38,9 @@ var configuration = {
 	/* Settings about security */
 	security: {
 		passwordFile: false, // to add one it expects a string (the path of the file)
-		maxStoreSalt: 10
+		maxStoreSalt: 10,
+		key: '',
+		cert: '',
 	},
 
 	/* these attributes will be replaced by methods */
@@ -111,15 +113,56 @@ configuration.checkConfig = function() {
 
 		if (typeof configuration.security.passwordFile !== 'string' && configuration.security.passwordFile !== false) {
 			errors.push('security.passwordFile');
-		} else if (typeof configuration.security.passwordFile === 'string' && configuration.security) {
-			var data = fs.readFileSync(configuration.security.passwordFile, {
-				encoding: 'utf8'
-			});
+		} else if (typeof configuration.security.passwordFile === 'string') {
+			var data;
+			try {
+				data = fs.readFileSync(configuration.security.passwordFile, {
+					encoding: 'utf8'
+				});
+			} catch (e) {
+				errors.push('security.passwordFile (file cannot be read)');
+			}
 
 			if (data) {
 				configuration._password = tools.sha256(data);
 			} else {
-				errors.push('security.passwordFile (password not found)')
+				errors.push('security.passwordFile (password not found)');
+			}
+		}
+
+		if (typeof configuration.security.key !== 'string') {
+			errors.push('security.key');
+		} else if (typeof configuration.security.key === 'string' && configuration.security.key) {
+			var data;
+			try {
+				data = fs.readFileSync(configuration.security.key);
+			} catch (e) {
+				errors.push('security.key (file cannot be read)');
+			}
+
+			if (!data) {
+				errors.push('security.key (key not found)');
+			}
+			if (!configuration.security.cert) {
+				errors.push('security.cert should be also defined to set HTTPS connection');
+			}
+		}
+
+		if (typeof configuration.security.cert !== 'string') {
+			errors.push('security.cert');
+		} else if (typeof configuration.security.cert === 'string' && configuration.security.cert) {
+			var data;
+			try {
+				data = fs.readFileSync(configuration.security.cert);
+			} catch (e) {
+				errors.push('security.cert (file cannot be read)');
+			}
+
+			if (!data) {
+				errors.push('security.cert (certificate not found)');
+			}
+			if (!configuration.security.key) {
+				errors.push('security.key should be also defined to set HTTPS connection');
 			}
 		}
 	}

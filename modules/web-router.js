@@ -7,12 +7,12 @@ var fs = require('fs');
 
 var saltList = [];
 
-function server(eventEmitter, port) {
+function server(eventEmitter, port, options) {
 	if (typeof port !== 'number') {
 		port = 8000;
 	}
     webServer.handleRequest = router;
-    webServer.createServer(port);
+    webServer.createServer(port, options);
 
     function router(req, res, servlet) {
     	var pathName = req.url.pathname;
@@ -82,7 +82,7 @@ function server(eventEmitter, port) {
                     type = configuration.getType(file.type.name, index);
                 }
                 if (type && checkRight(type, 'readFile', salt, challenge)) {
-                    data = cipher(file.path, type);
+                    data = readFile(file.path, type);
                     if (!data) {
                         servlet.sendHTML_(req, res, 'Cannot access the file', 500);
                         return;
@@ -117,7 +117,7 @@ function server(eventEmitter, port) {
                     type = configuration.getType(file.type.name, index);
                 }
                 if (type && checkRight(type, 'writeFile', salt, challenge)) {
-                    data = decipher(file.path, httpBody, type);
+                    data = writeFile(file.path, httpBody, type);
                     if (!data) {
                         servlet.sendHTML_(req, res, 'Cannot access the file', 500);
                         return;
@@ -197,28 +197,32 @@ function checkRight(type, property, salt, challenge) {
         || (type.rights[property] === 'password' && checkSalt(salt, challenge));
 }
 
-function cipher(filePath, type) {
-    var data = fs.readFileSync(filePath, {
-        encoding: 'utf8'
-    });
-
-    if (data && type.rights.readFile === 'password') {
-        data = tools.cipher(data, configuration._password);
+function readFile(filePath, type) {
+    var data;
+    try {
+        data = fs.readFileSync(filePath, {
+            encoding: 'utf8'
+        });
+    } catch(e) {
+        return;
     }
 
     return data;
 }
 
-function decipher(filePath, data, type) {
-    if (data && type.rights.readFile === 'password') {
-        data = tools.decipher(data, configuration._password);
+function writeFile(filePath, data, type) {
+    var isOk = false;
+
+    try {
+        fs.writeFileSync(filePath, data, {
+            encoding: 'utf8'
+        });
+        isOk = true;
+    } catch(e) {
+        isOk = false;
     }
 
-    var file = fs.writeFileSync(filePath, data, {
-        encoding: 'utf8'
-    });
-
-    return data;
+    return isOk;
 }
 
 exports.server = server;
