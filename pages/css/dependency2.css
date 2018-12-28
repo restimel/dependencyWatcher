@@ -13,6 +13,10 @@ input[readonly] {
     cursor: not-allowed;
 }
 
+details > summary {
+    cursor: pointer;
+}
+
 .filterArea {
     position: absolute;
     top: 0;
@@ -84,6 +88,13 @@ input[readonly] {
     background-color: var(--aside-color);
     color: #184242;
     cursor: default;
+}
+
+.help-content {
+    font-style: italic;
+    font-size: 0.8em;
+    padding: 0.5em;
+    padding-bottom: 1em;
 }
 
 .main-page {
@@ -300,7 +311,9 @@ g.active .fileItem {
     transform: translate(-50%, -50%);
     z-index: 6;
     box-shadow: 0px 5px 15px #000000;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.85);
+    max-height: 92%;
+    overflow: auto;
 }
 .dialog-pop-up header {
     font-size: 1.2em;
@@ -366,7 +379,7 @@ button.active {
     padding: 0;
 }
 .filter-item {
-    width: 500px;
+    width: 700px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -395,13 +408,13 @@ button.active {
     position: absolute;
     top: 0;
     left: 0;
-    width: 450px;
+    width: 650px;
 }
 .filter-item-mainInput {
     background-color: transparent;
 }
 .filter-item-displayed {
-    max-width: 450px;
+    max-width: 650px;
     overflow-wrap: break-word;
 }
 
@@ -441,4 +454,21 @@ header.notVisible {
 }
 .path-file-item2.border-error > input {
     border: 3px solid rgba(250, 75, 75, 0.9);
+}
+
+.filter-items > summary {
+    background-color: rgba(180, 180, 180, 0.2);
+    padding: 0.5em;
+}
+.filter-help > summary {
+    background-color: rgba(180, 180, 180, 0.2);
+}
+.filter-item.add-item {
+    background-color: rgba(255, 255, 0, 0.3);
+    padding: 0.3em 0;
+}
+.filter-help {
+    background-color: rgba(100, 180, 255, 0.2);
+    padding: 0.5em;
+    width: 700px;
 }

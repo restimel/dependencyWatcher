@@ -17,8 +17,8 @@
 * Hide groups by default
 * Add a debugger to see why groups have match/not match
     * maybe a dynamic configuation
+    * Allow to write configuration dynamically
 * Add dynamic groups
-* Allow to write configuration dynamically
 
 ## This has been done
 
@@ -48,4 +48,4 @@
 
 # Bugs
 
-* links on backward dep are glitchy display at start
+* links on backward dep are glitchy displayed at start

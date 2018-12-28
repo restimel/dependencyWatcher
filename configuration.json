@@ -49,6 +49,8 @@
                 "pattern": "\\.js$"
             }, {
                 "pattern": "\\.html$"
+            }, {
+                "pattern": "\\.css$"
             }]
         },
         "fileNameAdapter": [{
@@ -85,6 +87,17 @@
                 "writeFile": "password"
             }
         }, {
+            "name": "css",
+            "matcher": {
+                "pattern": ".css"
+            },
+            "color": "#f0f10f",
+            "bgColor": "#dce0ce",
+            "rights": {
+                "readFile": true,
+                "writeFile": "password"
+            }
+        }, {
             "name": "libs",
             "matcher": {
                 "pattern": "/libs/"
@@ -100,7 +113,10 @@
             "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
             "flags": "g"
         }, {
-            "pattern": "<script src=\"(.*?)\"></script>",
+            "pattern": "<script\\s[^>]*src=\"(.*?)\"></script>",
+            "flags": "g"
+        }, {
+            "pattern": "<link\\s[^>]*href=\"(.*?)\">",
             "flags": "g"
         }],
         "requireNameAdapter": [{

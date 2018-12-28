@@ -191,6 +191,59 @@
 		`
 	};
 
+	const filterHelp = {
+		template: `
+<div>
+    <header>How to create filter</header>
+    <p>All file boxes which match a rule will not be displayed.</p>
+    <h4>Syntax</h4>
+    <p><code class="example">[group]file:modifier::&lt;SubRule&gt;</code></p>
+    <table>
+        <tr>
+            <th>Modifier name</th>
+            <th>Explanation</th>
+        </tr>
+        <tr>
+            <td>:children::</td>
+            <td>Select children of selected file box</td>
+        </tr>
+        <tr>
+            <td>:andChildren::</td>
+            <td>Select children of selected file box and this file box</td>
+        </tr>
+        <tr>
+            <td>:parents::</td>
+            <td>Select parents of selected file box</td>
+        </tr>
+        <tr>
+            <td>:andParents::</td>
+            <td>Select parents of selected file box and this file box</td>
+        </tr>
+        <tr>
+            <td>:and::</td>
+            <td>Select this file box (to add another rule)</td>
+        </tr>
+        <tr>
+            <td>:onlyIfNoChildren::</td>
+            <td>Select this file box only if it has no children (it's a leaf)</td>
+        </tr>
+        <tr>
+            <td>:onlyIfNoParents::</td>
+            <td>Select this file box only if it has no parents (it's a root)</td>
+        </tr>
+    </table>
+    <p>It is possible to start the rule with '+' to force the visibility of matching boxes.
+    <h4>Some examples</h4>
+    <ul>
+        <li><code class="example">*.min.js</code> Do not display files which end with ".min.js".</li>
+        <li><code class="example">[modules]:andChildren::</code> Do not display files in "modules" group and their children.</li>
+        <li><code class="example">[filter-*]*leaf.js:children::*.html</code> Do not display all children which end with ".html" of files ending by ".js" in groups startings with "filter-".</li>
+        <li><code class="example">+*.js:onlyIfNoParents::</code> Display all files which end with ".js" and are not required by any one.</li>
+    </ul>
+</div>
+        `
+	};
+
 	const filterDialog = {
 		props: {
 			open: Boolean,
@@ -243,33 +296,43 @@
 		},
 		components: {
 			'li-filter': filterItem,
+			'FilterHelp': filterHelp,
 		},
 		template: `
 <pop-up
 	title="Filter"
 	:open="open"
 >
-	<ul slot="content" class="filter-list">
-		<li-filter v-for="(item, idx) of displayedFilters"
-			class="filter-item"
-			:filter="item.value"
-			:filterRules="filterRules"
-			:items="items"
-			@input="value => updateValue(idx, value)"
-			@delete="remove(idx)"
-			:key="item.id"
-		></li-filter>
-		<li
-			class="filter-item add-item"
-			title="Add a new filter"
-			@click="addItem"
-		>
-			<span>
-				<span class="fa fa-plus"></span>
-				Add a new filter
-			</span>
-		</li>
-	</ul>
+	<span slot="content">
+		<details class="filter-items" open>
+			<summary>Filter patterns</summary>
+			<ul class="filter-list">
+				<li-filter v-for="(item, idx) of displayedFilters"
+					class="filter-item"
+					:filter="item.value"
+					:filterRules="filterRules"
+					:items="items"
+					@input="value => updateValue(idx, value)"
+					@delete="remove(idx)"
+					:key="item.id"
+				></li-filter>
+				<li
+					class="filter-item add-item"
+					title="Add a new filter"
+					@click="addItem"
+				>
+					<span>
+						<span class="fa fa-plus"></span>
+						Add a new filter
+					</span>
+				</li>
+			</ul>
+		</details>
+		<details class="filter-help">
+			<summary>Help to build queries</summary>
+			<FilterHelp />
+		</details>
+	</span>
 	<template slot="menu">
         <button @click="clear" title="Remove all filters">Clear</button>
         <button @click="$emit('close')">Cancel</button>
@@ -400,7 +463,7 @@
 				}
 			},
 			openFilter: function() {
-				this.$emit('showHelp', this.openFilter ? 'Filter' : '');
+				this.$emit('showHelp', this.openFilter ? 'Workspaces' : '');
 			}
 		},
 		components: {
@@ -418,7 +481,7 @@
 	<button
 		:class="{active: !!filters.length}"
 		:title="filterTitle"
-		@click="openFilter=true"
+		@click="openFilter=!openFilter"
 	>
 		<span class="fa fa-filter"></span>
 	</button>

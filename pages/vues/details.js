@@ -516,6 +516,7 @@
 <div data-tab="groups">
     <header>Workspaces</header>
     <section>
+        <p class="help-content">Workspaces are set of filter. You can save the current filter configuration and restore it at any time.</p>
         <div v-if="isEmpty" class="isEmpty groupDetail">
             There are currently no workspaces saved.
         </div>
@@ -556,58 +557,6 @@
             <label>Name of the workspace: <input type="text" v-model="wsName"></label>
         </template>
     </pop-up>
-</div>
-        `
-    };
-
-    const filterHelp = {
-        template: `
-<div>
-    <header>How to create filter</header>
-    <p>All file boxes which match a rule will not be displayed.</p>
-    <h4>Syntax</h4>
-    <p><code class="example">[group]file:modifier::&lt;SubRule&gt;</code></p>
-    <table>
-        <tr>
-            <th>Modifier name</th>
-            <th>Explanation</th>
-        </tr>
-        <tr>
-            <td>:children::</td>
-            <td>Select children of selected file box</td>
-        </tr>
-        <tr>
-            <td>:andChildren::</td>
-            <td>Select children of selected file box and this file box</td>
-        </tr>
-        <tr>
-            <td>:parents::</td>
-            <td>Select parents of selected file box</td>
-        </tr>
-        <tr>
-            <td>:andParents::</td>
-            <td>Select parents of selected file box and this file box</td>
-        </tr>
-        <tr>
-            <td>:and::</td>
-            <td>Select this file box (to add another rule)</td>
-        </tr>
-        <tr>
-            <td>:onlyIfNoChildren::</td>
-            <td>Select this file box only if it has no children (it's a leaf)</td>
-        </tr>
-        <tr>
-            <td>:onlyIfNoParents::</td>
-            <td>Select this file box only if it has no parents (it's a root)</td>
-        </tr>
-    </table>
-    <p>It is possible to start the rule with '+' to force the visibility of matching boxes.
-    <h4>Some examples</h4>
-    <ul>
-        <li><code class="example">*.min.js</code> Do not display files which end with ".min.js".</li>
-        <li><code class="example">[modules]:andChildren::</code> Do not display files in "modules" group and their children.</li>
-        <li><code class="example">[filter-*]*leaf.js:children::*.html</code> Do not display all children which end with ".html" of files ending by ".js" in groups startings with "filter-".</li>
-    </ul>
 </div>
         `
     };
@@ -765,10 +714,6 @@
                     id: 'tab-configuration',
                     visible: true,
                 }, {
-                    name: 'Filter',
-                    id: 'item-filter',
-                    visible: false,
-                }, {
                     name: '',
                     id: 'item-prepare-show-path',
                     visible: false,
@@ -822,7 +767,6 @@
             'item-details': details,
             'item-groups': groups,
             'item-workspaces': workspaces,
-            'item-filter': filterHelp,
             'tab-configuration': configurationTab,
             'item-prepare-show-path': prepareShowPath,
         },
