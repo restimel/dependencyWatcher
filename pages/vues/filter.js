@@ -34,7 +34,7 @@
 					const strRules = currentRules ? currentRules + '::' : '';
 					const last = rules.get(Infinity);
 					const itemNames = this.itemNames;
-					const item = this.item;
+					const items = this.items;
 
 					if (!last) {
 						list = ['['];
@@ -53,7 +53,6 @@
 					} else
 					if (/^(?:\[[^\]]*?\])?[^:]*?$/.test(last)) {
 						const itemNames = this.itemNames;
-						const items = this.items;
 						const group = last.replace(/^(\[[^\]]*?\])?.*$/, '$1');
 						const file = last.slice(group.length);
 
