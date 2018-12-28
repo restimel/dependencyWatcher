@@ -486,7 +486,7 @@
                 var ws = self.configuration.workspaces.find((ws) => ws.name === name);
 
                 if (ws) {
-                    this.filters = ws.filters;
+                    this.filters = [...ws.filters];
                     this.filters.forEach(f => f.rules = this.buildFilter(f.value));
                     this.updateAllVisiblity();
                 }
