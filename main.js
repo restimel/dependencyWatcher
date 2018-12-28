@@ -11,7 +11,7 @@ var ArgumentParser = require('argparse').ArgumentParser;
 var eventEmitter;
 var parser;
 
-var version = '0.5.0';
+var version = '0.6.0';
 
 /* port number */
 var serverPort = 8000;

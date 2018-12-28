@@ -14,7 +14,6 @@
 * Read file
     * Security (limit access)
         * hash password in sessionStorage
-    * Edit file on server
 * Hide groups by default
 * Add a debugger to see why groups have match/not match
     * maybe a dynamic configuation
@@ -42,6 +41,7 @@
     * Ace
     * Security (limit access)
         * Ask and build challenge
+    * Edit file on server
 * https connection
 * configuration tab (do not center, credits, ...)
 * save current display and restore it → Workspace
