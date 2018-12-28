@@ -106,71 +106,81 @@
                 const currentText = this.session.getValue();
                 const item = this.item;
 
-                if (item.canReadFile === 'password') {
-                    [salt, challenge] = await this.getSaltChallenge();
-                }
+                try {
+                    if (item.canReadFile === 'password') {
+                        [salt, challenge] = await this.getSaltChallenge();
+                    }
 
-                let writeCode = `/writeCode?item=${encodeURIComponent(item.name)}`;
+                    let writeCode = `/writeCode?item=${encodeURIComponent(item.name)}`;
 
-                if (salt) {
-                    writeCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
-                }
+                    if (salt) {
+                        writeCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
+                    }
 
-                const responseCode = await fetch(writeCode, {
-                    method: 'POST',
-                    body: currentText,
-                });
-                const code = await responseCode.text();
-                if (!responseCode.ok) {
-                    sessionStorage.removeItem('password');
-                    self.notification.set('File is not writable', code, 'error');
-                    this.$emit('status', 'File is not writable');
-                    return;
+                    const responseCode = await fetch(writeCode, {
+                        method: 'POST',
+                        body: currentText,
+                    });
+                    const code = await responseCode.text();
+                    if (!responseCode.ok) {
+                        sessionStorage.removeItem('password');
+                        self.notification.set('File is not writable', code, 'error');
+                        this.$emit('status', 'File is not writable');
+                        return;
+                    }
+                    this.text = currentText;
+                    self.notification.set('File saved', '', 'success');
+                    this.$emit('status', '');
+                } catch(e) {
+                    self.notification.set('Error while saving', e.message, 'error');
+                    this.$emit('status', '');
                 }
-                this.text = currentText;
-                self.notification.set('File saved', '', 'success');
-                this.$emit('status', '');
             },
             getText: async function() {
                 let salt, challenge;
                 const item = this.item;
 
                 this.$emit('status', 'loading text');
-                if (!item.canReadFile) {
-                    this.$emit('status', 'Permission denied to read this file');
-                    return;
-                } else if (item.canReadFile === 'password') {
-                    [salt, challenge] = await this.getSaltChallenge();
+                try {
+                    if (!item.canReadFile) {
+                        this.$emit('status', 'Permission denied to read this file');
+                        return;
+                    } else if (item.canReadFile === 'password') {
+                        [salt, challenge] = await this.getSaltChallenge();
+                    }
+
+                    let getCode = `/getCode?item=${encodeURIComponent(item.name)}`;
+
+                    if (salt) {
+                        getCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
+                    }
+
+                    const responseCode = await fetch(getCode);
+                    const code = await responseCode.text();
+                    if (!responseCode.ok) {
+                        sessionStorage.removeItem('password');
+                        self.notification.set('File is not readable', code, 'error');
+                        this.$emit('status', 'File is not readable');
+                        return;
+                    }
+
+                    // if (item.canReadFile === 'password') {
+                    //     try {
+                    //         code = tools.decipherAES(code, password);
+                    //     } catch (e) {
+                    //         self.notification.set('Cannot decipher the data', e.message, 'warn');
+                    //         this.$emit('status', 'Cannot decipher the data');
+                    //         return;
+                    //     }
+                    // }
+
+                    this.text = code;
+                    this.session.setValue(code);
+                    this.$emit('status', '');
+                } catch(e) {
+                    self.notification.set('Error while getting text', e.message, 'error');
+                    this.$emit('status', '');
                 }
-
-                let getCode = `/getCode?item=${encodeURIComponent(item.name)}`;
-
-                if (salt) {
-                    getCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
-                }
-
-                const responseCode = await fetch(getCode);
-                const code = await responseCode.text();
-                if (!responseCode.ok) {
-                    sessionStorage.removeItem('password');
-                    self.notification.set('File is not readable', code, 'error');
-                    this.$emit('status', 'File is not readable');
-                    return;
-                }
-
-                // if (item.canReadFile === 'password') {
-                //     try {
-                //         code = tools.decipherAES(code, password);
-                //     } catch (e) {
-                //         self.notification.set('Cannot decipher the data', e.message, 'warn');
-                //         this.$emit('status', 'Cannot decipher the data');
-                //         return;
-                //     }
-                // }
-
-                this.text = code;
-                this.session.setValue(code);
-                this.$emit('status', '');
             }
         },
         watch: {
