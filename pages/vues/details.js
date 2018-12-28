@@ -592,6 +592,14 @@
             <td>:and::</td>
             <td>Select this file box (to add another rule)</td>
         </tr>
+        <tr>
+            <td>:onlyIfNoChildren::</td>
+            <td>Select this file box only if it has no children (it's a leaf)</td>
+        </tr>
+        <tr>
+            <td>:onlyIfNoParents::</td>
+            <td>Select this file box only if it has no parents (it's a root)</td>
+        </tr>
     </table>
     <p>It is possible to start the rule with '+' to force the visibility of matching boxes.
     <h4>Some examples</h4>

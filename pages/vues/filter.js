@@ -74,7 +74,7 @@
 					if (/^(?:\[[^\]]*?\])?[^:]*?:[^:]*:?$/.test(last)) {
 						const file = last.replace(/:[^:]*:?$/, '');
 						const subRule = last.slice(file.length);
-						list = [':children::', ':andChildren::', ':parents::', ':andParents::', ':and::'].reduce((list, sub) => {
+						list = [':children::', ':andChildren::', ':parents::', ':andParents::', ':and::', ':onlyIfNoChildren::', ':onlyIfNoParents::'].reduce((list, sub) => {
 							if (sub.startsWith(subRule)) {
 								list.push(file + sub);
 							}

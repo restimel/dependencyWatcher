@@ -349,7 +349,7 @@
                 const rootRule = {
                     subRule: null,
                 };
-                const parse = /^([-+]?)(?:\[(.*)\])?(.*?)(?::(this|and|children|andchildren|parents|andparents))?$/i;
+                const parse = /^([-+]?)(?:\[(.*)\])?(.*?)(?::(this|and|children|andchildren|parents|andparents|onlyifnochildren|onlyifnoparents))?$/i;
 
                 const buildRgx = (str) => {
                     str = str || '*';
@@ -405,6 +405,16 @@
                                 break;
                             case 'andchildren':
                                 list = [item.name].concat(item.dependencies);
+                                break;
+                            case 'onlyifnochildren':
+                                if (!item.dependencies || item.dependencies.length === 0) {
+                                    list.push(item.name);
+                                }
+                                break;
+                            case 'onlyifnoparents':
+                                if (!item.requiredBy || item.requiredBy.length === 0) {
+                                    list.push(item.name);
+                                }
                                 break;
                             case 'this':
                             default:
