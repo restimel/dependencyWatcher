@@ -46,13 +46,32 @@
             },
             readOnly: function() {
                 return !this.item.canWriteFile;
-            }
+            },
+            onKeyDown: function() {
+                return function(evt) {
+                    const key = evt.key.toLowerCase();
+                    const ctrl = evt.ctrlKey;
+
+                    function stop() {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                    }
+
+                    if (ctrl && key === 's') {
+                        stop();
+                        this.save();
+                        return;
+                    }
+
+                    if (key === 'escape') {
+                        stop();
+                        this.$emit('navigate', 'chart');
+                        return;
+                    }
+                }.bind(this);
+            },
         },
         methods: {
-            save: function() {
-                console.log('todo SAVE');
-                notification.set('Save is not implemented yet :(', '', 'warn');
-            },
             initialize: function() {
                 this.session.setMode('ace/mode/' + this.mode);
                 this.editor.setOptions({
@@ -62,8 +81,58 @@
                 this.session.setValue('');
                 this.getText();
             },
+            textHasChanged: function() {
+                return this.text !== this.session.getValue();
+            },
+            getSaltChallenge: async function() {
+                const password = await tools.getPassword();
+                const response = await fetch('getSalt');
+                const salt = await response.text();
+                const challenge = await tools.sha256(salt + password);
+
+                return [salt, challenge];
+            },
+            save: async function () {
+                let salt, challenge;
+
+                if (this.readOnly) {
+                    this.$emit('status', 'Permission denied to write this file');
+                    return;
+                }
+                if (!this.textHasChanged()) {
+                    self.notification.set('There are nothing to save', 'No modification detected', 'info');
+                    return;
+                }
+                const currentText = this.session.getValue();
+                const item = this.item;
+
+                if (item.canReadFile === 'password') {
+                    [salt, challenge] = await this.getSaltChallenge();
+                }
+
+                let writeCode = `/writeCode?item=${encodeURIComponent(item.name)}`;
+
+                if (salt) {
+                    writeCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
+                }
+
+                const responseCode = await fetch(writeCode, {
+                    method: 'POST',
+                    body: currentText,
+                });
+                const code = await responseCode.text();
+                if (!responseCode.ok) {
+                    sessionStorage.removeItem('password');
+                    self.notification.set('File is not writable', code, 'error');
+                    this.$emit('status', 'File is not writable');
+                    return;
+                }
+                this.text = currentText;
+                self.notification.set('File saved', '', 'success');
+                this.$emit('status', '');
+            },
             getText: async function() {
-                let password, salt, challenge;
+                let salt, challenge;
                 const item = this.item;
 
                 this.$emit('status', 'loading text');
@@ -71,10 +140,7 @@
                     this.$emit('status', 'Permission denied to read this file');
                     return;
                 } else if (item.canReadFile === 'password') {
-                    password = await tools.getPassword();
-                    const response = await fetch('getSalt');
-                    salt = await response.text();
-                    challenge = await tools.sha256(salt + password);
+                    [salt, challenge] = await this.getSaltChallenge();
                 }
 
                 let getCode = `/getCode?item=${encodeURIComponent(item.name)}`;
@@ -83,8 +149,8 @@
                     getCode += `&salt=${encodeURIComponent(salt)}&challenge=${encodeURIComponent(challenge)}`;
                 }
 
-                let responseCode = await fetch(getCode);
-                let code = await responseCode.text();
+                const responseCode = await fetch(getCode);
+                const code = await responseCode.text();
                 if (!responseCode.ok) {
                     sessionStorage.removeItem('password');
                     self.notification.set('File is not readable', code, 'error');
@@ -117,6 +183,10 @@
             this.session = this.editor.session;
             this.editor.setTheme('ace/theme/monokai');
             this.initialize();
+            document.addEventListener('keydown', this.onKeyDown);
+        },
+        beforeDestroy: function() {
+            document.removeEventListener('keydown', this.onKeyDown);
         },
         template: `
     <div class="codeArea">

@@ -71,7 +71,7 @@ function server(eventEmitter, port, options) {
                     servlet.sendHTML_(req, res, 'Which item do you want to read?', 403);
                     return;
                 }
-                /* check if name exist and is allowed to required */
+                /* check if name exists and is allowed to required */
                 file = configuration.getFile(name, index);
                 if (!file) {
                     servlet.sendHTML_(req, res, 'This item is not available', 403);
@@ -104,9 +104,10 @@ function server(eventEmitter, port, options) {
                 }
                 if (!httpBody) {
                     servlet.sendHTML_(req, res, 'What do you want to write?', 500);
+                    return;
                 }
 
-                /* check if name exist and is allowed to required */
+                /* check if name exists and is allowed to required */
                 file = configuration.getFile(name, index);
                 if (!file) {
                     servlet.sendHTML_(req, res, 'This item is not available', 403);

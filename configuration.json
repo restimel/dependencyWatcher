@@ -65,7 +65,7 @@
         "types": [{
             "name": "scripts",
             "matcher": {
-                "pattern": "/scripts/"
+                "pattern": "pages/(?:scripts|vues)/"
             },
             "color": "#001f1f",
             "bgColor": "#9fa2ce",
