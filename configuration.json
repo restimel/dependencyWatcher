@@ -51,6 +51,9 @@
                 "pattern": "\\.html$"
             }, {
                 "pattern": "\\.css$"
+            }],
+            "blacklist": [{
+                "pattern": "/libs/"
             }]
         },
         "fileNameAdapter": [{
@@ -80,7 +83,7 @@
             "matcher": {
                 "pattern": ".html"
             },
-            "color": "#00f11f",
+            "color": "#00c11f",
             "bgColor": "#dce0de",
             "rights": {
                 "readFile": true,
@@ -91,8 +94,8 @@
             "matcher": {
                 "pattern": ".css"
             },
-            "color": "#f0f10f",
-            "bgColor": "#dce0ce",
+            "color": "#f01ff0",
+            "bgColor": "#e8e0ce",
             "rights": {
                 "readFile": true,
                 "writeFile": "password"
