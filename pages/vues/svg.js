@@ -258,6 +258,7 @@
                 hasSelected: '',
                 activeItem: this.selectedItem,
                 virtualSVG: new VirtualSVG(this.items, this.rootItems),
+                resetQueue: false,
             };
         },
         computed: {
@@ -325,13 +326,19 @@
                 this.sizeY = sizeY;
             },
             reset: function() {
-                // debounce reset
+                // debounce reset (only the first and the last (due to change during reset))
                 if (this.resetIsRunning) {
+                    this.resetQueue = true;
                     return;
                 }
                 this.resetIsRunning = true;
                 this._reset();
-                setTimeout(() => this.resetIsRunning = false, 50);
+                setTimeout(() => {
+                    this.resetIsRunning = false;
+                    if (this.resetQueue) {
+                        this.reset();
+                    }
+                }, 50);
             },
             _reset: function() {
                 const virtualSVG = this.virtualSVG;
