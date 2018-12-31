@@ -12,6 +12,7 @@
      → Ctrl + click
 * right click from box
 * Read file
+    * Handle relative path and root (html)
     * Security (limit access)
         * hash password in sessionStorage
 * Hide groups by default

@@ -1,4 +1,6 @@
-function VirtualSVG(newItems = [], newRootItems = []) {
+import configuration from './configuration.js';
+
+export default function VirtualSVG(newItems = [], newRootItems = []) {
     let columns = [];
     let items = newItems;
     let rootItems = newRootItems;
@@ -101,7 +103,7 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             distance += width + VirtualSVG.itemMarginX;
         }
 
-        self.configuration.perfStart('buildVirtual Arrows');
+        configuration.perfStart('buildVirtual Arrows');
 
         //fill arrows
         for (const [, item] of itemsList) {
@@ -144,7 +146,7 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             }
         }
 
-        self.configuration.perfEnd('buildVirtual Arrows');
+        configuration.perfEnd('buildVirtual Arrows');
 
         // export results
         const limitReached = itemsList.size > VirtualSVG.maxBox || arrows.length > VirtualSVG.maxArrows;
@@ -189,10 +191,10 @@ function VirtualSVG(newItems = [], newRootItems = []) {
             this.tooManyArrows = false;
             this.tooManyBoxes = false;
 
-            self.configuration.perfStart('buildVirtual');
+            configuration.perfStart('buildVirtual');
             rootItems.forEach(item => addItem(item.name));
             build();
-            self.configuration.perfEnd('buildVirtual');
+            configuration.perfEnd('buildVirtual');
         },
         getArrows: function() {
             return arrows;

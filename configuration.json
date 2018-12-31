@@ -116,10 +116,16 @@
             "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
             "flags": "g"
         }, {
-            "pattern": "<script\\s[^>]*src=\"(.*?)\"></script>",
+            "pattern": "import\\s[\\s\\S]*?from\\s+['\"]((?:\\\\.|.)+?)['\"]",
             "flags": "g"
         }, {
-            "pattern": "<link\\s[^>]*href=\"(.*?)\">",
+            "pattern": "import\\s+['\"]((?:\\\\.|.)+?)['\"]",
+            "flags": "g"
+        }, {
+            "pattern": "<script\\s[^>]*src=\"(.*?)\"[^>]*></script>",
+            "flags": "g"
+        }, {
+            "pattern": "<link\\s[^>]*href=\"(.*?)\"[^>]*>",
             "flags": "g"
         }],
         "requireNameAdapter": [{

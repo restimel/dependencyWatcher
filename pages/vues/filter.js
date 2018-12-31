@@ -1,139 +1,140 @@
-(function() {
-	let uid = 0;
-	const filterItem = {
-		props: {
-			filter: {
-				type: String,
-				required: true,
-			},
-			filterRules: {
-				type: Function,
-				required: true,
-			},
-			items: Map,
-		},
-		data: function() {
-			const filter = this.filter;
-			return {
-				status: filter ? 'display' : 'edit',
-				hover: false,
-				value: filter,
-				suggestIdx: 0,
-			};
-		},
-		computed: {
-			suggestion: function() {
-				const text = this.value;
+import configuration from '../scripts/configuration.js';
 
-				if (!text) {
-					return [''];
-				} else {
-					let list = [];
-					const rules = text.split('::');
-					const currentRules = rules.slice(0, -1).join('::');
-					const strRules = currentRules ? currentRules + '::' : '';
-					const last = rules.get(Infinity);
+let uid = 0;
+const filterItem = {
+	props: {
+		filter: {
+			type: String,
+			required: true,
+		},
+		filterRules: {
+			type: Function,
+			required: true,
+		},
+		items: Map,
+	},
+	data: function() {
+		const filter = this.filter;
+		return {
+			status: filter ? 'display' : 'edit',
+			hover: false,
+			value: filter,
+			suggestIdx: 0,
+		};
+	},
+	computed: {
+		suggestion: function() {
+			const text = this.value;
+
+			if (!text) {
+				return [''];
+			} else {
+				let list = [];
+				const rules = text.split('::');
+				const currentRules = rules.slice(0, -1).join('::');
+				const strRules = currentRules ? currentRules + '::' : '';
+				const last = rules.get(Infinity);
+				const itemNames = this.itemNames;
+				const items = this.items;
+
+				if (!last) {
+					list = ['['];
+				} else
+				if (/^\[[^\]]*?$/.test(last)) {
+					list = this.filterRules(currentRules, itemNames);
+					list = list.reduce((list, item) => {
+						let type = items.get(item).type;
+						type = '[' + (type && type.name || 'undefined') + ']';
+
+						if (type.startsWith(last) && !list.includes(type)) {
+							list.push(type);
+						}
+						return list;
+					}, []);
+				} else
+				if (/^(?:\[[^\]]*?\])?[^:]*?$/.test(last)) {
 					const itemNames = this.itemNames;
-					const items = this.items;
+					const group = last.replace(/^(\[[^\]]*?\])?.*$/, '$1');
+					const file = last.slice(group.length);
 
-					if (!last) {
-						list = ['['];
-					} else
-					if (/^\[[^\]]*?$/.test(last)) {
-						list = this.filterRules(currentRules, itemNames);
-						list = list.reduce((list, item) => {
-							let type = items.get(item).type;
-							type = '[' + (type && type.name || 'undefined') + ']';
-
-							if (type.startsWith(last) && !list.includes(type)) {
-								list.push(type);
-							}
-							return list;
-						}, []);
-					} else
-					if (/^(?:\[[^\]]*?\])?[^:]*?$/.test(last)) {
-						const itemNames = this.itemNames;
-						const group = last.replace(/^(\[[^\]]*?\])?.*$/, '$1');
-						const file = last.slice(group.length);
-
-						list = this.filterRules(currentRules + '::' + group, itemNames);
-						list = list.reduce((list, item) => {
-							let suggest = group + item;
-							if (item.startsWith(file) && !list.includes(suggest)) {
-								list.push(suggest);
-							}
-							const label = (items.get(item) || {}).label;
-							suggest = group + label;
-							if (label.startsWith(file) && !list.includes(suggest)) {
-								list.push(suggest);
-							}
-							return list;
-						}, []);
-					} else
-					if (/^(?:\[[^\]]*?\])?[^:]*?:[^:]*:?$/.test(last)) {
-						const file = last.replace(/:[^:]*:?$/, '');
-						const subRule = last.slice(file.length);
-						list = [':children::', ':andChildren::', ':parents::', ':andParents::', ':and::', ':onlyIfNoChildren::', ':onlyIfNoParents::'].reduce((list, sub) => {
-							if (sub.startsWith(subRule)) {
-								list.push(file + sub);
-							}
-							return list;
-						}, []);
-					}
-
-					list = list.map(l => strRules + l);
-					return list;
+					list = this.filterRules(currentRules + '::' + group, itemNames);
+					list = list.reduce((list, item) => {
+						let suggest = group + item;
+						if (item.startsWith(file) && !list.includes(suggest)) {
+							list.push(suggest);
+						}
+						const label = (items.get(item) || {}).label;
+						suggest = group + label;
+						if (label.startsWith(file) && !list.includes(suggest)) {
+							list.push(suggest);
+						}
+						return list;
+					}, []);
+				} else
+				if (/^(?:\[[^\]]*?\])?[^:]*?:[^:]*:?$/.test(last)) {
+					const file = last.replace(/:[^:]*:?$/, '');
+					const subRule = last.slice(file.length);
+					list = [':children::', ':andChildren::', ':parents::', ':andParents::', ':and::', ':onlyIfNoChildren::', ':onlyIfNoParents::'].reduce((list, sub) => {
+						if (sub.startsWith(subRule)) {
+							list.push(file + sub);
+						}
+						return list;
+					}, []);
 				}
-			},
-			suggest: function() {
-				if (!this.value) {
-					return 'Enter filter rule here';
-				}
-				return this.suggestion[this.suggestIdx] || '';
-			},
-			itemNames: function() {
-				const list = [];
-				this.items.forEach(item => list.push(item.name));
+
+				list = list.map(l => strRules + l);
 				return list;
-			},
-			title: function() {
-				var filters = this.filterRules(this.value, this.itemNames);
-				return ['match ' + filters.length + ' files'];
-			},
+			}
 		},
-		methods: {
-			submitted: function() {
-				if (this.value) {
-					this.status = 'display';
-				}
-			},
-			incSuggestIndex: function() {
-				this.suggestIdx = (this.suggestIdx + 1) % this.suggestion.length;
-			},
-			decSuggestIndex: function() {
-				const suggestionLength = this.suggestion.length;
-				this.suggestIdx = (this.suggestIdx + suggestionLength - 1) % suggestionLength;
-			},
-			selectSuggest: function() {
-				const value = this.suggestion[this.suggestIdx];
-				if (value) {
-					this.value = value;
-					this.$emit('input', value);
-				}
-			},
+		suggest: function() {
+			if (!this.value) {
+				return 'Enter filter rule here';
+			}
+			return this.suggestion[this.suggestIdx] || '';
 		},
-		watch: {
-			suggestion: function(newSuggestion, oldSuggestion) {
-				let suggestIdx = this.suggestIdx;
-				const currentSuggest = oldSuggestion[suggestIdx];
-				suggestIdx = newSuggestion.indexOf(currentSuggest);
-				if (suggestIdx === -1) {
-					suggestIdx = 0;
-				}
-				this.suggestIdx = suggestIdx;
-			},
+		itemNames: function() {
+			const list = [];
+			this.items.forEach(item => list.push(item.name));
+			return list;
 		},
-		template: `
+		title: function() {
+			var filters = this.filterRules(this.value, this.itemNames);
+			return ['match ' + filters.length + ' files'];
+		},
+	},
+	methods: {
+		submitted: function() {
+			if (this.value) {
+				this.status = 'display';
+			}
+		},
+		incSuggestIndex: function() {
+			this.suggestIdx = (this.suggestIdx + 1) % this.suggestion.length;
+		},
+		decSuggestIndex: function() {
+			const suggestionLength = this.suggestion.length;
+			this.suggestIdx = (this.suggestIdx + suggestionLength - 1) % suggestionLength;
+		},
+		selectSuggest: function() {
+			const value = this.suggestion[this.suggestIdx];
+			if (value) {
+				this.value = value;
+				this.$emit('input', value);
+			}
+		},
+	},
+	watch: {
+		suggestion: function(newSuggestion, oldSuggestion) {
+			let suggestIdx = this.suggestIdx;
+			const currentSuggest = oldSuggestion[suggestIdx];
+			suggestIdx = newSuggestion.indexOf(currentSuggest);
+			if (suggestIdx === -1) {
+				suggestIdx = 0;
+			}
+			this.suggestIdx = suggestIdx;
+		},
+	},
+	template: `
 <li
 	@mouseenter="hover = true"
 	@mouseleave="hover = false"
@@ -189,10 +190,10 @@
 	</template>
 </li>
 		`
-	};
+};
 
-	const filterHelp = {
-		template: `
+const filterHelp = {
+	template: `
 <div>
     <header>How to create filter</header>
     <p>All file boxes which match a rule will not be displayed.</p>
@@ -241,64 +242,64 @@
         <li><code class="example">+*.js:onlyIfNoParents::</code> Display all files which end with ".js" and are not required by any one.</li>
     </ul>
 </div>
-        `
-	};
+	`
+};
 
-	const filterDialog = {
-		props: {
-			open: Boolean,
-			filters: Array,
-			items: Map,
-			filterRules: Function,
+const filterDialog = {
+	props: {
+		open: Boolean,
+		filters: Array,
+		items: Map,
+		filterRules: Function,
+	},
+	data: function() {
+		return {
+			displayedFilters: this.updateFilters(true),
+			uid: 0,
+		};
+	},
+	methods: {
+		addItem: function() {
+			this.displayedFilters.push({
+				id: 'added-' + this.uid++,
+				value: '',
+			});
 		},
-		data: function() {
-			return {
-				displayedFilters: this.updateFilters(true),
-				uid: 0,
-			};
+		save: function() {
+			this.$emit('save', this.displayedFilters.map(filter => filter.value));
 		},
-		methods: {
-			addItem: function() {
-				this.displayedFilters.push({
-					id: 'added-' + this.uid++,
-					value: '',
-				});
-			},
-			save: function() {
-				this.$emit('save', this.displayedFilters.map(filter => filter.value));
-			},
-			clear: function() {
-				this.filters.splice(0, this.filters.length);
-			},
-			remove: function(idx) {
-				this.displayedFilters.splice(idx, 1);
-			},
-			updateFilters: function(init) {
-				const array = this.filters.map(filter => {
-					return {
-						id: filter.id,
-						value: filter.value,
-					};
-				});
-				if (!init) {
-					this.displayedFilters = array;
-				}
-				return array;
-			},
-			updateValue: function(idx, value) {
-				this.displayedFilters[idx].value = value;
-			},
+		clear: function() {
+			this.filters.splice(0, this.filters.length);
 		},
-		watch: {
-			filters: function() {
-				this.updateFilters();
-			},
+		remove: function(idx) {
+			this.displayedFilters.splice(idx, 1);
 		},
-		components: {
-			'li-filter': filterItem,
-			'FilterHelp': filterHelp,
+		updateFilters: function(init) {
+			const array = this.filters.map(filter => {
+				return {
+					id: filter.id,
+					value: filter.value,
+				};
+			});
+			if (!init) {
+				this.displayedFilters = array;
+			}
+			return array;
 		},
-		template: `
+		updateValue: function(idx, value) {
+			this.displayedFilters[idx].value = value;
+		},
+	},
+	watch: {
+		filters: function() {
+			this.updateFilters();
+		},
+	},
+	components: {
+		'li-filter': filterItem,
+		'FilterHelp': filterHelp,
+	},
+	template: `
 <pop-up
 	title="Filter"
 	:open="open"
@@ -339,54 +340,54 @@
         <button @click="save">Apply</button>
     </template>
 </pop-up>
-		`
-	};
+	`
+};
 
-	Vue.component('search-files', {
-		props: {
-			items: {
-				type: Map,
-				required: true,
-			},
-			value: String,
+Vue.component('search-files', {
+	props: {
+		items: {
+			type: Map,
+			required: true,
 		},
-		data: function () {
-			return {
-				currentValue: '',
-				listId: 'itemsDataList' + (uid++),
-			};
+		value: String,
+	},
+	data: function () {
+		return {
+			currentValue: '',
+			listId: 'itemsDataList' + (uid++),
+		};
+	},
+	methods: {
+		submitted: function () {
+			const currentValue = this.currentValue;
+			if (currentValue && this.items.get(currentValue)) {
+				this.$emit('submitted', currentValue);
+			}
 		},
-		methods: {
-			submitted: function () {
-				const currentValue = this.currentValue;
-				if (currentValue && this.items.get(currentValue)) {
-					this.$emit('submitted', currentValue);
-				}
-			},
-			changeValue: function () {
-				this.$emit('input', this.currentValue);
-			},
+		changeValue: function () {
+			this.$emit('input', this.currentValue);
 		},
-		computed: {
-			searchItems: function () {
-				const currentValue = this.currentValue.toLowerCase();
-				let list = Array.from(this.items);
-				if (currentValue) {
-					list = list.filter(item => item[0].toLowerCase().includes(currentValue));
-				}
+	},
+	computed: {
+		searchItems: function () {
+			const currentValue = this.currentValue.toLowerCase();
+			let list = Array.from(this.items);
+			if (currentValue) {
+				list = list.filter(item => item[0].toLowerCase().includes(currentValue));
+			}
 
-				return list.slice(0, configuration.maxItemOptionsList);
-			},
+			return list.slice(0, configuration.maxItemOptionsList);
 		},
-		watch: {
-			value: function () {
-				this.currentValue = this.value;
-			},
+	},
+	watch: {
+		value: function () {
+			this.currentValue = this.value;
 		},
-		components: {
-			'dialog-filter': filterDialog,
-		},
-		template: `
+	},
+	components: {
+		'dialog-filter': filterDialog,
+	},
+	template: `
 <div class="search-files">
 	<input
 		type="search"
@@ -403,73 +404,73 @@
 		>{{ item.name }}</option>
 	</datalist>
 </div>
-		`
-	});
+	`
+});
 
-	Vue.component('filter-form', {
-		props: {
-			items: {
-				type: Map,
-				required: true,
-			},
-			filters: {
-				type: Array,
-				required: true,
-			},
-			filterRules: {
-				type: Function,
-				required: true,
-			},
-			selectedItem: [String, Array],
+Vue.component('filter-form', {
+	props: {
+		items: {
+			type: Map,
+			required: true,
 		},
-		data: function() {
-			return {
-				currentValue: '',
-				openFilter: false,
-			};
+		filters: {
+			type: Array,
+			required: true,
 		},
-		methods: {
-			submitted: function() {
-				const currentValue = this.currentValue;
-				if (currentValue && this.items.get(currentValue)) {
-					this.$emit('selection', currentValue);
-				}
-			},
-			saveFilter: function(value) {
-				this.$emit('saveFilter', value);
-				this.openFilter = false;
+		filterRules: {
+			type: Function,
+			required: true,
+		},
+		selectedItem: [String, Array],
+	},
+	data: function() {
+		return {
+			currentValue: '',
+			openFilter: false,
+		};
+	},
+	methods: {
+		submitted: function() {
+			const currentValue = this.currentValue;
+			if (currentValue && this.items.get(currentValue)) {
+				this.$emit('selection', currentValue);
 			}
 		},
-		computed: {
-			filterTitle: function() {
-				const filtersLength = this.filterLength;
-				if (filtersLength) {
-					return filtersLength + ' rules are enabled';
-				} else {
-					return 'Set filter to hide some elements';
-				}
-			},
-		},
-		watch: {
-			selectedItem: function(selectedItems) {
-				let selectedItem;
-				if (selectedItems instanceof Array) {
-					selectedItem = selectedItems[0];
-				} else {
-					selectedItem = selectedItems;
-				}
-				if (selectedItem !== this.currentValue) {
-					this.currentValue = '';
-				}
-			},
-			openFilter: function() {
-				this.$emit('showHelp', this.openFilter ? 'Workspaces' : '');
+		saveFilter: function(value) {
+			this.$emit('saveFilter', value);
+			this.openFilter = false;
+		}
+	},
+	computed: {
+		filterTitle: function() {
+			const filtersLength = this.filterLength;
+			if (filtersLength) {
+				return filtersLength + ' rules are enabled';
+			} else {
+				return 'Set filter to hide some elements';
 			}
 		},
-		components: {
-			'dialog-filter': filterDialog,
+	},
+	watch: {
+		selectedItem: function(selectedItems) {
+			let selectedItem;
+			if (selectedItems instanceof Array) {
+				selectedItem = selectedItems[0];
+			} else {
+				selectedItem = selectedItems;
+			}
+			if (selectedItem !== this.currentValue) {
+				this.currentValue = '';
+			}
 		},
-		template: `
+		openFilter: function() {
+			this.$emit('showHelp', this.openFilter ? 'Workspaces' : '');
+		}
+	},
+	components: {
+		'dialog-filter': filterDialog,
+	},
+	template: `
 <div class="filterArea">
 	<search-files
 		class="filter-files"
@@ -495,6 +496,5 @@
 		@save="saveFilter"
 	></dialog-filter>
 </div>
-		`
-	});
-})();
+	`
+});

@@ -1,5 +1,5 @@
-function shortestPath(items, item1, item2) {
-    const costMax = 2 ** 32;
+export default function shortestPath(items, item1, item2) {
+    const costMax = 2 ** 31;
     const costItems = new Map();
 
     const listDone = new Map();
