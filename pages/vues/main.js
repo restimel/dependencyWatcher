@@ -1,15 +1,11 @@
+import '../scripts/vueSetup.js';
 import '../vues/svg.js';
 import '../vues/filter.js';
 import '../vues/details.js';
 import '../vues/code.js';
 import configuration from '../scripts/configuration.js';
 import shortestPath from '../scripts/shortestPath.js';
-
-Vue.directive('focus', {
-    inserted: function(el) {
-        el.focus();
-    },
-});
+import './components/popup.js';
 
 Vue.component('configuration', {
     props: {
@@ -111,44 +107,6 @@ const notification = new Vue({
     `
 });
 self.notification = notification;
-
-Vue.component('pop-up', {
-    props: {
-        title: String,
-        open: {
-            type: Boolean,
-            default: true,
-        }
-    },
-    methods: {
-        keys: function (evt) {
-            if (this.open) {
-                switch (evt.key) {
-                    case 'Escape': this.$emit('close'); break;
-                    case 'Enter': this.$emit('save'); break;
-                }
-            }
-        }
-    },
-    created: function () {
-        document.addEventListener('keydown', this.keys);
-    },
-    destroyed: function () {
-        document.removeEventListener('keydown', this.keys);
-    },
-    template: `
-<dialog class="dialog-pop-up" :open="open">
-    <header>{{ title }}</header>
-    <slot name="content"></slot>
-    <menu class="menu-pop-up">
-        <slot name="menu">
-            <button @click="$emit('close')">Cancel</button>
-            <button @click="$emit('save')">Apply</button>
-        </slot>
-    </menu>
-</dialog>
-    `
-});
 
 Vue.component('dependency-watcher', {
     data: function() {
