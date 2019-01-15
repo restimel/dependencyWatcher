@@ -149,3 +149,17 @@ exports.generateChallenge = function(salt, password, encoding) {
 
 	return sha256(text, encoding);
 };
+
+exports.reduceRelativePath = function(path) {
+	path = path.replace(/\/\.(?=\/)/g, '');
+	var refPath;
+	var changedPath = path;
+
+	do {
+		refPath = changedPath;
+		changedPath = changedPath.replace(/\/(?!\.\.)[^/]+\/\.\.\//g, '/');
+	} while(changedPath !== refPath);
+	path = changedPath;
+
+	return path;
+};

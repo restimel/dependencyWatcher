@@ -121,7 +121,7 @@ You can read the [files analyze workflow](technical.md#workflow) to understand h
   }]
   ```
 
-* **requireMatcher** _([RegExp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
+* **requireMatcher** _([RequireRgxp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
 It is possible to use _prettyOutput_ to format the result.
 
   example:
@@ -138,6 +138,7 @@ It is possible to use _prettyOutput_ to format the result.
     "output": "$1"
   }]
   ```
+  _To transform strings like `html!toto.html` in `toto.html` (pattern used in requireJS)_
 
 * **types** _([Type] [])_: set a type for given file. It helps to groups files in categories. The matcher will use the id of the file as source.
 
@@ -182,6 +183,11 @@ It is possible to use _prettyOutput_ to format the result.
 * **Replace**: describe a replacements
   * matcher _([RegExp])_: If the input match this regexp, the replacement will be executed. (split and prettyOutput are ignored for this RegExp)
   * output _(string)_: the string which will replace the pattern.
+
+[RequireRgxp]:#RequireRgxp
+<a name="RequireRgxp"></a>
+* **RequireRgxp**: describe a requirement _(it extends [RegExp])_
+  * relativePath _(boolean)_ (default: `false`): If true `./` or `../` are estimated from the current file path. Otherwise the path is estimated as it is.
 
 [List]:#List
 <a name="List"></a>

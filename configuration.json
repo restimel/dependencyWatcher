@@ -57,8 +57,8 @@
             }]
         },
         "fileNameAdapter": [{
-            "matcher": {"pattern": ".*/modules/(.*)$"},
-            "output": "./modules/$1"
+            "matcher": {"pattern": ".*/pages/(.*)$"},
+            "output": "$1"
         }, {
             "matcher": {"pattern": "^\\./(?:\\./)+"},
             "output": "./"
@@ -114,26 +114,33 @@
         }],
         "requireMatcher": [{
             "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
-            "flags": "g"
+            "flags": "g",
+            "relativePath": true,
+            "rootPath": "pages/"
         }, {
             "pattern": "import\\s[\\s\\S]*?from\\s+['\"]((?:\\\\.|.)+?)['\"]",
-            "flags": "g"
+            "flags": "g",
+            "relativePath": true,
+            "rootPath": "pages/"
         }, {
             "pattern": "import\\s+['\"]((?:\\\\.|.)+?)['\"]",
-            "flags": "g"
+            "flags": "g",
+            "relativePath": true,
+            "rootPath": "pages/"
         }, {
             "pattern": "<script\\s[^>]*src=\"(.*?)\"[^>]*></script>",
-            "flags": "g"
+            "flags": "g",
+            "relativePath": true,
+            "rootPath": "pages/"
         }, {
             "pattern": "<link\\s[^>]*href=\"(.*?)\"[^>]*>",
-            "flags": "g"
+            "flags": "g",
+            "relativePath": true,
+            "rootPath": "pages/"
         }],
         "requireNameAdapter": [{
-            "matcher": {"pattern": "\\./(?!pages/)"},
-            "output": "./pages/"
-        }, {
-            "matcher": {"pattern": "^(?!\\./|/)"},
-            "output": "./pages/"
+            "matcher": {"pattern": "(/[^/\\.])$"},
+            "output": "$1.js"
         }]
     }, {
 

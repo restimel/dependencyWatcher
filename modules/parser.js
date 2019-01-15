@@ -68,6 +68,9 @@ Parser.prototype.addDependency = function(dependencyFile, currentFile) {
         return id.replace(adapter.matcher.r, adapter.output);
     }, dependencyFile);
 
+    dependencyFile = tools.reduceRelativePath(dependencyFile);
+    logger.trace('parser.addDependency: ' + dependencyFile);
+
     dependFile = this.findFile(dependencyFile);
 
     if (!dependFile) {
@@ -141,13 +144,15 @@ Parser.prototype.parseRgx = function(parser, str, callback) {
 };
 
 Parser.prototype.parseFile = function(path, content) {
-    var pathId, items, fileObj, type;
+    var pathId, fileObj, type, pathDir;
 
     logger.info('parser.parseFile: path → ' + path);
 
     pathId = config.fileNameAdapter.reduce(function(id, adapter) {
         return id.replace(adapter.matcher.r, adapter.output);
     }, path);
+
+    logger.trace('parser.parseFile: path id → ' + pathId);
 
     fileObj = this.findFile(pathId);
     if (!fileObj) {
@@ -162,8 +167,15 @@ Parser.prototype.parseFile = function(path, content) {
         fileObj.type = type;
     }
 
+    pathDir = pathId.replace(/[^/]+$/, '');
+
     config.requireMatcher.forEach(function(matcher) {
         this.parseRgx(matcher, content, function(depFile) {
+            if (depFile.startsWith('/')) {
+                depFile = depFile.slice(1);
+            } else if (matcher.relativePath) {
+                depFile = pathDir + depFile;
+            }
             this.addDependency(depFile, fileObj);
         }.bind(this))
     }, this);
