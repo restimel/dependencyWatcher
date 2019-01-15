@@ -1,11 +1,11 @@
-import '../scripts/vueSetup.js';
-import '../vues/svg.js';
-import '../vues/filter.js';
-import '../vues/details.js';
-import '../vues/code.js';
-import configuration from '../scripts/configuration.js';
-import shortestPath from '../scripts/shortestPath.js';
-import './components/popup.js';
+import '/scripts/vueSetup.js';
+import '/vues/svg.js';
+import '/vues/filter.js';
+import '/vues/details.js';
+import '/vues/code.js';
+import configuration from '/scripts/configuration.js';
+import shortestPath from '/scripts/shortestPath.js';
+import '/vues/components/popup.js';
 
 Vue.component('configuration', {
     props: {

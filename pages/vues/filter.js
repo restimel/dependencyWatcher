@@ -1,4 +1,4 @@
-import configuration from '../scripts/configuration.js';
+import configuration from '/scripts/configuration.js';
 
 let uid = 0;
 const filterItem = {

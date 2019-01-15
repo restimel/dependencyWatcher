@@ -1,4 +1,4 @@
-import tools from '../scripts/tools.js';
+import tools from '/scripts/tools.js';
 
 const extension = {
     'js': 'javascript',

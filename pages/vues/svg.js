@@ -1,5 +1,5 @@
-import configuration from '../scripts/configuration.js';
-import VirtualSVG from '../scripts/virtualSVG.js';
+import configuration from '/scripts/configuration.js';
+import VirtualSVG from '/scripts/virtualSVG.js';
 
 const boxPadding = 10;
 

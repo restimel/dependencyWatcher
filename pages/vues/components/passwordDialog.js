@@ -1,5 +1,5 @@
-import '../../scripts/vueSetup.js';
-import '../../vues/components/popup.js';
+import '/scripts/vueSetup.js';
+import '/vues/components/popup.js';
 
 const passwordDialog = new Vue({
     el: '#passwordDialog',

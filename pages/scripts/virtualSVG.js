@@ -1,4 +1,4 @@
-import configuration from './configuration.js';
+import configuration from '/scripts/configuration.js';
 
 export default function VirtualSVG(newItems = [], newRootItems = []) {
     let columns = [];
