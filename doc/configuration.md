@@ -121,13 +121,23 @@ You can read the [files analyze workflow](technical.md#workflow) to understand h
   }]
   ```
 
-* **requireMatcher** _([RequireRgxp] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
+* **requireMatcher** _([RequireRgxp] | [RequireString] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
 It is possible to use _prettyOutput_ to format the result.
+
+Instead of the object pattern which define a regexp, it is possible to use common pattern which are already set in the application (it is easier to configure and limit mistakes). Watch [RequireString] to know the full supported list of pre-configured pattern
 
   example:
   ```json
   "requireMatcher": [{"pattern": "require\\(['\"](.*?)['\"]\\)", "flags": "g"}, {"pattern": "define\\(\\[['\"](.*?)['\"]\\]\\)"}]
   ```
+
+  example with pre-configured pattern:
+  ```json
+  "requireMatcher": ["requireJS", "ESmodule"]
+  ```
+
+_(it is possible to mix regexp pattern and pre-configured pattern)_
+
 
 * **requireNameAdapter** _([Replace] [])_: Format the path got in requireMatcher to match unique file name. The source is the source code of the file.
 
@@ -188,6 +198,17 @@ It is possible to use _prettyOutput_ to format the result.
 <a name="RequireRgxp"></a>
 * **RequireRgxp**: describe a requirement _(it extends [RegExp])_
   * relativePath _(boolean)_ (default: `false`): If true `./` or `../` are estimated from the current file path. Otherwise the path is estimated as it is.
+
+[RequireString]:#RequireString
+<a name="RequireString"></a>
+* **RequireString** _(string)_: Use a pre-configured pattern instead of RequireRgxp.
+  * `"ES Module"`: The ES module relation system (see [MDN description](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import))
+  * `"JS Module"`: _It is an alias of "ES module"_
+  * `"commonJS"`: The main module relation system in NodeJS (see [Wikipedia definition](https://en.wikipedia.org/wiki/CommonJS))
+  * `"AMD"`: (Asynchronous Module Definition) [wikipedia définition](https://en.wikipedia.org/wiki/Asynchronous_module_definition)
+  * `"HTML"`: Get all text file linked to an HTML page (links from `<script>`, `<link>`, `<iframe>`, ...) but not (`<img>`, `<video>`, `<audio>`, ...)
+  * `"HTML ressources"`: Get all ressources file from an HTML page (links from `<a>`, `<img>`, `<video>`, ...) but not (`<scrip>`, `<link>`, ...).
+  _It does not support `<base>` tag._
 
 [List]:#List
 <a name="List"></a>

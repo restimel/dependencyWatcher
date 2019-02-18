@@ -31,10 +31,7 @@
                 "writeFile": "password"
             }
         }],
-        "requireMatcher": [{
-            "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
-            "flags": "g"
-        }],
+        "requireMatcher": ["commonJS"],
         "requireNameAdapter": [{
             "matcher": {"pattern": "\\./(?!modules/)"},
             "output": "./modules/"
@@ -112,32 +109,7 @@
                 "writeFile": false
             }
         }],
-        "requireMatcher": [{
-            "pattern": "require\\(['\"]((?:\\\\.|.)+?)['\"]\\)",
-            "flags": "g",
-            "relativePath": true,
-            "rootPath": "pages/"
-        }, {
-            "pattern": "import\\s[\\s\\S]*?from\\s+['\"]((?:\\\\.|.)+?)['\"]",
-            "flags": "g",
-            "relativePath": true,
-            "rootPath": "pages/"
-        }, {
-            "pattern": "import\\s+['\"]((?:\\\\.|.)+?)['\"]",
-            "flags": "g",
-            "relativePath": true,
-            "rootPath": "pages/"
-        }, {
-            "pattern": "<script\\s[^>]*src=\"(.*?)\"[^>]*></script>",
-            "flags": "g",
-            "relativePath": true,
-            "rootPath": "pages/"
-        }, {
-            "pattern": "<link\\s[^>]*href=\"(.*?)\"[^>]*>",
-            "flags": "g",
-            "relativePath": true,
-            "rootPath": "pages/"
-        }],
+        "requireMatcher": ["ES module", "HTML"],
         "requireNameAdapter": [{
             "matcher": {"pattern": "(/[^/\\.])$"},
             "output": "$1.js"
@@ -173,9 +145,7 @@
         "requireNameAdapter": []
     }],
     "security": {
-        "passwordFile": "password.txt",
-        "key": "./security/key.pem",
-        "cert": "./security/cert.pem"
+        "passwordFile": "password.txt"
     },
     "log": "test.log"
 }

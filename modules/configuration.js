@@ -20,11 +20,7 @@ var defaultConfiguration = {
 	/* Configure type groups */
 	types: [],
 	/* Describe what should be analysed to be considered as a dependency. */
-	requireMatcher: [{
-		pattern: "require\\(['\"]((?:\\\\.|.)*?)['\"]\\)"
-	}, {
-		pattern: "define\\(\\[['\"]((?:\\\\.|.)*?)['\"]\\]\\)"
-	}],
+	requireMatcher: ['ES Module'],
 	/* Format require name to match file "id" */
 	requireNameAdapter: []
 };
@@ -226,6 +222,7 @@ configuration.readConfig = function(configPath) {
 			var defaultConf = tools.clone(defaultConfiguration);
 			return tools.extend(defaultConf, conf);
 		});
+		logger.debug('configuration:\n' + JSON.stringify(fileObj.configuration[0], '', '  '));
 
 		tools.extend(configuration, fileObj);
 		updatePaths();
@@ -275,6 +272,119 @@ function replaceRegexp(obj) {
 	return obj;
 }
 
+function replacePattern(str) {
+	switch(str.toLowerCase()) {
+		case 'es module':
+		case 'esmodule':
+		case 'module es':
+		case 'modulees':
+		case 'js module':
+		case 'jsmodule':
+		case 'module js':
+		case 'modulejs':
+			return [{
+				patternName: 'simple import',
+				flags: 'g',
+				r: /\bimport\s+(?:[^;]*?)from\s+['"]((?:\\.|[^\\])+?)['"]/g,
+			}, {
+				patternName: 'import for side effect',
+				flags: 'g',
+				r: /\bimport\s+['"]((?:\\.|[^\\])+?)['"]/g,
+			}, {
+				patternName: 'dynamic import',
+				flags: 'g',
+				r: /\bimport\s*\(\s*['"]((?:\\.|[^\\])+?)['"]/g,
+			}];
+		case 'commonjs':
+		case 'common js':
+			return [{
+				patternName: 'simple require',
+				flags: 'g',
+				r: /\brequire\s*\(\s*['"]((?:\\.|[^\\])+?)['"]\s*\)/g,
+			}];
+		case 'amd':
+			return [{
+				patternName: 'simple require',
+				flags: 'g',
+				r: /\brequire\s*\(\s*['"]((?:\\.|[^\\])+?)['"]\s*\)/g,
+			}, {
+				patternName: 'complexe require',
+				flags: 'g',
+				r: /\brequire\s*\(\s*\[[\s\S]*?\]/g,
+				split: {
+					"pattern": 'parse string',
+					flags: 'g',
+					r: /['"]((?:\\.|[^\\])+?)['"]/g,
+				},
+			}, {
+				patternName: 'define',
+				flags: 'g',
+				r: /\bdefine\s*\(\s*\[[\s\S]*?\]/g,
+				split: {
+					patternName: 'parse string',
+					flags: 'g',
+					r: /['"]((?:\\.|[^\\])+?)['"]/g,
+				},
+			}];
+		case 'html':
+			return [{
+				patternName: 'Elements with src',
+				flags: 'g',
+				r: /<\s*(?:script|iframe|frame|embed)\b[^>]+src\s*=\s*["']([^"']+?)["']/g,
+			}, {
+				patternName: 'Elements with href',
+				flags: 'g',
+				r: /<\s*(?:link)\b[^>]+href\s*=\s*["']([^"']+?)["']/g,
+			}, {
+				patternName: 'Elements with data',
+				flags: 'g',
+				r: /<\s*(?:object)\b[^>]+data\s*=\s*["']([^"']+?)["']/g,
+			}, {
+				patternName: 'Elements with code',
+				flags: 'g',
+				r: /<\s*(?:applet)\b[^>]+code\s*=\s*["']([^"']+?)["']/g,
+			}];
+		case 'html ressources':
+			return [{
+				patternName: 'Elements with src',
+				flags: 'g',
+				r: /<\s*(?:audio|img|source|track|video)\b[^>]+src\s*=\s*["']([^"']+?)["']/g,
+			}, {
+				patternName: 'Elements with href',
+				flags: 'g',
+				r: /<\s*(?:a)\b[^>]+href\s*=\s*["']([^"']+?)["']/g,
+			}];
+
+		default:
+			logger.error('configuration (requireMatcher): pattern "' + str + '" is unknown');
+			return {
+				patternName: 'default pattern',
+				r: /$^/, // should match nothing
+			};
+	}
+}
+
+function replaceRgxPattern(obj) {
+	if (obj instanceof Array) {
+		return obj.reduce(function(list, pattern) {
+			var rslt = replaceRgxPattern(pattern);
+
+			if (!Array.isArray(rslt)) {
+				list.push(rslt);
+			} else {
+				list.push.apply(list, rslt);
+			}
+
+			return list;
+		}, []);
+	}
+
+	if (typeof obj === 'string') {
+		return replacePattern(obj);
+	}
+	return replaceRegexp(obj);
+}
+
 function updatePaths() {
 	configuration.configuration.forEach(function(conf) {
 		conf.rootFolders = replacePath(conf.rootFolders);
@@ -300,7 +410,7 @@ function convertObjects() {
 		conf.types.forEach(function(type) {
 			type.matcher = replaceRegexp(type.matcher);
 		});
-		conf.requireMatcher = replaceRegexp(conf.requireMatcher);
+		conf.requireMatcher = replaceRgxPattern(conf.requireMatcher);
 		conf.fileFilter.whitelist = replaceRegexp(conf.fileFilter.whitelist);
 		conf.fileFilter.blacklist = replaceRegexp(conf.fileFilter.blacklist);
 	});
