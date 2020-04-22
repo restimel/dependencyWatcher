@@ -285,15 +285,15 @@ function replacePattern(str) {
 			return [{
 				patternName: 'simple import',
 				flags: 'g',
-				r: /\bimport\s+(?:[^;]*?)from\s+['"]((?:\\.|[^\\])+?)['"]/g,
+				r: /\b(?:import|export)\s+(?:[^;]*?)from\s+['"]((?:\\.|[^\\])+?)['"]/g,
 			}, {
 				patternName: 'import for side effect',
 				flags: 'g',
-				r: /\bimport\s+['"]((?:\\.|[^\\])+?)['"]/g,
+				r: /\b(?:import|export)\s+['"]((?:\\.|[^\\])+?)['"]/g,
 			}, {
 				patternName: 'dynamic import',
 				flags: 'g',
-				r: /\bimport\s*\(\s*['"]((?:\\.|[^\\])+?)['"]/g,
+				r: /\b(?:import|export)\s*\(\s*['"]((?:\\.|[^\\])+?)['"]/g,
 			}];
 		case 'commonjs':
 		case 'common js':
@@ -301,6 +301,7 @@ function replacePattern(str) {
 				patternName: 'simple require',
 				flags: 'g',
 				r: /\brequire\s*\(\s*['"]((?:\\.|[^\\])+?)['"]\s*\)/g,
+				relativePath: true,
 			}];
 		case 'amd':
 			return [{
@@ -353,6 +354,17 @@ function replacePattern(str) {
 				patternName: 'Elements with href',
 				flags: 'g',
 				r: /<\s*(?:a)\b[^>]+href\s*=\s*["']([^"']+?)["']/g,
+			}];
+		case 'c':
+			return [{
+				patternName: 'c include package',
+				flags: 'g',
+				r: /#include\s+<([^>]+)>/g,
+			}, {
+				patternName: 'c include file',
+				flags: 'g',
+				r: /#include\s+"([^"]+)"/g,
+				relativePath: true,
 			}];
 
 		default:

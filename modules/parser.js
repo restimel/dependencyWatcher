@@ -167,14 +167,14 @@ Parser.prototype.parseFile = function(path, content) {
         fileObj.type = type;
     }
 
-    pathDir = pathId.replace(/[^/]+$/, '');
+    pathDir = pathId.trim().replace(/[^/]+$/, '');
 
     config.requireMatcher.forEach(function(matcher) {
         this.parseRgx(matcher, content, function(depFile) {
             if (depFile.startsWith('/')) {
                 depFile = depFile.slice(1);
             } else if (matcher.relativePath) {
-                depFile = pathDir + depFile;
+                depFile = pathDir + depFile.trim();
             }
             this.addDependency(depFile, fileObj);
         }.bind(this))
