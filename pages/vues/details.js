@@ -687,6 +687,56 @@ const configurationTab = {
     `
 };
 
+const listTab = {
+    props: {
+        itemData: Object,
+        items: Map,
+    },
+    data: function() {
+        return {
+            show: 'fullName',
+        };
+    },
+    computed: {
+        visibleItems() {
+            return Array.from(this.items.values()).filter((item) => item.visible);
+        },
+        listItems() {
+            return this.visibleItems.map((item) => {
+                switch(this.show) {
+                    case 'label': return item.label;
+                    case 'fullName':
+                    default: return item.name;
+                }
+            }).join('\n');
+        },
+    },
+    template: `
+<div>
+    <header>List visible items</header>
+    <form
+        class="list__form-container"
+        @submit.prevent
+    >
+        <textarea
+            class="list-area"
+            placeholder="No items are visible yet"
+            readonly
+        >{{listItems}}</textarea>
+        <fieldset>
+            <legend>Display</legend>
+            <label><input type="radio" name="list-method" :checked="show==='fullName'" @input="show='fullName'">
+                Full-name
+            </label><br>
+            <label><input type="radio" name="list-method" :checked="show==='label'" @input="show='label'">
+                Label
+            </label><br>
+        </fieldset>
+    </form>
+</div>
+    `
+};
+
 Vue.component('aside-content', {
     props: {
         selectedItems: [String, Array],
@@ -709,6 +759,11 @@ Vue.component('aside-content', {
             }, {
                 name: 'Workspaces',
                 id: 'item-workspaces',
+                visible: true,
+            }, {
+                name: '',
+                className: 'fa fa-list',
+                id: 'tab-list',
                 visible: true,
             }, {
                 name: '',
@@ -770,6 +825,7 @@ Vue.component('aside-content', {
         'item-groups': groups,
         'item-workspaces': workspaces,
         'tab-configuration': configurationTab,
+        'tab-list': listTab,
         'item-prepare-show-path': prepareShowPath,
     },
     template: `

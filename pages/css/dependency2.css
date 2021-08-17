@@ -472,3 +472,11 @@ header.notVisible {
     padding: 0.5em;
     width: 700px;
 }
+
+.list__form-container {
+    padding: 10px;
+}
+.list-area {
+    width: 100%;
+    height: 500px;
+}
