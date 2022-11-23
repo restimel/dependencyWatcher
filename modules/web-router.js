@@ -44,7 +44,8 @@ function server(eventEmitter, port, options) {
                                 requiredBy: file.requiredBy,
                                 type: file.type,
                                 canReadFile: file.canReadFile,
-                                canWriteFile: file.canWriteFile
+                                canWriteFile: file.canWriteFile,
+                                shortPath: file.shortPath,
                             };
                         });
                         servlet.sendHTML_(req, res, JSON.stringify(data), 200);

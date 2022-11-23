@@ -17,6 +17,8 @@ var defaultConfiguration = {
 	fileNameAdapter: [],
 	/* Format files name to be more understandable. The result will be displayed in boxes */
 	fileLabelAdapter: [],
+	/* Format path to what it should be displayed (we probably don't want to display the real full-path) */
+	pathAdapter: [],
 	/* Configure type groups */
 	types: [],
 	/* Describe what should be analysed to be considered as a dependency. */
@@ -86,6 +88,9 @@ configuration.checkConfig = function() {
 			}
 			if (!isArray(conf.fileLabelAdapter)) {
 				errors.push('configuration['+idx+'].fileLabelAdapter');
+			}
+			if (conf.pathAdapter && !isArray(conf.pathAdapter)) {
+				errors.push('configuration['+idx+'].pathAdapter');
 			}
 			if (!isArray(conf.types)) {
 				errors.push('configuration['+idx+'].types');
@@ -414,6 +419,9 @@ function convertObjects() {
 			rpl.matcher = replaceRegexp(rpl.matcher);
 		});
 		conf.fileLabelAdapter.forEach(function(rpl) {
+			rpl.matcher = replaceRegexp(rpl.matcher);
+		});
+		conf.pathAdapter.forEach(function(rpl) {
 			rpl.matcher = replaceRegexp(rpl.matcher);
 		});
 		conf.requireNameAdapter.forEach(function(rpl) {

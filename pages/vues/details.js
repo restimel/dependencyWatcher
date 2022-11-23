@@ -148,7 +148,10 @@ const details = {
         },
         subTitle: function() {
             const name = this.item.name;
-            return this.item.label === this.item.name ? '' : this.item.name;
+            return this.item.label === name ? '' : name;
+        },
+        pathTitle: function() {
+            return this.item.shortPath || '';
         },
         depLength: function () {
             const dependencies = this.item.dependencies;
@@ -200,6 +203,7 @@ const details = {
 <div>
     <header
         :class="{notVisible: !item.visible}"
+        :title="pathTitle"
     >
         <h3><span>{{ title }}</span></h3>
         <h5><span>{{ subTitle }}</span></h5>

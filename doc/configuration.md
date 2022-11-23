@@ -121,6 +121,17 @@ You can read the [files analyze workflow](technical.md#workflow) to understand h
   }]
   ```
 
+* **pathAdapter** _([Replace] [])_: Format the path of files in order to have the complete path but without showing every thing of your server architecture. The source is the file path.
+
+  example:
+  ```json
+  "pathAdapter": [{
+    "matcher": {"pattern": "^.*my-project/(.+)$"},
+    "output": "$1"
+  }]
+  ```
+  _To keep the whole full-path you can define: `"pattern": "^(.+)$"`_
+
 * **requireMatcher** _([RequireRgxp] | [RequireString] [])_: Tell the parser what should be analysed to be considered as a dependency. The result $1 of the regexp must be the required file path.
 It is possible to use _prettyOutput_ to format the result.
 

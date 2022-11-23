@@ -53,6 +53,7 @@ Parser.prototype.addFile = function(fileName) {
             name: 'undefined',
         },
         path: '',
+        shortPath: '',
         canReadFile: false,
         canWriteFile: false
     };
@@ -159,6 +160,11 @@ Parser.prototype.parseFile = function(path, content) {
         fileObj = this.addFile(pathId);
     }
     fileObj.path = path;
+    if (config.pathAdapter && config.pathAdapter.length) {
+        fileObj.shortPath = config.pathAdapter.reduce(function(result, adapter) {
+            return result.replace(adapter.matcher.r, adapter.output);
+        }, path);
+    }
 
     type = config.types.find(function(type) {
         return type.matcher.r.test(path);
