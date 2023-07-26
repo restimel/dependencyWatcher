@@ -94,11 +94,21 @@ Vue.component('file-list', {
                     return item && item.visible;
                 });
             }
+
+            const ids = new Set();
+            list = list.filter((file) => {
+                if (ids.has(file)) {
+                    return false;
+                }
+                ids.add(file);
+                return true;
+            });
+
             return list;
         },
         nbHidden: function() {
             return this.files.length - this.filesFiltered.length;
-        }
+        },
     },
     components: {
         'file-li': fileLi,
@@ -114,7 +124,7 @@ Vue.component('file-list', {
         :file="file"
         @click="$emit('selection', file)"
         @addFilter="(...values)=>$emit('addFilter', ...values)"
-        :key="file"
+        :key="'list--' + file"
     ></file-li>
     <li v-if="nbHidden > 0"
         class="linkToItem"
